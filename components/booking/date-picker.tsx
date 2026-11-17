@@ -1,12 +1,13 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { DayAvailability } from "@/lib/booking/availability";
-import { INTL_LOCALE, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
-import { formatNumber, formatVisitDate, t } from "@/lib/i18n/format";
+import type { DateLabels } from "@/lib/i18n/date-labels";
+import { formatFullDate, formatMonthYear } from "@/lib/i18n/date-parts";
+import { formatNumber, t } from "@/lib/i18n/format";
 import { addDays, dayOfWeek, todayInVientiane } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
@@ -31,14 +32,14 @@ export function DatePickerWithAvailability({
   onChange,
   onDayInfo,
   maxAdvanceDays,
-  lang,
+  dateLabels,
   dict,
 }: {
   value?: string;
   onChange: (date: string) => void;
   onDayInfo: (day: DayAvailability | null) => void;
   maxAdvanceDays: number;
-  lang: Locale;
+  dateLabels: DateLabels;
   dict: Dictionary;
 }) {
   const today = todayInVientiane();
@@ -69,13 +70,9 @@ export function DatePickerWithAvailability({
     if (info) onDayInfo(info);
   }, [days, value, onDayInfo]);
 
-  const weekdays = useMemo(() => {
-    const fmt = new Intl.DateTimeFormat(INTL_LOCALE[lang], { weekday: "narrow", timeZone: "UTC" });
-    return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(Date.UTC(2024, 0, 7 + i))));
-  }, [lang]);
-  const monthLabel = new Intl.DateTimeFormat(INTL_LOCALE[lang], { month: "long", year: "numeric", timeZone: "UTC" }).format(
-    new Date(`${month}-01T00:00:00Z`),
-  );
+  // ຊື່ເດືອນ/ວັນ ມາຈາກ server (CLDR) — Intl ຂອງ Chrome ບໍ່ມີພາສາລາວ
+  const weekdays = dateLabels.weekdaysNarrow;
+  const monthLabel = formatMonthYear(dateLabels, month);
 
   function describe(d: DayAvailability): string {
     if (d.closedReason) return dict.booking.closedReasons[d.closedReason];
@@ -146,7 +143,7 @@ export function DatePickerWithAvailability({
                   type="button"
                   disabled={unavailable}
                   aria-pressed={isSelected}
-                  aria-label={`${formatVisitDate(d.date, lang)} — ${describe(d)}`}
+                  aria-label={`${formatFullDate(dateLabels, d.date)} — ${describe(d)}`}
                   onClick={() => {
                     onChange(d.date);
                     onDayInfo(d);
@@ -169,7 +166,7 @@ export function DatePickerWithAvailability({
       </div>
       {selected && (
         <p className="text-sm" aria-live="polite">
-          {t(dict.booking.selectedDate, { date: formatVisitDate(selected.date, lang) })} ·{" "}
+          {t(dict.booking.selectedDate, { date: formatFullDate(dateLabels, selected.date) })} ·{" "}
           {isFewLeft(selected) ? <span className="font-semibold text-warning">{describe(selected)}</span> : describe(selected)}
         </p>
       )}

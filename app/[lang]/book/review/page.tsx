@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getCatalog } from "@/lib/booking/catalog";
 import { getLakPerUnit } from "@/lib/exchange";
 import { hasLocale, type Locale } from "@/lib/i18n/config";
+import { getDateLabels } from "@/lib/i18n/date-labels";
 import { getDictionary, type Dictionary } from "@/lib/i18n/dictionaries";
 
 export default async function ReviewPage({ params }: { params: Promise<{ lang: string }> }) {
@@ -30,5 +31,5 @@ async function StepThree({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   const [catalog, rates] = await Promise.all([getCatalog(), getLakPerUnit()]);
   // ຂໍ້ຕົກລົງ 28: ບັນຊີທະນາຄານຍັງເປັນ TODO → ເຊື່ອງວິທີໂອນ ແລະ ບອກໃຫ້ຊື້ທີ່ປະຕູ
   if (!catalog.onlineBookingOpen) return <OnlineClosedNotice dict={dict} />;
-  return <ReviewConfirm catalog={catalog} rates={rates} lang={lang} dict={dict} />;
+  return <ReviewConfirm catalog={catalog} rates={rates} lang={lang} dict={dict} dateLabels={getDateLabels(lang)} />;
 }

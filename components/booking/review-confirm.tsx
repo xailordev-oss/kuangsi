@@ -15,7 +15,9 @@ import { previewQuote } from "@/lib/booking/ui";
 import type { DisplayCurrency } from "@/lib/exchange";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
-import { formatKip, formatVisitDate, t } from "@/lib/i18n/format";
+import type { DateLabels } from "@/lib/i18n/date-labels";
+import { formatFullDate } from "@/lib/i18n/date-parts";
+import { formatKip, t } from "@/lib/i18n/format";
 
 type ApiError = { error: string; left?: number; max?: number; retryAfterSeconds?: number; reason?: string };
 
@@ -47,11 +49,13 @@ export function ReviewConfirm({
   rates,
   lang,
   dict,
+  dateLabels,
 }: {
   catalog: Catalog;
   rates: Partial<Record<DisplayCurrency, number>>;
   lang: Locale;
   dict: Dictionary;
+  dateLabels: DateLabels;
 }) {
   const router = useRouter();
   const { draft, ready } = useDraft({ group: "lao", tickets: {}, addOns: {} });
@@ -113,7 +117,7 @@ export function ReviewConfirm({
       <Card>
         <CardContent className="flex flex-col gap-3">
           <Row label={dict.review.visitDate} edit={`/${lang}/book`} editLabel={dict.common.edit}>
-            {formatVisitDate(draft.visitDate, lang)}
+            {formatFullDate(dateLabels, draft.visitDate)}
           </Row>
           <Row label={dict.review.bookedBy} edit={`/${lang}/book/details`} editLabel={dict.common.edit}>
             {customer.fullName}

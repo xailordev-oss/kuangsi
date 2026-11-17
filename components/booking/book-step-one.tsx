@@ -14,10 +14,21 @@ import type { Catalog } from "@/lib/booking/catalog";
 import { useDraft, type BookingDraft } from "@/lib/booking/draft";
 import { addOnMaxQuantity, ageLabel, groupLabel, localizedName, previewQuote } from "@/lib/booking/ui";
 import type { Locale } from "@/lib/i18n/config";
+import type { DateLabels } from "@/lib/i18n/date-labels";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { formatKip, t } from "@/lib/i18n/format";
 
-export function BookStepOne({ catalog, lang, dict }: { catalog: Catalog; lang: Locale; dict: Dictionary }) {
+export function BookStepOne({
+  catalog,
+  lang,
+  dict,
+  dateLabels,
+}: {
+  catalog: Catalog;
+  lang: Locale;
+  dict: Dictionary;
+  dateLabels: DateLabels;
+}) {
   const router = useRouter();
   const initial: BookingDraft = { group: lang === "lo" ? "lao" : "foreigner", tickets: {}, addOns: {} };
   const { draft, update, ready } = useDraft(initial);
@@ -74,7 +85,7 @@ export function BookStepOne({ catalog, lang, dict }: { catalog: Catalog; lang: L
         onChange={(visitDate) => update({ visitDate })}
         onDayInfo={onDayInfo}
         maxAdvanceDays={catalog.maxAdvanceDays}
-        lang={lang}
+        dateLabels={dateLabels}
         dict={dict}
       />
 

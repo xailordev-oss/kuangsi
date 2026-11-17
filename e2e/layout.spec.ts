@@ -32,3 +32,14 @@ test("ພາສາລາວ: ລາຄາເປັນ '25,000 ກີບ' (ຂໍ
   await page.goto("/lo");
   await expect(page.getByText("25,000 ກີບ").first()).toBeVisible();
 });
+
+// Chrome ບໍ່ມີຂໍ້ມູນວັນທີພາສາລາວໃນ Intl — ເຄີຍສະແດງ "2026 M11" ແລະ "S M T…"
+test("ປະຕິທິນ: ເດືອນ ແລະ ຫົວວັນ ເປັນພາສາລາວ", async ({ page }) => {
+  const now = new Date();
+  const monthYear = new Intl.DateTimeFormat("lo-LA", { month: "long", year: "numeric", timeZone: "Asia/Vientiane" }).format(now);
+  await page.goto("/lo/book");
+  await expect(page.getByText(monthYear, { exact: true })).toBeVisible();
+  await expect(page.getByText(/\d{4} M\d{1,2}/)).toHaveCount(0);
+  const firstOpenDay = page.locator("button[aria-pressed]:not([disabled])").first();
+  await expect(firstOpenDay).toHaveAttribute("aria-label", /^ວັນ.+ — /);
+});
