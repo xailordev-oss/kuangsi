@@ -100,6 +100,11 @@ DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
 - ຂໍ້ຄວາມທີ່ຜູ້ໃຊ້ເຫັນ: ວາງໄວ້ໃນໄຟລ໌ແປພາສາ ຫ້າມ hardcode ໃນ component
 - ເງິນ: `DECIMAL(12,2)` ໃນ DB / `Decimal` ໃນ Prisma — ຫ້າມ `FLOAT`, `DOUBLE` ຫຼື `Float`
 - ວັນເວລາ: ເກັບເປັນ UTC ແປງເປັນ `Asia/Vientiane` ຕອນສະແດງ
+- ເຂດເວລາ: ທຸກ connection ໄປ MySQL ຕ້ອງເປັນ UTC (session `time_zone = '+00:00'`)
+  - app: `lib/db.ts` ຕັ້ງ `timezone: "Z"` — ຫ້າມລຶບ ແລະ ຫ້າມສ້າງ `PrismaClient` ນອກ `lib/db.ts`
+  - SQL file / Workbench / CLI / script: ແຖວທຳອິດຕ້ອງເປັນ `SET time_zone = '+00:00';`
+  - **ຫ້າມປ່ຽນ global `time_zone` ຂອງ MySQL server** — ກະທົບ database ອື່ນໃນເຄື່ອງ ແລະ server ຕອນ deploy ຈະບໍ່ມີການຕັ້ງຄ່ານັ້ນ
+  - ເຫດຜົນ: MySQL ໃນເຄື່ອງເປັນ +07 → `CURRENT_TIMESTAMP` / `ON UPDATE` ຈະຜິດ 7 ຊມ
 - ທຸກ API route ຕ້ອງ validate input ດ້ວຍ zod
 - ຖານຂໍ້ມູນຕ້ອງເປັນ `utf8mb4` / `utf8mb4_unicode_ci` — ບໍ່ດັ່ງນັ້ນພາສາລາວຈະເພ້ຍນ
 

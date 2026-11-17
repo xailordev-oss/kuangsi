@@ -12,6 +12,10 @@
 --    4. ດູ ER diagram: Database > Reverse Engineer
 -- =====================================================================
 
+-- ສຳຄັນ: ເກັບເວລາເປັນ UTC — ຕັ້ງທີ່ session ບໍ່ແມ່ນ global (server ອື່ນ/ຕອນ deploy ອາດບໍ່ແມ່ນ UTC)
+-- ບໍ່ດັ່ງນັ້ນ CURRENT_TIMESTAMP ຂອງ seed ຈະເປັນເວລາທ້ອງຖິ່ນຂອງ server (+07)
+SET time_zone = '+00:00';
+
 -- ສຳຄັນ: utf8mb4 ຈຳເປັນສຳລັບຂໍ້ຄວາມພາສາລາວ
 CREATE DATABASE IF NOT EXISTS kuangsi
   CHARACTER SET utf8mb4
