@@ -1,16 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans, Noto_Sans_Lao, Noto_Sans_SC, Noto_Sans_Thai } from "next/font/google";
 import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
+import { fontVariables } from "@/lib/fonts";
 import { hasLocale, LOCALES } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import "../globals.css";
-
-const notoLatin = Noto_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-noto-latin", display: "swap" });
-const notoLao = Noto_Sans_Lao({ subsets: ["lao"], variable: "--font-noto-lao", display: "swap" });
-const notoThai = Noto_Sans_Thai({ subsets: ["thai"], variable: "--font-noto-thai", display: "swap", preload: false });
-const notoSc = Noto_Sans_SC({ weight: ["400", "700"], variable: "--font-noto-sc", display: "swap", preload: false });
 
 type Props = { children: React.ReactNode; params: Promise<{ lang: string }> };
 
@@ -35,7 +30,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html
       lang={lang}
-      className={`${notoLatin.variable} ${notoLao.variable} ${notoThai.variable} ${notoSc.variable} h-full antialiased`}
+      className={`${fontVariables} h-full antialiased`}
     >
       <body className="flex min-h-dvh flex-col bg-background text-foreground">
         <a

@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "title": "Kuang Si Falls — Staff"
+  },
+  "common": {
+    "siteName": "Kuang Si Falls · Staff",
+    "language": "Language",
+    "logout": "Sign out",
+    "logoutConfirm": "Sign out now?",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "loading": "Loading…",
+    "kip": "LAK",
+    "minutesAgo": "{n} min ago",
+    "error": "Something went wrong — please try again",
+    "network": "Can't connect — check the internet and try again"
+  },
+  "login": {
+    "title": "Staff sign in",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "failed": "Username or password is incorrect",
+    "lockoutHint": "After {attempts} wrong tries in a row, the account is locked for {minutes} minutes",
+    "disabled": "This account is disabled — contact your administrator",
+    "required": "Please enter your username and password"
+  },
+  "proofs": {
+    "title": "Receipts to check ({n})",
+    "empty": "No receipts to check",
+    "refresh": "Refresh",
+    "expected": "Expected amount: {amount}",
+    "visitDate": "Visit date",
+    "bookedBy": "Booked by",
+    "transactionId": "Reference number (optional)",
+    "transactionIdHint": "From the bank transfer, if shown",
+    "approve": "Approve",
+    "reject": "Reject",
+    "imageAlt": "Transfer receipt for {code}",
+    "imageError": "Couldn't load the image",
+    "openFull": "Open full size",
+    "rejectTitle": "Reason for rejecting",
+    "rejectHint": "The visitor will see this message",
+    "reasonAmount": "Amount doesn't match",
+    "reasonUnclear": "Image is unclear",
+    "reasonNotFound": "Transfer not found",
+    "reasonRequired": "Add a reason so the visitor knows what to fix",
+    "charsLeft": "{n} characters left",
+    "confirmReject": "Confirm rejection",
+    "approved": "Approved {code}",
+    "rejected": "Rejected {code}",
+    "alreadyDone": "{name} already checked this booking",
+    "notVerifying": "This booking is no longer waiting for a check",
+    "posNotReady": "The ticket counter (POS) screen isn't ready yet — meanwhile you can check transfer receipts here"
+  }
+}

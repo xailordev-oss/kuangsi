@@ -22,6 +22,7 @@ export async function withDb<T>(fn: (conn: mariadb.Connection) => Promise<T>): P
 }
 
 export const E2E_PHONE = "+8562055558888";
+export const E2E_STAFF_USERNAME = "e2e_cashier";
 
 export const E2E_BANK: Record<string, string> = {
   bank_name: "ທະນາຄານທົດສອບ E2E",

@@ -217,7 +217,9 @@ CREATE TABLE booking_add_ons (
 CREATE TABLE payments (
   id             BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   booking_id     BIGINT UNSIGNED NOT NULL,
-  method         ENUM('bcel_one','ldb','onepay','card','cash','other') NOT NULL,
+  -- bank_transfer = ໂອນເອງ + ອັບໂຫຼດຫຼັກຖານ (v1) · bcel_one/ldb/onepay/card ສຳລັບ gateway ພາຍຫຼັງ
+  -- ຫ້າມບັນທຶກການໂອນເປັນ 'other' — ລາຍງານຕ້ອງແຍກການໂອນອອກຈາກວິທີອື່ນໄດ້ (ຂໍ້ຕົກລົງ 38)
+  method         ENUM('bank_transfer','bcel_one','ldb','onepay','card','cash','other') NOT NULL,
   amount         DECIMAL(12,2) NOT NULL,
   currency       CHAR(3)      NOT NULL DEFAULT 'LAK',
   exchange_rate  DECIMAL(14,6) NULL,                -- ຖ້າຈ່າຍຕ່າງສະກຸນ
@@ -474,7 +476,12 @@ INSERT INTO settings (setting_key, setting_value, description) VALUES
   ('verify_time_note_lo', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາກວດຫຼັກຖານ (ລາວ) ເຊັ່ນ "ກວດພາຍໃນ 1 ຊົ່ວໂມງ ໃນເວລາເຮັດວຽກ"'),
   ('verify_time_note_en', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາກວດຫຼັກຖານ (ອັງກິດ) ເຊັ່ນ "Checked within 1 hour during opening hours"'),
   ('verify_time_note_zh', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາກວດຫຼັກຖານ (ຈີນ)'),
-  ('verify_time_note_th', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາກວດຫຼັກຖານ (ໄທ)');
+  ('verify_time_note_th', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາກວດຫຼັກຖານ (ໄທ)'),
+  -- ຂໍ້ຕົກລົງ 36: ຄຳແປຈີນ/ໄທ ຮ່າງໂດຍ agent — 'true' ເມື່ອເຈົ້າຂອງພາສາກວດແລ້ວ
+  ('translations_reviewed_zh', 'false', 'ຄຳແປພາສາຈີນ ຖືກກວດໂດຍເຈົ້າຂອງພາສາແລ້ວບໍ່'),
+  ('translations_reviewed_th', 'false', 'ຄຳແປພາສາໄທ ຖືກກວດໂດຍເຈົ້າຂອງພາສາແລ້ວບໍ່'),
+  -- ຂໍ້ຕົກລົງ 35: ລາຍຊື່ປະຕູ (ຄັ່ນດ້ວຍ comma) — 1 ປະຕູ = ໜ້າສະແກນເລືອກເອງ
+  ('gates',               'main',      'ລາຍຊື່ປະຕູ ຄັ່ນດ້ວຍ comma ເຊັ່ນ "main,north" — TODO: ຢືນຢັນຈຳນວນປະຕູຈິງກັບຜູ້ຈັດການຕາດ');
 
 -- ບັນຊີ admin ເລີ່ມຕົ້ນ
 -- ⚠️ password_hash ຂ້າງລຸ່ມເປັນ placeholder — ຕ້ອງສ້າງ hash ຈິງດ້ວຍ bcrypt

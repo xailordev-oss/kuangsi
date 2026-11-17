@@ -1,8 +1,11 @@
-import { existsSync, readFileSync, rmSync } from "node:fs";
-import { E2E_PHONE, withDb } from "./db";
-import { SNAPSHOT } from "./global-setup";
+import { existsSync, readFileSync, rmSync, unlinkSync } from "node:fs";
+import path from "node:path";
+import { E2E_PHONE, E2E_STAFF_USERNAME, withDb } from "./db";
+import { SNAPSHOT, STAFF_SECRET } from "./global-setup";
 
-// ຄືນຄ່າ settings ເດີມ ແລະ ລຶບການຈອງທົດສອບ (ລະບຸດ້ວຍເບີ E2E ເທົ່ານັ້ນ — ບໍ່ແຕະຂໍ້ມູນອື່ນ)
+const PROOF_DIR = process.env.PROOF_UPLOAD_DIR || path.join(__dirname, "..", "storage", "proofs");
+
+// ຄືນ settings ເດີມ · ລຶບການຈອງ/ການຈ່າຍ/ຮູບ ທີ່ສ້າງດ້ວຍເບີ E2E ເທົ່ານັ້ນ · ປິດບັນຊີ e2e (ບໍ່ລຶບ)
 export default async function globalTeardown() {
   await withDb(async (conn) => {
     if (existsSync(SNAPSHOT)) {
@@ -14,8 +17,28 @@ export default async function globalTeardown() {
     }
     const customers: { id: bigint }[] = await conn.query("SELECT id FROM customers WHERE phone = ?", [E2E_PHONE]);
     for (const { id } of customers) {
+      const proofs: { proof_url: string | null }[] = await conn.query(
+        "SELECT p.proof_url FROM payments p JOIN bookings b ON b.id = p.booking_id WHERE b.customer_id = ?",
+        [id],
+      );
+      for (const { proof_url } of proofs) {
+        if (proof_url && /^[0-9a-f-]{36}\.(jpg|png|webp)$/.test(proof_url)) {
+          try {
+            unlinkSync(path.join(PROOF_DIR, proof_url));
+          } catch {
+            // ບໍ່ມີໄຟລ໌ — ບໍ່ເປັນຫຍັງ
+          }
+        }
+      }
+      await conn.query("DELETE p FROM payments p JOIN bookings b ON b.id = p.booking_id WHERE b.customer_id = ?", [id]);
       await conn.query("DELETE FROM bookings WHERE customer_id = ?", [id]);
       await conn.query("DELETE FROM customers WHERE id = ?", [id]);
     }
+    await conn.query(
+      "DELETE a FROM audit_logs a JOIN users u ON u.id = a.user_id WHERE u.username = ?",
+      [E2E_STAFF_USERNAME],
+    );
+    await conn.query("UPDATE users SET is_active = 0 WHERE username = ?", [E2E_STAFF_USERNAME]);
   });
+  if (existsSync(STAFF_SECRET)) rmSync(STAFF_SECRET);
 }

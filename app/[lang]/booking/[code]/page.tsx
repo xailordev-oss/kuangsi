@@ -7,6 +7,7 @@ import { BookingStepper } from "@/components/booking/booking-stepper";
 import { CopyButton } from "@/components/booking/copy-button";
 import { HoldCountdown } from "@/components/booking/hold-countdown";
 import { OnlineClosedNotice } from "@/components/booking/online-closed-notice";
+import { ProofUploader } from "@/components/booking/proof-uploader";
 import { BookingStatusBadge } from "@/components/booking/status-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -87,8 +88,7 @@ async function BookingView({ params }: { params: Params }) {
                   <Upload aria-hidden className="size-5 text-primary" />
                   {dict.pay.stepUpload}
                 </h2>
-                {/* TODO(Phase 6): ProofUploader — API ອັບໂຫຼດຍັງບໍ່ມີ (ຫ້າມສ້າງ UI ກ່ອນ API) */}
-                <p className="text-sm text-muted-foreground">{dict.pay.uploadSoon}</p>
+                <ProofUploader bookingCode={b.bookingCode} dict={dict} />
               </section>
             ) : (
               <OnlineClosedNotice dict={dict} />
@@ -110,6 +110,14 @@ async function BookingView({ params }: { params: Params }) {
               <p className="text-muted-foreground">{dict.pay.verifyingHint}</p>
             </AlertDescription>
           </Alert>
+        )}
+        {b.status === "verifying" && (
+          // eslint-disable-next-line @next/next/no-img-element -- ຮູບສ່ວນຕົວຜ່ານ API ທີ່ກວດສິດ (ບໍ່ຜ່ານ image optimizer)
+          <img
+            src={`/api/public/bookings/${b.bookingCode}/proof`}
+            alt={dict.pay.proofAlt}
+            className="max-h-64 w-full rounded-xl border object-contain"
+          />
         )}
 
         {b.status === "paid" && (

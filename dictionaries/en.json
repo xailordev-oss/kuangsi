@@ -16,7 +16,8 @@
     "approx": "approx.",
     "loading": "Loading…",
     "lakOnly": "You pay in Lao kip (LAK) only. Other currencies are approximate.",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "translationDraft": "This translation has not yet been reviewed by a native speaker."
   },
   "nav": {
     "home": "Home",
@@ -145,7 +146,15 @@
     "accountNumber": "Account number",
     "accountName": "Account name",
     "stepUpload": "2. Upload your transfer receipt",
-    "uploadSoon": "Receipt upload is being set up — please keep your transfer receipt",
+    "takePhoto": "Take a photo",
+    "choosePhoto": "Choose from gallery",
+    "changePhoto": "Change photo",
+    "submitProof": "Send receipt",
+    "uploading": "Sending…",
+    "errFile": "We can't use this file — choose a JPG, PNG or WebP image under {mb} MB",
+    "errUpload": "We couldn't send your photo — please try again",
+    "proofAlt": "The transfer receipt you sent",
+    "previewAlt": "Preview of the selected photo",
     "rememberCode": "Keep this code: {code}",
     "verifying": "Our staff are checking your receipt",
     "verifyingNoExpiry": "Your booking won't expire while we check it",

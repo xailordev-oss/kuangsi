@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { TranslationDraftNotice } from "@/components/site/translation-draft-notice";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
@@ -13,6 +15,9 @@ export function SiteFooter({ lang, dict }: { lang: Locale; dict: Dictionary }) {
           {dict.nav.privacy}
         </Link>
       </nav>
+      <Suspense fallback={null}>
+        <TranslationDraftNotice lang={lang} text={dict.common.translationDraft} />
+      </Suspense>
     </footer>
   );
 }

@@ -17,7 +17,7 @@ const INT_SETTINGS = {
 } as const;
 
 export type IntSettingKey = keyof typeof INT_SETTINGS;
-export type BoolSettingKey = "pos_auto_checkin";
+export type BoolSettingKey = "pos_auto_checkin" | "translations_reviewed_zh" | "translations_reviewed_th";
 
 export class SettingError extends Error {}
 

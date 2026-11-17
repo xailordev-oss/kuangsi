@@ -1,1 +1,213 @@
-{}
+{
+  "_meta": {
+    "status": "draft — ຍັງບໍ່ໄດ້ກວດໂດຍເຈົ້າຂອງພາສາ (not reviewed by a native speaker)",
+    "draftedBy": "AI agent",
+    "reviewFlag": "settings.translations_reviewed_zh"
+  },
+  "meta": {
+    "title": "光西瀑布 — 门票预订",
+    "description": "预订琅勃拉邦光西瀑布门票"
+  },
+  "common": {
+    "siteName": "光西瀑布",
+    "kip": "LAK",
+    "next": "下一步",
+    "back": "返回",
+    "edit": "修改",
+    "retry": "重试",
+    "copy": "复制",
+    "copied": "已复制",
+    "optional": "选填",
+    "approx": "约",
+    "loading": "加载中…",
+    "lakOnly": "仅可用老挝基普（LAK）付款。其他货币金额仅供参考。",
+    "skipToContent": "跳到正文",
+    "translationDraft": "本页中文翻译尚未经母语人士审核。"
+  },
+  "nav": {
+    "home": "首页",
+    "lookup": "查询我的预订",
+    "privacy": "隐私",
+    "language": "语言"
+  },
+  "home": {
+    "intro": "碧绿的水潭和三层瀑布，位于琅勃拉邦以南约 29 公里。",
+    "photoAlt": "光西瀑布照片（即将添加）",
+    "openHours": "开放时间",
+    "openDaily": "每天 {open}–{close} 开放",
+    "closedDays": "休息日：{days}",
+    "closedToday": "今天不开放",
+    "prices": "门票价格",
+    "noTickets": "目前暂不提供网上售票。",
+    "loadError": "无法加载门票价格。"
+  },
+  "booking": {
+    "cta": "立即预订",
+    "findMine": "查询我的预订",
+    "stepOf": "第 {n} 步，共 4 步",
+    "steps": {
+      "date": "日期和门票",
+      "details": "您的信息",
+      "review": "核对并付款",
+      "done": "预订"
+    },
+    "selectDate": "选择参观日期",
+    "prevMonth": "上个月",
+    "nextMonth": "下个月",
+    "spotsLeft": "剩余 {n} 个名额",
+    "fewLeft": "名额不多",
+    "soldOut": "该日期已售罄",
+    "closed": "不开放",
+    "closedReasons": {
+      "past": "该日期已过",
+      "beyond_booking_window": "日期太远——请在接近出行日期时预订",
+      "holiday": "该日期不开放——请选择其他日期",
+      "weekly_closed": "每周的这一天不开放",
+      "after_hours": "今天已闭园——请选择其他日期"
+    },
+    "selectedDate": "参观日期：{date}",
+    "availabilityError": "无法查询名额。",
+    "groupQuestion": "您的团组是",
+    "groupLao": "老挝公民",
+    "groupForeigner": "外国游客",
+    "groupMixed": "团组中既有老挝人也有外国人",
+    "groupSingle": "只显示一个团组",
+    "ageRange": "{min}–{max} 岁",
+    "ageFrom": "{min} 岁及以上",
+    "ageUpTo": "{max} 岁及以下",
+    "free": "免费",
+    "decrease": "减少一张{name}",
+    "increase": "增加一张{name}",
+    "addOns": "附加服务",
+    "addOnUnits": {
+      "per_person": "每人",
+      "per_booking": "每组",
+      "per_item": "每件"
+    },
+    "peopleTotal": "{n} 人",
+    "minOne": "请至少选择 1 张门票",
+    "chooseDateFirst": "请选择参观日期",
+    "overCapacity": "仅剩 {n} 个名额——请减少人数或选择其他日期",
+    "tooManyPeople": "网上预订每次最多 {max} 人——请分开预订或在入口购票",
+    "beyondWindow": "最多可提前 {days} 天预订——请选择更近的日期",
+    "nothingToPay": "婴幼儿免费入场，无需预订——如有需要请添加成人或儿童票",
+    "rateLimited": "此网络的预订次数过多——请在 {minutes} 分钟后重试",
+    "startOver": "重新预订"
+  },
+  "onlineClosed": {
+    "title": "暂未开放网上预订",
+    "body": "您可以直接在入口处购票。"
+  },
+  "details": {
+    "title": "您的信息",
+    "fullName": "姓名",
+    "phone": "电话号码",
+    "phoneCountry": "国家/地区代码",
+    "phoneOther": "其他（输入 +代码）",
+    "phoneHint": "您之后需要用此号码和预订码查询门票",
+    "phoneLaoHint": "老挝号码：直接输入 020… · 其他号码：请选择国家/地区代码",
+    "email": "电子邮箱",
+    "emailHint": "我们会把门票和收据发送到这里",
+    "nationality": "国籍",
+    "nationalityNone": "不填写",
+    "nationalitySearch": "搜索国家/地区",
+    "nationalityCommon": "常用",
+    "nationalityAll": "所有国家/地区",
+    "nationalityNoMatch": "未找到——请尝试其他名称",
+    "nationalityChange": "更改国籍",
+    "idSection": "身份证或护照（选填）",
+    "idType": "证件类型",
+    "idTypes": {
+      "national_id": "身份证",
+      "passport": "护照",
+      "other": "其他"
+    },
+    "idNumber": "证件号码",
+    "errName": "请输入您的姓名",
+    "errPhone": "号码不完整——请检查国家/地区代码和位数",
+    "errEmail": "邮箱格式不正确，例如 name@example.com",
+    "errIdType": "请选择此号码对应的证件类型"
+  },
+  "review": {
+    "title": "确认前请核对",
+    "visitDate": "参观日期",
+    "bookedBy": "预订人",
+    "tickets": "门票",
+    "total": "合计",
+    "payTransfer": "付款方式：银行转账",
+    "paySteps": "转账全额 · 上传转账凭证 · 工作人员核对后发送二维码",
+    "holdNotice": "确认后，您有 {minutes} 分钟时间转账并上传凭证",
+    "cantTransfer": "无法转账？您可以直接在入口处购票",
+    "confirm": "确认预订 · {total}",
+    "missingDraft": "预订信息已丢失——请重新开始",
+    "errCreate": "预订保存失败，请重试——您尚未被扣款",
+    "capacityChanged": "您填写信息期间该日期已满——请选择其他日期"
+  },
+  "pay": {
+    "pending": "等待付款",
+    "timeLeft": "请在 {time} 内付款",
+    "stepTransfer": "1. 转账 {amount} 至",
+    "bank": "银行",
+    "accountNumber": "账号",
+    "accountName": "户名",
+    "stepUpload": "2. 上传转账凭证",
+    "takePhoto": "拍照",
+    "choosePhoto": "从相册选择",
+    "changePhoto": "更换照片",
+    "submitProof": "提交凭证",
+    "uploading": "正在提交…",
+    "errFile": "无法使用此文件——请选择小于 {mb} MB 的 JPG、PNG 或 WebP 图片",
+    "errUpload": "照片提交失败——请重试",
+    "proofAlt": "您提交的转账凭证",
+    "previewAlt": "所选照片预览",
+    "rememberCode": "请记住此预订码：{code}",
+    "verifying": "工作人员正在核对您的凭证",
+    "verifyingNoExpiry": "核对期间您的预订不会过期",
+    "verifyingHint": "您可以关闭此页面，之后用预订码和电话号码查询",
+    "verifyTime": "通常核对时间：{note}",
+    "rejected": "凭证未通过：{reason}。请在显示的时间内重新上传",
+    "expired": "付款时间已过，名额已释放——请重新预订"
+  },
+  "ticket": {
+    "ready": "已付款——可以入园参观",
+    "showAtGate": "请在入口出示此预订码",
+    "used": "此门票已使用",
+    "cancelled": "此预订已取消"
+  },
+  "lookup": {
+    "title": "查询我的预订",
+    "intro": "请输入预订码和预订时使用的电话号码。",
+    "code": "预订码",
+    "codeHint": "例如 KS-7X4K9",
+    "submit": "查询",
+    "notFound": "未找到预订——请检查预订码和预订时使用的电话号码",
+    "errCode": "预订码格式为 KS-7X4K9"
+  },
+  "access": {
+    "title": "请确认这是您的预订",
+    "body": "为保护您的信息，请输入预订码和电话号码。",
+    "goLookup": "输入预订码和电话"
+  },
+  "status": {
+    "pending": "待付款",
+    "verifying": "核对中",
+    "paid": "已付款",
+    "used": "已使用",
+    "cancelled": "已取消",
+    "expired": "已过期"
+  },
+  "error": {
+    "generic": "出现问题——请重试",
+    "network": "无法连接——请检查网络后重试"
+  },
+  "privacy": {
+    "title": "隐私",
+    "intro": "我们只收集管理您的预订所需的信息。",
+    "collectTitle": "我们收集的信息",
+    "collectBody": "您的姓名、电话号码，以及（选填的）电子邮箱、国籍和证件号码。您的证件号码不会出现在任何报表或导出文件中。",
+    "locationTitle": "您的位置",
+    "locationBody": "如果您选择分享位置，我们仅用于计算前往瀑布的距离和时间。我们只在您点击按钮时才请求位置，并且不会保存您的精确位置。",
+    "receiptTitle": "付款凭证",
+    "receiptBody": "转账凭证以私密方式保存。只有您（凭预订码和电话号码）和我们的收银人员可以查看。"
+  }
+}

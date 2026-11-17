@@ -17,12 +17,19 @@ function merge<T extends object>(base: T, override: DeepPartial<T>): T {
   return out as T;
 }
 
-// ຈີນ ແລະ ໄທ: ຄຳທີ່ຍັງບໍ່ມີຄົນກວດ → ສະແດງເປັນອັງກິດແທນ (docs/ui-plan.md §8 ຂໍ້ 9)
+// ຈີນ ແລະ ໄທ: ຮ່າງໂດຍ agent ຍັງບໍ່ໄດ້ກວດ (ຂໍ້ຕົກລົງ 36) · key ທີ່ຂາດ → ໃຊ້ອັງກິດແທນ
+// "_meta" ໃນໄຟລ໌ເປັນຂໍ້ມູນສະຖານະການແປ ບໍ່ແມ່ນຂໍ້ຄວາມ UI
+function withoutMeta(m: { default: object }): DeepPartial<Dictionary> {
+  const { _meta, ...rest } = m.default as Record<string, unknown>;
+  void _meta;
+  return rest as DeepPartial<Dictionary>;
+}
+
 const loaders: Record<Locale, () => Promise<DeepPartial<Dictionary>>> = {
   lo: () => import("@/dictionaries/lo.json").then((m) => m.default),
   en: async () => ({}),
-  zh: () => import("@/dictionaries/zh.json").then((m) => m.default as DeepPartial<Dictionary>),
-  th: () => import("@/dictionaries/th.json").then((m) => m.default as DeepPartial<Dictionary>),
+  zh: () => import("@/dictionaries/zh.json").then(withoutMeta),
+  th: () => import("@/dictionaries/th.json").then(withoutMeta),
 };
 
 export async function getDictionary(locale: Locale): Promise<Dictionary> {

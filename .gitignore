@@ -48,3 +48,6 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# ຮູບຫຼັກຖານການໂອນ (ຂໍ້ຕົກລົງ 29) — ຫ້າມ commit
+/storage/

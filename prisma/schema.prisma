@@ -301,15 +301,6 @@ model places {
   @@index([is_active, type], map: "idx_places_active_type")
 }
 
-enum payments_method {
-  bcel_one
-  ldb
-  onepay
-  card
-  cash
-  other
-}
-
 enum customers_id_type {
   national_id
   passport
@@ -377,4 +368,14 @@ enum bookings_status {
   used
   cancelled
   expired
+}
+
+enum payments_method {
+  bank_transfer
+  bcel_one
+  ldb
+  onepay
+  card
+  cash
+  other
 }
