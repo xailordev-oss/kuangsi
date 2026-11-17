@@ -8,6 +8,8 @@ import { CopyButton } from "@/components/booking/copy-button";
 import { HoldCountdown } from "@/components/booking/hold-countdown";
 import { OnlineClosedNotice } from "@/components/booking/online-closed-notice";
 import { ProofUploader } from "@/components/booking/proof-uploader";
+import { QrTicket } from "@/components/booking/qr-ticket";
+import { OfflinePage } from "@/components/site/sw-register";
 import { BookingStatusBadge } from "@/components/booking/status-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -126,11 +128,10 @@ async function BookingView({ params }: { params: Params }) {
               <CircleCheck aria-hidden className="text-success" />
               <AlertTitle className="text-base">{dict.ticket.ready}</AlertTitle>
             </Alert>
-            {/* TODO(Phase 7): QrTicket — ດຽວນີ້ສະແດງລະຫັດຈອງໃຫ້ອ່ານດ້ວຍຕາ (ສຳຮອງຕອນສະແກນບໍ່ໄດ້) */}
-            <div className="flex flex-col items-center gap-1 rounded-xl border-2 border-primary p-6 text-center">
-              <p className="text-sm text-muted-foreground">{dict.ticket.showAtGate}</p>
-              <p className="text-4xl font-bold tracking-[0.2em] tabular-nums">{b.bookingCode}</p>
-            </div>
+            {b.qrToken && <QrTicket qrToken={b.qrToken} bookingCode={b.bookingCode} dict={dict} />}
+            <p className="text-sm text-muted-foreground">{dict.ticket.offlineOk}</p>
+            {/* ຂໍ້ຕົກລົງ 34: ເກັບໜ້າ QR ໄວ້ເປີດຕອນເນັດຂາດ (ສະເພາະຫຼັງຈ່າຍແລ້ວ) */}
+            <OfflinePage />
           </>
         )}
 

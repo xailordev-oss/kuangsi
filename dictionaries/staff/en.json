@@ -51,6 +51,69 @@
     "rejected": "Rejected {code}",
     "alreadyDone": "{name} already checked this booking",
     "notVerifying": "This booking is no longer waiting for a check",
-    "posNotReady": "The ticket counter (POS) screen isn't ready yet — meanwhile you can check transfer receipts here"
+    "posNotReady": "The ticket counter (POS) screen isn't ready yet — meanwhile you can check transfer receipts here",
+    "adminNotReady": "The admin and reports screens aren't ready yet — meanwhile you can check transfer receipts here"
+  },
+  "notReady": {
+    "title": "Reports aren't ready yet",
+    "body": "The reports screen for your role is being prepared. Please check back later."
+  },
+  "scan": {
+    "title": "Scan tickets",
+    "gate": "Gate: {gate}",
+    "chooseGate": "Choose your gate",
+    "online": "Online",
+    "offline": "Offline",
+    "queued": "To sync: {n}",
+    "manifestAge": "Ticket list updated {time}",
+    "manifestMissing": "No ticket list saved for offline use yet",
+    "startCamera": "Start camera",
+    "cameraDenied": "Camera unavailable — allow camera access in settings, or enter the code",
+    "pointCamera": "Point the camera at the visitor's QR code",
+    "manual": "Enter code",
+    "manualTitle": "Enter booking code",
+    "manualSubmit": "Check ticket",
+    "codeHint": "e.g. KS-7X4K9",
+    "codeInvalid": "Booking codes look like KS-7X4K9",
+    "result": {
+      "ok": "Valid — allow entry",
+      "duplicate": "Already used",
+      "wrong_date": "Not for today",
+      "expired": "Ticket expired",
+      "invalid": "Ticket not found",
+      "unpaid": "Not paid yet",
+      "cancelled": "Booking cancelled",
+      "offline_ok": "OFFLINE — not checked with server",
+      "offline_unknown": "OFFLINE — not in today's list"
+    },
+    "hint": {
+      "ok": "",
+      "duplicate": "",
+      "wrong_date": "",
+      "expired": "",
+      "invalid": "Check the booking code or enter it manually",
+      "unpaid": "Send the visitor to the ticket counter",
+      "cancelled": "",
+      "offline_ok": "Allowed by the ticket list on this device · will be re-checked when back online",
+      "offline_unknown": "Check the booking code with the visitor, or scan again when online"
+    },
+    "previous": "Scanned at {time} · gate {gate}",
+    "ticketDate": "Ticket date: {date}",
+    "next": "Scan next",
+    "nextIn": "Scan next ({n})",
+    "groupLao": "Lao",
+    "groupForeigner": "Foreigner",
+    "age": {
+      "adult": "Adult",
+      "child": "Child",
+      "senior": "Senior",
+      "free": "Infant (free)"
+    },
+    "total": "{n} people total",
+    "conflictsTitle": "Needs review ({n})",
+    "conflictsHint": "These tickets were let in while offline but the server rejected them — tell your supervisor",
+    "conflictItem": "{code} · {result} · {time}",
+    "acknowledge": "Acknowledge",
+    "syncError": "Couldn't sync offline scans — will retry automatically"
   }
 }

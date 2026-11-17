@@ -28,6 +28,8 @@
 | Auth | Auth.js (NextAuth v5) |
 | ແຜນທີ່ | Leaflet + OpenStreetMap (ຕອນພັດທະນາ) |
 | Routing | OpenRouteService ຕອນພັດທະນາ → Google Routes ຕອນໃຊ້ຈິງ (ອອກແບບເປັນ interface ດຽວ) |
+| QR | `qr@0.7.2` (pin · MIT/Apache · ບໍ່ມີ dependency · ບໍ່ດຶງ CDN) — ສ້າງ SVG ຢູ່ server, ອ່ານຈາກກ້ອງຢູ່ `/staff/scan` ເທົ່ານັ້ນ |
+| E2E | Playwright (devDependency) ໃຊ້ Google Chrome ໃນເຄື່ອງ · ກ້ອງປອມ y4m ສຳລັບທົດສອບການອ່ານ QR |
 
 ```
 DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
@@ -213,7 +215,7 @@ DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
 35. (ຄຳຖາມ 7b) ປະຕູ: ເລີ່ມດ້ວຍ 1 ປະຕູ ຊື່ "main" — ລາຍຊື່ຢູ່ໃນ settings.gates (ຄັ່ນດ້ວຍ comma) ແກ້ໄດ້ໂດຍບໍ່ແກ້ code
     TODO: ຢືນຢັນຈຳນວນປະຕູຈິງກັບຜູ້ຈັດການຕາດ (ຍັງບໍ່ຮູ້ຜັງພື້ນທີ່)
     ໜ້າສະແກນ: ມີ 1 ປະຕູ → ເລືອກເອງອັດຕະໂນມັດ ບໍ່ຖາມ · ຫຼາຍປະຕູ → ໃຫ້ພະນັກງານເລືອກ · check_ins.gate = ຊື່ປະຕູ
-    ສະແກນ offline: ຍອມຮັບ — ປີ້ທີ່ໃຊ້ຊ້ຳຕອນ offline ຖືກບັນທຶກເປັນ duplicate ຕອນ sync
+    ສະແກນ offline: ອະນຸຍາດ ຕາມເງື່ອນໄຂຂໍ້ 39
 36. (ຄຳຖາມ 9) ພາສາຈີນ ແລະ ໄທ: agent ຮ່າງ — ໄຟລ໌ມີ "_meta.status" ໝາຍວ່າ "ຍັງບໍ່ໄດ້ກວດໂດຍເຈົ້າຂອງພາສາ"
     settings.translations_reviewed_zh / _th = 'false' ຈົນກວ່າຄົນກວດ → ປ່ຽນເປັນ 'true'
     ລະຫວ່າງ 'false': ໜ້າພາສານັ້ນສະແດງໝາຍເຫດນ້ອຍວ່າຄຳແປຍັງບໍ່ໄດ້ກວດ
@@ -225,6 +227,13 @@ DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
     - ກະທົບລາຄາປີ້ ຫຼື ການຄິດເງິນ
 38. ການໂອນເງິນບັນທຶກເປັນ payments.method = 'bank_transfer' ສະເໝີ — ຫ້າມໃຊ້ 'other'
     ເຫດຜົນ: ລາຍງານຕ້ອງແຍກການໂອນອອກຈາກວິທີອື່ນໄດ້ · ເພີ່ມກ່ອນມີຂໍ້ມູນສະສົມ
+39. ສະແກນ offline ອະນຸຍາດ (ເນັດຢູ່ຕາດອ່ອນ — ບັງຄັບ online ປະຕູຈະຕັນ) ໂດຍມີເງື່ອນໄຂ:
+    - ຈໍຕ້ອງບອກຊັດວ່າ "offline — ຍັງບໍ່ໄດ້ກວດກັບ server" ດ້ວຍສີທີ່ຕ່າງຈາກສີຜ່ານປົກກະຕິ
+    - ປີ້ຊ້ຳທີ່ພົບຕອນ sync → ບັນທຶກເປັນ duplicate (note = offline_sync) ແລະ ຂຶ້ນລາຍການໃຫ້ພະນັກງານກວດ
+      ຫ້າມປະຖິ້ມງຽບໆ — ລາຍການຄ້າງຢູ່ຈົນກວ່າພະນັກງານກົດຮັບຮູ້
+    - ໜ້າ admin ຕ້ອງເຫັນລາຍການ duplicate ເຫຼົ່ານີ້ (Phase 10)
+40. ຫ້າມປະໃຫ້ບົດບາດໃດຂຶ້ນ 404 ຫຼັງ login: ໜ້າທີ່ຍັງບໍ່ທັນເຮັດ → ພາໄປໜ້າທີ່ມີຢູ່ ພ້ອມຂໍ້ຄວາມແຈ້ງ
+    cashier/admin → ໜ້າກວດຫຼັກຖານ · viewer → ໜ້າແຈ້ງວ່າລາຍງານຍັງບໍ່ພ້ອມ (ຈົນກວ່າ Phase 8 / 10)
 
 ## 7b. ຂໍ້ມູນທີ່ຍັງບໍ່ຢືນຢັນ — ໃຊ້ placeholder ແລະ ໝາຍ TODO
 

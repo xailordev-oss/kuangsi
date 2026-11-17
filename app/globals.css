@@ -33,6 +33,9 @@
   --warning: #b45309;
   --warning-subtle: #fffbeb;
   --neutral: #475569;
+  /* ຂໍ້ຕົກລົງ 39: ຜົນ offline ຕ້ອງຕ່າງຈາກສີຜ່ານ (ຂຽວ) — ຂາວເທິງ #1d4ed8 contrast 6.70 */
+  --offline: #1d4ed8;
+  --scan-warn: #fbbf24;
   --border: #e2e8f0;
   --input: #cbd5e1;
   --ring: #0f766e;
@@ -63,6 +66,8 @@
   --color-warning: var(--warning);
   --color-warning-subtle: var(--warning-subtle);
   --color-neutral: var(--neutral);
+  --color-offline: var(--offline);
+  --color-scan-warn: var(--scan-warn);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

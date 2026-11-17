@@ -172,7 +172,10 @@
     "ready": "已付款——可以入园参观",
     "showAtGate": "请在入口出示此预订码",
     "used": "此门票已使用",
-    "cancelled": "此预订已取消"
+    "cancelled": "此预订已取消",
+    "qrAlt": "预订 {code} 的入场二维码",
+    "brightness": "请调高屏幕亮度，方便扫码",
+    "offlineOk": "首次打开后，无网络也可查看此页面"
   },
   "lookup": {
     "title": "查询我的预订",

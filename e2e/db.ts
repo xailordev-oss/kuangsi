@@ -23,6 +23,9 @@ export async function withDb<T>(fn: (conn: mariadb.Connection) => Promise<T>): P
 
 export const E2E_PHONE = "+8562055558888";
 export const E2E_STAFF_USERNAME = "e2e_cashier";
+// ບັນຊີ e2e ທຸກບົດບາດ (ລະຫັດສຸ່ມທຸກຮອບ · teardown ປິດ ບໍ່ລຶບ)
+export const E2E_USERS = { cashier: "e2e_cashier", scanner: "e2e_scanner", admin: "e2e_admin", viewer: "e2e_viewer" } as const;
+export type E2ERole = keyof typeof E2E_USERS;
 
 export const E2E_BANK: Record<string, string> = {
   bank_name: "ທະນາຄານທົດສອບ E2E",

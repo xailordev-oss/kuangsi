@@ -167,7 +167,10 @@
     "ready": "Paid — you're ready to visit",
     "showAtGate": "Show this booking code at the entrance",
     "used": "This ticket has been used",
-    "cancelled": "This booking has been cancelled"
+    "cancelled": "This booking has been cancelled",
+    "qrAlt": "Entry QR code for {code}",
+    "brightness": "Turn up your screen brightness for faster scanning",
+    "offlineOk": "This page opens without internet (after the first visit)"
   },
   "lookup": {
     "title": "Find my booking",

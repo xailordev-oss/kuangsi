@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import bcrypt from "bcryptjs";
-import { E2E_BANK, E2E_STAFF_USERNAME, withDb } from "./db";
+import { E2E_BANK, E2E_USERS, withDb } from "./db";
 
 export const SNAPSHOT = join(__dirname, "..", "test-results", "e2e-settings-snapshot.json");
 export const STAFF_SECRET = join(__dirname, "..", "test-results", "e2e-staff.json");
@@ -25,13 +25,16 @@ export default async function globalSetup() {
 
     const password = randomBytes(12).toString("base64url");
     const hash = await bcrypt.hash(password, 10);
-    await conn.query(
-      `INSERT INTO users (username, email, password_hash, full_name, role, is_active)
-       VALUES (?, ?, ?, ?, 'cashier', 1)
-       ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), role = 'cashier', is_active = 1,
-         failed_login_count = 0, locked_until = NULL`,
-      [E2E_STAFF_USERNAME, `${E2E_STAFF_USERNAME}@example.invalid`, hash, "ພະນັກງານ E2E"],
-    );
-    writeFileSync(STAFF_SECRET, JSON.stringify({ username: E2E_STAFF_USERNAME, password }), { encoding: "utf8", mode: 0o600 });
+    for (const [role, username] of Object.entries(E2E_USERS)) {
+      await conn.query(
+        `INSERT INTO users (username, email, password_hash, full_name, role, is_active)
+         VALUES (?, ?, ?, ?, ?, 1)
+         ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), role = VALUES(role), is_active = 1,
+           failed_login_count = 0, locked_until = NULL`,
+        [username, `${username}@example.invalid`, hash, `ພະນັກງານ E2E ${role}`, role],
+      );
+    }
+    // username = cashier (ໃຊ້ໃນ test ເກົ່າ) · password ດຽວກັນທຸກບົດບາດ
+    writeFileSync(STAFF_SECRET, JSON.stringify({ username: E2E_USERS.cashier, password, users: E2E_USERS }), { encoding: "utf8", mode: 0o600 });
   });
 }

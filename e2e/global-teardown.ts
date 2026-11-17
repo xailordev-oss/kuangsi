@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, rmSync, unlinkSync } from "node:fs";
 import path from "node:path";
-import { E2E_PHONE, E2E_STAFF_USERNAME, withDb } from "./db";
+import { E2E_PHONE, E2E_USERS, withDb } from "./db";
 import { SNAPSHOT, STAFF_SECRET } from "./global-setup";
 
 const PROOF_DIR = process.env.PROOF_UPLOAD_DIR || path.join(__dirname, "..", "storage", "proofs");
@@ -31,14 +31,13 @@ export default async function globalTeardown() {
         }
       }
       await conn.query("DELETE p FROM payments p JOIN bookings b ON b.id = p.booking_id WHERE b.customer_id = ?", [id]);
+      await conn.query("DELETE c FROM check_ins c JOIN bookings b ON b.id = c.booking_id WHERE b.customer_id = ?", [id]);
       await conn.query("DELETE FROM bookings WHERE customer_id = ?", [id]);
       await conn.query("DELETE FROM customers WHERE id = ?", [id]);
     }
-    await conn.query(
-      "DELETE a FROM audit_logs a JOIN users u ON u.id = a.user_id WHERE u.username = ?",
-      [E2E_STAFF_USERNAME],
-    );
-    await conn.query("UPDATE users SET is_active = 0 WHERE username = ?", [E2E_STAFF_USERNAME]);
+    const usernames = Object.values(E2E_USERS);
+    await conn.query("DELETE a FROM audit_logs a JOIN users u ON u.id = a.user_id WHERE u.username IN (?)", [usernames]);
+    await conn.query("UPDATE users SET is_active = 0 WHERE username IN (?)", [usernames]);
   });
   if (existsSync(STAFF_SECRET)) rmSync(STAFF_SECRET);
 }

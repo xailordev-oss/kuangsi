@@ -74,6 +74,16 @@ export async function getBankTransferInfo(db: Db = prisma): Promise<BankTransfer
   };
 }
 
+// ຂໍ້ຕົກລົງ 35: ລາຍຊື່ປະຕູຄັ່ນດ້ວຍ comma — ຢ່າງໜ້ອຍ 1 · ຊື່ເປັນ a-z 0-9 _ - (ບັນທຶກໃນ check_ins.gate VARCHAR(30))
+export async function getGates(db: Db = prisma): Promise<string[]> {
+  const raw = (await readRaw(db, "gates")) ?? "";
+  const gates = [...new Set(raw.split(",").map((g) => g.trim()).filter(Boolean))];
+  if (gates.length === 0 || !gates.every((g) => /^[a-z0-9_-]{1,30}$/.test(g))) {
+    throw new SettingError('settings.gates must be a comma-separated list like "main" or "main,north"');
+  }
+  return gates;
+}
+
 export async function getBoolSetting(key: BoolSettingKey, db: Db = prisma): Promise<boolean> {
   const raw = await readRaw(db, key);
   if (raw !== "true" && raw !== "false") throw new SettingError(`settings.${key} must be "true" or "false"`);
