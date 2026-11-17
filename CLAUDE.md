@@ -128,6 +128,8 @@ DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
 13. ມີຕາຕະລາງ time_slots ແຕ່ປິດໄວ້ກ່ອນໃນ v1 (ຈອງເປັນວັນ)
 14. ຈອງ online ຈ່າຍໄດ້ແຕ່ການໂອນ (ອັບໂຫຼດຫຼັກຖານ) — ເງິນສົດມີແຕ່ຢູ່ POS
     UI ຝັ່ງ online ຫ້າມສະແດງຕົວເລືອກ "ຈ່າຍໜ້າງານ" / "ເງິນສົດ" ເລີຍ
+    ອະນຸຍາດແຕ່ຂໍ້ຄວາມຂໍ້ມູນນ້ອຍໃຕ້ຄຳອະທິບາຍການໂອນ: "ໂອນບໍ່ໄດ້? ຊື້ປີ້ໄດ້ທີ່ປະຕູທາງເຂົ້າໂດຍກົງ"
+    — ເປັນຂໍ້ຄວາມທຳມະດາ ຫ້າມເປັນ radio / checkbox / ປຸ່ມ / ລິ້ງ ທີ່ສ້າງການຈອງໄດ້
 15. ອັບໂຫຼດຫຼັກຖານສຳເລັດ → bookings.status = 'verifying' ແລະ expires_at = NULL (ໂມງຢຸດ)
     ຫ້າມປ່ອຍໃຫ້ໝົດອາຍຸລະຫວ່າງພະນັກງານກວດ
     ພະນັກງານປະຕິເສດ → ກັບເປັນ 'pending' ແລະ ຕັ້ງ expires_at ໃໝ່ຕາມ settings.booking_hold_minutes
@@ -140,6 +142,12 @@ DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
 18. check_ins.result ມີ 'unpaid' ແລະ 'cancelled' ນຳ — ທຸກການປະຕິເສດຢູ່ປະຕູຕ້ອງບັນທຶກເຫດຜົນ
 19. ໜ້າ /[lang]/booking/[code] ມີຊື່ + ເບີໂທ → ເປີດໄດ້ສະເພາະ: browser ທີ່ຫາກໍຈອງ (cookie)
     ຫຼື ຜ່ານໜ້າຄົ້ນຫາ (ລະຫັດຈອງ + ເບີໂທ) · ລິ້ງໃນອີເມວໃຊ້ qr_token ບໍ່ແມ່ນ booking_code
+20. ການກວດຫຼັກຖານໂອນ ບັນທຶກໃນແຖວ payments ໂດຍກົງ (audit_logs ຢ່າງດຽວບໍ່ພໍ — ເລື່ອງເງິນ)
+    ອະນຸມັດ → payments.status = 'success', paid_at, verified_by, verified_at
+    ປະຕິເສດ → payments.status = 'failed', reject_reason (ບັງຄັບ), verified_by, verified_at
+    reject_reason ແມ່ນຂໍ້ຄວາມທີ່ລູກຄ້າເຫັນ — ຫ້າມໃຊ້ bookings.note ຫຼື refund_reason ແທນ
+    ອັບໂຫຼດໃໝ່ຫຼັງຖືກປະຕິເສດ → ສ້າງແຖວ payments ໃໝ່ (ເກັບປະຫວັດແຖວເກົ່າໄວ້)
+    payments.verified_by → users ເປັນ RESTRICT: ຫ້າມລຶບ user ທີ່ເຄີຍກວດເງິນ ໃຫ້ປິດດ້ວຍ is_active
 
 ## 7b. ຂໍ້ມູນທີ່ຍັງບໍ່ຢືນຢັນ — ໃຊ້ placeholder ແລະ ໝາຍ TODO
 

@@ -225,6 +225,10 @@ CREATE TABLE payments (
   refund_amount  DECIMAL(12,2) NULL,
   refund_reason  VARCHAR(255) NULL,
   refunded_at    DATETIME     NULL,
+  -- ການກວດຫຼັກຖານໂອນ (ຂໍ້ຕົກລົງ 20): ຜູ້ຮັບຜິດຊອບຕ້ອງເຫັນໃນແຖວນີ້ໂດຍກົງ ບໍ່ແມ່ນໃນ audit_logs ຢ່າງດຽວ
+  reject_reason  VARCHAR(255) NULL,                 -- ລູກຄ້າເຫັນ — ແຍກຈາກ refund_reason ແລະ bookings.note
+  verified_by    BIGINT UNSIGNED NULL,              -- ຜູ້ອະນຸມັດ ຫຼື ປະຕິເສດ
+  verified_at    DATETIME     NULL,
   raw_response   JSON         NULL,                 -- ເກັບ response ດິບຈາກ gateway
   created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -232,8 +236,12 @@ CREATE TABLE payments (
   KEY idx_payments_booking (booking_id),
   KEY idx_payments_status (status),
   KEY idx_payments_txn (transaction_id),
+  KEY idx_payments_verified_by (verified_by),
   CONSTRAINT fk_payments_booking FOREIGN KEY (booking_id)
-    REFERENCES bookings(id) ON DELETE RESTRICT
+    REFERENCES bookings(id) ON DELETE RESTRICT,
+  -- RESTRICT ບໍ່ແມ່ນ SET NULL: ລຶບ user ບໍ່ໄດ້ຖ້າເຄີຍກວດເງິນ (ໃຫ້ປິດດ້ວຍ is_active ແທນ)
+  CONSTRAINT fk_payments_verified_by FOREIGN KEY (verified_by)
+    REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
 -- =====================================================================

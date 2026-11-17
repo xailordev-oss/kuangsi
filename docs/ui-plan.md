@@ -1,7 +1,7 @@
 # ແຜນອອກແບບ UI/UX — ລະບົບຈອງປີ້ຕາດກວາງຊີ (Phase 2)
 
-> ສະຖານະ: **ສະບັບ 2 — ອັບເດດຕາມຄຳຕອບ §8** · ເອກະສານເທົ່ານັ້ນ ບໍ່ມີ code
-> ອີງໃສ່: `docs/ui-brief.md`, `docs/requirements.md`, `CLAUDE.md` (ຂໍ້ຕົກລົງ 1–19), `db/kuangsi-schema.sql`
+> ສະຖານະ: **ສະບັບ 3 — ອັບເດດຕາມຄຳຕອບ §8** · ເອກະສານເທົ່ານັ້ນ ບໍ່ມີ code
+> ອີງໃສ່: `docs/ui-brief.md`, `docs/requirements.md`, `CLAUDE.md` (ຂໍ້ຕົກລົງ 1–20), `db/kuangsi-schema.sql`
 > ອອກແບບ mobile-first ທີ່ 375px · ພາສາເລີ່ມຕົ້ນ: ລາວ
 
 ສາລະບານ
@@ -50,7 +50,7 @@
 |---|---|---|---|
 | `/admin` | Dashboard | `admin`, `viewer` | ຕົວເລກມື້ນີ້: ການຈອງ, ຄົນເຂົ້າ, ລາຍໄດ້, ລໍກວດຫຼັກຖານ, ບ່ອນຫວ່າງ |
 | `/admin/bookings` | ການຈອງ | `admin` (ອ່ານ: `viewer`) | ຄົ້ນຫາ/ກັ່ນຕອງ ຕາມວັນ, ສະຖານະ, ຊ່ອງທາງ |
-| `/admin/bookings/[code]` | ລາຍລະອຽດການຈອງ | `admin` (ອ່ານ: `viewer`) | ລາຍການ, ການຈ່າຍ, ປະຫວັດສະແກນ, ຍົກເລີກ/ຄືນເງິນ |
+| `/admin/bookings/[code]` | ລາຍລະອຽດການຈອງ | `admin` (ອ່ານ: `viewer`) | ລາຍການ, ການຈ່າຍ (+ ຜູ້ກວດ, ເວລາກວດ, ເຫດຜົນປະຕິເສດ), ປະຫວັດສະແກນ, ຍົກເລີກ/ຄືນເງິນ |
 | `/admin/ticket-types` | ປີ້ ແລະ ລາຄາ | `admin` | ລາຄາ, ຊ່ວງອາຍຸ, ເປີດ/ປິດຂາຍ, ບໍລິການເສີມ (tab) |
 | `/admin/users` | ຜູ້ໃຊ້ | `admin` | ເພີ່ມ/ປິດບັນຊີ, ກຳນົດບົດບາດ |
 | `/admin/reports` | ລາຍງານ | `admin`, `viewer` | ລາຍໄດ້ ວັນ/ເດືອນ/ປີ, ສັນຊາດ, ຊ່ອງທາງ, ລະດູ — **ບໍ່ມີ `id_number`** |
@@ -222,16 +222,20 @@ DistanceCard ກ່ອນກົດ: "[📍 ໄລຍະທາງຈາກບ່�
 │ 2. ອັບໂຫຼດຮູບຫຼັກຖານ          │
 │ 3. ພະນັກງານກວດ ແລ້ວສົ່ງ QR ໃຫ້ │
 │                             │
+│   ໂອນບໍ່ໄດ້? ຊື້ປີ້ໄດ້ທີ່ປະຕູ   │  ← ຂໍ້ຄວາມນ້ອຍ (text-sm, text-muted) ໃຕ້ການໂອນ
+│   ທາງເຂົ້າໂດຍກົງ              │     ບໍ່ມີກອບ ບໍ່ມີ icon ບໍ່ກົດໄດ້
+│                             │
 │ ⓘ ຫຼັງຢືນຢັນ ທ່ານມີ 30 ນາທີ   │  ← ອ່ານຈາກ settings
 │   ເພື່ອໂອນ ແລະ ອັບໂຫຼດຫຼັກຖານ  │
-│ ບໍ່ສາມາດໂອນໄດ້? ຊື້ປີ້ຢູ່ປະຕູ  │  ← ຂໍ້ມູນ ບໍ່ແມ່ນຕົວເລືອກຈ່າຍ
-│ ທາງເຂົ້າໄດ້ (ຈ່າຍເງິນສົດ)      │
 ├─────────────────────────────┤
 │ ┌─────────────────────────┐ │
 │ │ ຢືນຢັນການຈອງ · 60,000 ₭  │ │
 │ └─────────────────────────┘ │
 └─────────────────────────────┘
 ```
+ກົດຂອງຂໍ້ຄວາມ "ໂອນບໍ່ໄດ້?" (ຂໍ້ຕົກລົງ 14):
+- ເປັນ `<p>` ທຳມະດາ ຢູ່ໃຕ້ຂັ້ນຕອນການໂອນ — **ບໍ່ແມ່ນ** radio / checkbox / ປຸ່ມ / ລິ້ງ ແລະ ບໍ່ມີກອບທີ່ເບິ່ງຄືກົດເລືອກໄດ້
+- ໜ້ານີ້ມີປຸ່ມດຽວທີ່ສ້າງການຈອງໄດ້ ຄື "ຢືນຢັນການຈອງ" ແລະ ມັນສ້າງການຈອງແບບໂອນສະເໝີ
 
 ### 3.4 ຂັ້ນ 4 (ລໍຈ່າຍ): ການຈອງຂອງຂ້ອຍ `/[lang]/booking/[code]` — status `pending`
 
@@ -330,14 +334,34 @@ DistanceCard ກ່ອນກົດ: "[📍 ໄລຍະທາງຈາກບ່�
 │ │   [ ຮູບຫຼັກຖານ — ແຕະຂະຫຍາຍ ]│ │
 │ └─────────────────────────┘ │
 │ ສົມໃຈ ພົມມະວົງ · 17 ພ.ຈ.     │
+│ ຍອດທີ່ຕ້ອງໄດ້: 60,000 ₭       │  ← ໃຫ້ທຽບກັບຮູບ
 │ ເລກອ້າງອີງ: [__________]     │  → payments.transaction_id
 │ ┌───────────┐ ┌───────────┐ │
-│ │ ✕ ປະຕິເສດ  │ │ ✓ ອະນຸມັດ  │ │  ປະຕິເສດ → ຕ້ອງເລືອກເຫດຜົນ
+│ │ ✕ ປະຕິເສດ  │ │ ✓ ອະນຸມັດ  │ │
 │ └───────────┘ └───────────┘ │
+└─────────────────────────────┘
+
+ກົດ "ປະຕິເສດ" → Sheet ຈາກລຸ່ມ (ProofRejectSheet):
+┌─────────────────────────────┐
+│ ເຫດຜົນທີ່ປະຕິເສດ               │
+│ (ລູກຄ້າຈະເຫັນຂໍ້ຄວາມນີ້)        │
+│ [ຍອດເງິນບໍ່ກົງ] [ຮູບບໍ່ແຈ້ງ]    │  ← ຕົວເລືອກດ່ວນ ເຕີມຂໍ້ຄວາມໃຫ້
+│ [ບໍ່ພົບລາຍການໂອນ]             │
+│ ┌─────────────────────────┐ │
+│ │ ຍອດເງິນບໍ່ກົງ ໂອນມາ 50,000│ │  → payments.reject_reason (ບັງຄັບ, ≤ 255)
+│ └─────────────────────────┘ │
+│              ເຫຼືອ 230 ຕົວອັກສອນ│
+│ ┌─────────────────────────┐ │
+│ │      ຢືນຢັນການປະຕິເສດ     │ │  ປິດໄວ້ຈົນກວ່າຈະມີເຫດຜົນ
+│ └─────────────────────────┘ │
 └─────────────────────────────┘
 ```
 - ສະແດງສະເພາະການຈອງ status `verifying` ລຽງເກົ່າສຸດກ່ອນ
-- ອະນຸມັດ → `paid` (ລູກຄ້າເຫັນ QR) · ປະຕິເສດ → `pending` + ໂມງ 30 ນາທີໃໝ່ + ເຫດຜົນສະແດງໃຫ້ລູກຄ້າ (ຂໍ້ຕົກລົງ 15)
+- ອະນຸມັດ → booking `paid` (ລູກຄ້າເຫັນ QR) · payment `success` + `paid_at` + `verified_by` + `verified_at`
+- ປະຕິເສດ → booking `pending` + ໂມງ 30 ນາທີໃໝ່ · payment `failed` + `reject_reason` + `verified_by` + `verified_at` (ຂໍ້ຕົກລົງ 15, 20)
+- ລູກຄ້າອັບໂຫຼດໃໝ່ → ແຖວ payment ໃໝ່ (ແຖວເກົ່າທີ່ຖືກປະຕິເສດຍັງຢູ່ ເປັນປະຫວັດ)
+- ຖ້າຄົນອື່ນກວດໄປແລ້ວ → ສະແດງ "ກວດແລ້ວໂດຍ {name}" ຈາກ `payments.verified_by` (ບໍ່ຕ້ອງຄົ້ນໃນ audit_logs)
+- ລາຍລະອຽດການຈອງ (`/admin/bookings/[code]`) ສະແດງທຸກແຖວ payment: ວິທີ · ຍອດ · ສະຖານະ · ຜູ້ກວດ · ເວລາກວດ · ເຫດຜົນປະຕິເສດ
 
 ---
 
@@ -427,7 +451,7 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | `StickyActionBar` | `summary`, `label`, `disabled`, `loading`, `onClick` | ປົກກະຕິ · ປິດ · ກຳລັງສົ່ງ | book/* |
 | `CustomerInfoForm` | `defaultValues`, `onSubmit` | ວ່າງ · ຜິດ (ຕໍ່ field) · ກຳລັງສົ່ງ | book/details |
 | `PhoneInput` | `value`, `onChange`, `defaultCountry` | — | book/details, lookup |
-| `TransferInstructions` | `holdMinutes` | — (ຂໍ້ມູນຢ່າງດຽວ ບໍ່ມີຕົວເລືອກ — ຂໍ້ຕົກລົງ 14) | book/review |
+| `TransferInstructions` | `holdMinutes` | — (ຂໍ້ມູນຢ່າງດຽວ ບໍ່ມີຕົວເລືອກ · ລວມຂໍ້ຄວາມນ້ອຍ "ໂອນບໍ່ໄດ້?" ເປັນ `<p>` ທຳມະດາ — ຂໍ້ຕົກລົງ 14) | book/review |
 | `HoldCountdown` | `expiresAt` | ປົກກະຕິ · < 5 ນາທີ (warning) · ໝົດ · ເຊື່ອງ (`expiresAt = null` ຕອນ `verifying`) | booking/[code] |
 | `ProofUploader` | `bookingCode`, `maxSizeMb`, `onUploaded` | ວ່າງ · ສະແດງຕົວຢ່າງ · ກຳລັງອັບໂຫຼດ (%) · ສຳເລັດ · ຜິດ (ໄຟລ໌ໃຫຍ່/ບໍ່ແມ່ນຮູບ) · ຖືກປະຕິເສດ (+ເຫດຜົນ, ອັບໂຫຼດໃໝ່) | booking/[code] |
 | `BookingStatusBadge` | `status` | ຕາມຕາຕະລາງ §4.1 | booking/[code], admin, proofs |
@@ -439,7 +463,9 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | `PosTicketGrid` | `ticketTypes`, `group`, `cart`, `onChange` | — | staff/pos |
 | `CashCalculator` | `total`, `onConfirm` | ເງິນບໍ່ພໍ (ປິດປຸ່ມ) · ພໍ (ສະແດງເງິນທອນ) | staff/pos |
 | `PosOptionalCustomer` | `value`, `onChange` | ພັບ (ຄ່າເລີ່ມຕົ້ນ) · ເປີດ | staff/pos |
-| `ProofReviewCard` | `booking`, `proofUrl`, `onApprove`, `onReject(reason)` | ລໍ · ກຳລັງບັນທຶກ · ອະນຸມັດແລ້ວ · ປະຕິເສດແລ້ວ | staff/proofs |
+| `ProofReviewCard` | `booking`, `payment`, `proofUrl`, `onApprove(transactionId?)`, `onReject(reason)` | ລໍ · ກຳລັງບັນທຶກ · ອະນຸມັດແລ້ວ · ປະຕິເສດແລ້ວ · ກວດແລ້ວໂດຍຄົນອື່ນ (`verifiedBy`) | staff/proofs |
+| `ProofRejectSheet` | `open`, `onConfirm(reason)`, `maxLength = 255` | ວ່າງ (ປຸ່ມປິດ) · ມີເຫດຜົນ · ກຳລັງບັນທຶກ · ຜິດ | staff/proofs |
+| `PaymentHistoryList` | `payments` (ລວມ `verifiedBy`, `verifiedAt`, `rejectReason`) | ວ່າງ · ມີລາຍການ | admin/bookings/[code] |
 | `StatTile` | `label`, `value`, `delta?` | ໂຫຼດ · ມີຂໍ້ມູນ | admin |
 | `DataTableToolbar` | `filters`, `onChange` | — | admin/bookings, reports |
 | `EmptyState` | `icon`, `title`, `description`, `action?` | — | ທຸກລາຍການ |
@@ -525,7 +551,7 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | `review.pay_transfer` | ວິທີຈ່າຍເງິນ: ໂອນຜ່ານທະນາຄານ | Payment: bank transfer |
 | `review.pay_steps` | ໂອນເງິນຕາມຍອດລວມ · ອັບໂຫຼດຮູບຫຼັກຖານ · ພະນັກງານກວດ ແລ້ວສົ່ງ QR ໃຫ້ | Transfer the total · upload your receipt · we check it and send your QR code |
 | `review.hold_notice` | ຫຼັງຢືນຢັນ ທ່ານມີ {minutes} ນາທີ ເພື່ອໂອນ ແລະ ອັບໂຫຼດຫຼັກຖານ | After confirming, you have {minutes} minutes to transfer and upload your receipt |
-| `review.cant_transfer` | ບໍ່ສາມາດໂອນໄດ້? ຊື້ປີ້ຢູ່ປະຕູທາງເຂົ້າໄດ້ (ຈ່າຍເງິນສົດ) | Can't make a transfer? You can buy tickets with cash at the entrance |
+| `review.cant_transfer` | ໂອນບໍ່ໄດ້? ຊື້ປີ້ໄດ້ທີ່ປະຕູທາງເຂົ້າໂດຍກົງ | Can't transfer? You can buy tickets directly at the entrance |
 | `review.confirm` | ຢືນຢັນການຈອງ · {total} | Confirm booking · {total} |
 | `review.err_create` | ບັນທຶກການຈອງບໍ່ສຳເລັດ ກະລຸນາລອງໃໝ່ — ທ່ານຍັງບໍ່ຖືກຕັດເງິນ | We couldn't save your booking. Please try again — you haven't been charged |
 | `review.capacity_changed` | ບ່ອນວັນນີ້ເຕັມລະຫວ່າງທີ່ທ່ານກອກຂໍ້ມູນ ກະລຸນາເລືອກວັນໃໝ່ | This date filled up while you were booking — please choose another date |
@@ -585,8 +611,16 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | `proofs.empty` | ບໍ່ມີຫຼັກຖານລໍກວດ | No receipts to check |
 | `proofs.approve` | ອະນຸມັດ | Approve |
 | `proofs.reject` | ປະຕິເສດ | Reject |
-| `proofs.reject_reason` | ເຫດຜົນທີ່ປະຕິເສດ (ລູກຄ້າຈະເຫັນ) | Reason (the visitor will see this) |
-| `proofs.already_done` | ການຈອງນີ້ຖືກກວດແລ້ວໂດຍ {name} | {name} has already checked this booking |
+| `proofs.reject_reason` | ເຫດຜົນທີ່ປະຕິເສດ (ລູກຄ້າຈະເຫັນຂໍ້ຄວາມນີ້) | Reason (the visitor will see this) |
+| `proofs.reason_required` | ກະລຸນາໃສ່ເຫດຜົນ ເພື່ອໃຫ້ລູກຄ້າຮູ້ວ່າຕ້ອງແກ້ຫຍັງ | Add a reason so the visitor knows what to fix |
+| `proofs.reason_amount` | ຍອດເງິນບໍ່ກົງ | Amount doesn't match |
+| `proofs.reason_unclear` | ຮູບບໍ່ແຈ້ງ | Image is unclear |
+| `proofs.reason_not_found` | ບໍ່ພົບລາຍການໂອນ | Transfer not found |
+| `proofs.chars_left` | ເຫຼືອ {n} ຕົວອັກສອນ | {n} characters left |
+| `proofs.confirm_reject` | ຢືນຢັນການປະຕິເສດ | Confirm rejection |
+| `proofs.expected_amount` | ຍອດທີ່ຕ້ອງໄດ້: {amount} | Expected amount: {amount} |
+| `proofs.already_done` | ການຈອງນີ້ຖືກກວດແລ້ວໂດຍ {name} ເວລາ {time} | {name} already checked this booking at {time} |
+| `admin.payment_verified_by` | ກວດໂດຍ {name} · {time} | Checked by {name} · {time} |
 | `status.pending` | ລໍຖ້າການຈ່າຍເງິນ | Awaiting payment |
 | `status.verifying` | ລໍພະນັກງານກວດ | Being checked |
 | `status.paid` | ຈ່າຍແລ້ວ | Paid |
@@ -628,7 +662,16 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | 11 | ຂໍ້ມູນທີ່ຕ້ອງມີກ່ອນ Phase 5 | ຫ້າມສ້າງເອງ | **ຍັງຂາດ** (ໝາຍ TODO ໄວ້ໃນແຜນ): ທະນາຄານ + ເລກບັນຊີ + ຊື່ບັນຊີ · ເວລາກວດຫຼັກຖານປະມານ · ຂະໜາດຮູບສູງສຸດ · ບ່ອນເກັບຮູບ (disk / cloud) |
 | 12 | ສະແດງ USD/THB ປະມານ | ⚠️ ບໍ່ໄດ້ແນະນຳ | **ຄ່າຊົ່ວຄາວ**: ສະແດງເປັນຕົວເລກຮອງ "ປະມານ" ທຸກພາສາ ເມື່ອ `exchange_rates` ມີອັດຕາ · ບໍ່ມີອັດຕາ → ເຊື່ອງ. ລໍຢືນຢັນ |
 
-### 8.3 ຄຳຖາມໃໝ່ທີ່ເກີດຈາກການແກ້ຮອບນີ້
+### 8.3 ຂໍ້ 13–15 — ຜູ້ໃຊ້ຕັດສິນແລ້ວ (CLAUDE.md ຂໍ້ຕົກລົງ 14, 20)
 
-13. **ເຫດຜົນທີ່ປະຕິເສດຫຼັກຖານ ເກັບໄວ້ໃສ?** ລູກຄ້າຕ້ອງເຫັນເຫດຜົນ (`pay.rejected`) ແຕ່ `payments` ມີແຕ່ `refund_reason` (ສຳລັບຄືນເງິນ). ທາງເລືອກ: (ກ) `payments.status = 'failed'` + ເພີ່ມຄໍລຳ `reject_reason` (ແກ້ schema) (ຂ) ໃຊ້ `bookings.note` (ບໍ່ແກ້ schema ແຕ່ປົນກັບໝາຍເຫດອື່ນ)
-14. **ໃຜເປັນຜູ້ອະນຸມັດຫຼັກຖານ?** `payments` ບໍ່ມີ `verified_by` — ດຽວນີ້ຮູ້ໄດ້ຈາກ `audit_logs` ເທົ່ານັ້ນ (ພໍໃຊ້ສຳລັບ `proofs.already_done`). ພໍບໍ່ ຫຼື ຕ້ອງການຄໍລຳ?
+| # | ຫົວຂໍ້ | ຕັດສິນ | ກະທົບ |
+|---|---|---|---|
+| 13 | ເກັບເຫດຜົນປະຕິເສດຫຼັກຖານ | ຄໍລຳໃໝ່ `payments.reject_reason` VARCHAR(255) NULL — ບໍ່ໃຊ້ `bookings.note` ເພາະລູກຄ້າຕ້ອງເຫັນ ແລະ ຕ້ອງແຍກຊັດ | schema · §3.7, `ProofRejectSheet` |
+| 14 | ຜູ້ອະນຸມັດຫຼັກຖານ | ຄໍລຳໃໝ່ `payments.verified_by` (FK users) + `verified_at` — ເລື່ອງເງິນຕ້ອງເຫັນຜູ້ຮັບຜິດຊອບໃນແຖວນັ້ນ ບໍ່ແມ່ນໄລ່ຫາໃນ log | schema · §3.7, `PaymentHistoryList` |
+| 15 | ຂໍ້ຄວາມ "ໂອນບໍ່ໄດ້?" ໃນໜ້າ review | ເກັບໄວ້ ເປັນຂໍ້ຄວາມນ້ອຍທຳມະດາ "ໂອນບໍ່ໄດ້? ຊື້ປີ້ໄດ້ທີ່ປະຕູທາງເຂົ້າໂດຍກົງ" — ຫ້າມເປັນ radio / checkbox / ປຸ່ມ | §3.3, `review.cant_transfer` |
+
+ສິ່ງທີ່ agent ເລືອກເອງໃນຮອບນີ້ (ລໍຜູ້ໃຊ້ກວດ):
+- `fk_payments_verified_by` ເປັນ **RESTRICT** ບໍ່ແມ່ນ SET NULL (ຕ່າງຈາກ `bookings.created_by` / `check_ins.scanned_by` ທີ່ເປັນ SET NULL) — ຖ້າ SET NULL ລຶບ user ແລ້ວຊື່ຜູ້ຮັບຜິດຊອບຈະຫາຍ ຂັດກັບເຫດຜົນຂອງຂໍ້ 14
+- `verified_by` / `verified_at` ໃຊ້ທັງຕອນອະນຸມັດ ແລະ ປະຕິເສດ (ຜູ້ທີ່ກວດ ບໍ່ແມ່ນສະເພາະຜູ້ອະນຸມັດ)
+- ອັບໂຫຼດໃໝ່ຫຼັງຖືກປະຕິເສດ → ແຖວ payment ໃໝ່ (ເກັບແຖວເກົ່າເປັນປະຫວັດ)
+- ຕົວເລືອກເຫດຜົນດ່ວນ 3 ອັນ (ຍອດບໍ່ກົງ / ຮູບບໍ່ແຈ້ງ / ບໍ່ພົບລາຍການໂອນ) — ເປັນຂໍ້ສະເໜີ ປ່ຽນໄດ້

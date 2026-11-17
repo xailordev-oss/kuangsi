@@ -189,14 +189,19 @@ model payments {
   refund_amount  Decimal?        @db.Decimal(12, 2)
   refund_reason  String?         @db.VarChar(255)
   refunded_at    DateTime?       @db.DateTime(0)
+  reject_reason  String?         @db.VarChar(255)
+  verified_by    BigInt?         @db.UnsignedBigInt
+  verified_at    DateTime?       @db.DateTime(0)
   raw_response   Json?
   created_at     DateTime        @default(now()) @db.DateTime(0)
   updated_at     DateTime        @default(now()) @db.DateTime(0)
   bookings       bookings        @relation(fields: [booking_id], references: [id], onUpdate: NoAction, map: "fk_payments_booking")
+  users          users?          @relation(fields: [verified_by], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_payments_verified_by")
 
   @@index([booking_id], map: "idx_payments_booking")
   @@index([status], map: "idx_payments_status")
   @@index([transaction_id], map: "idx_payments_txn")
+  @@index([verified_by], map: "idx_payments_verified_by")
 }
 
 model route_cache {
@@ -273,6 +278,7 @@ model users {
   audit_logs    audit_logs[]
   bookings      bookings[]
   check_ins     check_ins[]
+  payments      payments[]
   settings      settings[]
 
   @@index([role], map: "idx_users_role")
