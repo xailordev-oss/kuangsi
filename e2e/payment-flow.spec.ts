@@ -65,14 +65,14 @@ test("ລູກຄ້າອັບໂຫຼດຫຼັກຖານ 2 ການ�
   await uploadProof(page, rejectedCode);
 });
 
-test("cashier login ໂດຍບໍ່ມີ callbackUrl → ບໍ່ຂຶ້ນ 404 · ໄປໜ້າກວດຫຼັກຖານ + ແຈ້ງວ່າ POS ຍັງບໍ່ພ້ອມ", async ({ page }) => {
+test("cashier login ໂດຍບໍ່ມີ callbackUrl → ບໍ່ຂຶ້ນ 404 · ໄປໜ້າ POS", async ({ page }) => {
   const { username, password } = JSON.parse(readFileSync(STAFF_SECRET, "utf8"));
   await page.goto("/staff/login");
   await page.getByLabel("ຊື່ຜູ້ໃຊ້").fill(username);
   await page.getByLabel("ລະຫັດຜ່ານ").fill(password);
   await page.getByRole("button", { name: "ເຂົ້າສູ່ລະບົບ" }).click();
-  await expect(page).toHaveURL(/\/staff\/proofs\?notice=pos-not-ready$/);
-  await expect(page.getByText(/ໜ້າຂາຍປີ້ໜ້າປະຕູ \(POS\) ຍັງບໍ່ພ້ອມໃຊ້ງານ/)).toBeVisible();
+  await expect(page).toHaveURL(/\/staff\/pos$/);
+  await expect(page.getByRole("button", { name: "ຮັບເງິນ" })).toBeVisible();
   await expectNoHorizontalScroll(page);
   await expectLaoTextNotClipped(page);
 });

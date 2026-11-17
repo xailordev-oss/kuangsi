@@ -460,6 +460,7 @@ INSERT INTO settings (setting_key, setting_value, description) VALUES
   ('refund_half_hours',   '12',        'ຍົກເລີກກ່ອນ x ຊມ ຄືນ 50%'),
   ('default_currency',    'LAK',       'ສະກຸນເງິນຫຼັກ'),
   ('max_visitors_per_day','3000',      'ຈຳນວນສູງສຸດຕໍ່ວັນ — TODO: ຢືນຢັນ'),
+  ('pos_grace_minutes',   '30',        'POS ຂາຍຕໍ່ໄດ້ x ນາທີ ຫຼັງເວລາປິດ (ຄົນທີ່ຍັງຕໍ່ຄິວ) — ສະແດງແຖບເຕືອນ "ນອກເວລາເປີດ"'),
   ('pos_auto_checkin',    'false',     'true = ປີ້ທີ່ຂາຍຢູ່ POS ໝາຍເຂົ້າແລ້ວທັນທີ — TODO: ຢືນຢັນຜັງພື້ນທີ່ປະຕູ/ບ່ອນຂາຍກັບຜູ້ຈັດການຕາດ'),
   ('session_hours',       '12',        'ອາຍຸ session ພະນັກງານ (ຊົ່ວໂມງ, 1–24) — 1 ກະເຮັດວຽກ, ບັງຄັບ login ໃໝ່ທຸກເຊົ້າ'),
   ('login_max_attempts',  '5',         'ລະຫັດຜ່ານຜິດຕິດກັນ x ຄັ້ງ → ລັອກບັນຊີ'),

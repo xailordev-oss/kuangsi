@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { OfflinePage } from "@/components/site/sw-register";
 import { ScannerApp } from "@/components/staff/scanner-app";
 import { StaffHeader } from "@/components/staff/staff-header";
+import { StaffNav } from "@/components/staff/staff-nav";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { can, homePathForRole, STAFF_LOGIN_PATH } from "@/lib/auth/roles";
@@ -30,6 +31,7 @@ async function ScanView() {
   return (
     <div lang={locale} className="flex min-h-dvh flex-col">
       <StaffHeader title={dict.scan.title} staffName={user.fullName} locale={locale} dict={dict} />
+      <StaffNav role={user.role} current="/staff/scan" dict={dict} />
       <ScannerApp gates={gates} dict={dict} />
       {/* ຂໍ້ຕົກລົງ 34: ໜ້າສະແກນເປີດໄດ້ຕອນເນັດຂາດ */}
       <OfflinePage />

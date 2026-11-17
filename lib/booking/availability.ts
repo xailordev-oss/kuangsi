@@ -16,6 +16,43 @@ export type DayAvailability = {
   left: number;
 };
 
+// POS ຂາຍໄດ້ສະເພາະມື້ນີ້: ເປີດ → open · ຫຼັງເວລາປິດ ພາຍໃນ settings.pos_grace_minutes → grace (ຂາຍໄດ້ + ແຖບເຕືອນ)
+export type PosWindow = {
+  date: string;
+  state: "open" | "grace" | "closed";
+  // before_hours: ຍັງບໍ່ຮອດເວລາເປີດ (ສະເພາະ POS — ຈອງ online ສຳລັບມື້ນີ້ຍັງໄດ້)
+  closedReason: ClosedReason | "before_hours" | null;
+  openTime: string | null;
+  closeTime: string | null;
+  graceUntil: string | null;
+  left: number;
+};
+
+function addMinutesToTime(hhmmss: string, minutes: number): string {
+  const [h, m, s] = hhmmss.split(":").map(Number);
+  const total = Math.min(h * 3600 + m * 60 + s + minutes * 60, 24 * 3600 - 1);
+  return [Math.floor(total / 3600), Math.floor(total / 60) % 60, total % 60].map((n) => String(n).padStart(2, "0")).join(":");
+}
+
+export async function getPosWindow(db: Db, now = new Date()): Promise<PosWindow> {
+  const today = todayInVientiane(now);
+  const [[day], grace] = await Promise.all([getAvailability(db, today, today, now), getIntSetting("pos_grace_minutes", db)]);
+  const graceUntil = day.closeTime ? addMinutesToTime(day.closeTime, grace) : null;
+  const timeNow = timeNowInVientiane(now);
+  const inGrace = day.closedReason === "after_hours" && graceUntil !== null && timeNow < graceUntil;
+  const beforeHours = day.closedReason === null && day.openTime !== null && timeNow < day.openTime;
+  const state = beforeHours ? "closed" : day.closedReason === null ? "open" : inGrace ? "grace" : "closed";
+  return {
+    date: today,
+    state,
+    closedReason: state !== "closed" ? null : beforeHours ? "before_hours" : day.closedReason,
+    openTime: day.openTime,
+    closeTime: day.closeTime,
+    graceUntil,
+    left: state === "closed" ? 0 : Math.max(0, day.capacity - day.booked),
+  };
+}
+
 // ການຈອງທີ່ກິນບ່ອນ: pending ທີ່ຍັງບໍ່ໝົດເວລາ, verifying (ໂມງຢຸດ — ຂໍ້ຕົກລົງ 15), paid, used
 const HOLDS_CAPACITY = Prisma.sql`(b.status IN ('verifying','paid','used') OR (b.status = 'pending' AND b.expires_at > UTC_TIMESTAMP()))`;
 

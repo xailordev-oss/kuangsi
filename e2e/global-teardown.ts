@@ -15,6 +15,11 @@ export default async function globalTeardown() {
       }
       rmSync(SNAPSHOT);
     }
+    // ການຂາຍ POS ທີ່ບໍ່ມີລູກຄ້າ (customer_id NULL) → ລຶບຕາມພະນັກງານ e2e ທີ່ຂາຍ
+    const sellers = Object.values(E2E_USERS);
+    await conn.query("DELETE p FROM payments p JOIN bookings b ON b.id = p.booking_id JOIN users u ON u.id = b.created_by WHERE u.username IN (?)", [sellers]);
+    await conn.query("DELETE c FROM check_ins c JOIN bookings b ON b.id = c.booking_id JOIN users u ON u.id = b.created_by WHERE u.username IN (?)", [sellers]);
+    await conn.query("DELETE b FROM bookings b JOIN users u ON u.id = b.created_by WHERE u.username IN (?)", [sellers]);
     const customers: { id: bigint }[] = await conn.query("SELECT id FROM customers WHERE phone = ?", [E2E_PHONE]);
     for (const { id } of customers) {
       const proofs: { proof_url: string | null }[] = await conn.query(

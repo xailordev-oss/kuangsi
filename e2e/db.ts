@@ -36,3 +36,7 @@ export const E2E_BANK: Record<string, string> = {
   verify_time_note_zh: "E2E zh",
   verify_time_note_th: "E2E th",
 };
+
+// settings ທີ່ e2e ປ່ຽນຊົ່ວຄາວ (global-setup ເກັບຄ່າເດີມ · teardown ຄືນ)
+// rate limit ນັບຢູ່ໃນ memory ຂອງ server — ຊຸດທົດສອບອື່ນທີ່ແລ່ນກ່ອນໃນ server ດຽວກັນອາດໃຊ້ໂຄຕາຂອງ IP ນີ້ໝົດແລ້ວ
+export const E2E_SETTINGS: Record<string, string> = { ...E2E_BANK, booking_create_limit_per_ip: "1000" };

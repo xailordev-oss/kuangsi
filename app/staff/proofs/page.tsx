@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { ProofQueue, type ProofCard } from "@/components/staff/proof-queue";
 import { StaffHeader } from "@/components/staff/staff-header";
+import { StaffNav } from "@/components/staff/staff-nav";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentUser } from "@/lib/auth/dal";
@@ -32,7 +33,7 @@ async function ProofsView({ searchParams }: { searchParams: SearchParams }) {
   const locale = await getStaffLocale();
   const dict = getStaffDictionary(locale);
   // ຂໍ້ຕົກລົງ 40: ໜ້າທີ່ຍັງບໍ່ທັນເຮັດ ພາມາທີ່ນີ້ພ້ອມຂໍ້ຄວາມ (ບໍ່ໃຫ້ຂຶ້ນ 404)
-  const notices: Record<string, string> = { "pos-not-ready": dict.proofs.posNotReady, "admin-not-ready": dict.proofs.adminNotReady };
+  const notices: Record<string, string> = { "admin-not-ready": dict.proofs.adminNotReady };
   const notice = notices[(await searchParams).notice ?? ""];
   // ວັນທີ format ຢູ່ server — Intl ຂອງ browser ບໍ່ມີພາສາລາວ
   const items: ProofCard[] = (await listProofQueue()).map((p) => ({
@@ -48,6 +49,7 @@ async function ProofsView({ searchParams }: { searchParams: SearchParams }) {
   return (
     <div lang={locale} className="flex flex-1 flex-col">
       <StaffHeader title={dict.common.siteName} staffName={user.fullName} locale={locale} dict={dict} />
+      <StaffNav role={user.role} current="/staff/proofs" dict={dict} />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-4">
         {notice && (
           <Alert className="mb-4 border-warning/40 bg-warning-subtle">

@@ -1,25 +1,28 @@
 import { BusinessError } from "@/lib/api";
 import { prisma } from "@/lib/db";
-import { getAvailability, expireStaleBookings } from "@/lib/booking/availability";
+import { expireStaleBookings, getAvailability, getPosWindow } from "@/lib/booking/availability";
 import { generateBookingCode, generateQrToken } from "@/lib/booking/codes";
 import { quote, type Quote } from "@/lib/booking/pricing";
 import type { AddOnLineInput, TicketLineInput } from "@/lib/booking/schemas";
 import { getBoolSetting, getIntSetting, type Db } from "@/lib/settings";
-import { isoDateToDb, todayInVientiane } from "@/lib/time";
+import { Prisma } from "@/lib/generated/prisma/client";
+import { dayOfWeek, isoDateToDb, todayInVientiane } from "@/lib/time";
 
 const LOCK_WAIT_SECONDS = 10;
 
-// ກັນການຂາຍເກີນ (overbooking): ການຈອງວັນດຽວກັນຕ້ອງເຂົ້າຄິວທີລະອັນ
-// GET_LOCK ຜູກກັບ connection — interactive transaction ຂອງ Prisma ໃຊ້ connection ດຽວຕະຫຼອດ
+// ກັນການຂາຍເກີນ (overbooking) + ກັນຂາຍຊ້ຳ (requestId): ການຈອງວັນດຽວກັນຕ້ອງເຂົ້າຄິວທີລະອັນ
+// ລັອກແຖວ operating_hours ຂອງວັນໃນອາທິດນັ້ນ (FOR UPDATE) → ປ່ອຍຕອນ commit/rollback ເທົ່ານັ້ນ
+// ດັ່ງນັ້ນອັນທີ່ລໍຄິວຈະເຫັນຂໍ້ມູນທີ່ອັນກ່ອນ commit ແລ້ວສະເໝີ
+// (GET_LOCK ເດີມປ່ອຍກ່ອນ commit → 2 request ພ້ອມກັນ ອ່ານຂໍ້ມູນກ່ອນອີກອັນ commit ໄດ້)
 async function withDateLock<T>(db: Db, date: string, fn: () => Promise<T>): Promise<T> {
-  const name = `kuangsi:capacity:${date}`;
-  const [{ got }] = await db.$queryRaw<{ got: bigint | number | null }[]>`SELECT GET_LOCK(${name}, ${LOCK_WAIT_SECONDS}) AS got`;
-  if (Number(got) !== 1) throw new BusinessError(503, "busy_try_again");
+  await db.$executeRawUnsafe(`SET SESSION innodb_lock_wait_timeout = ${LOCK_WAIT_SECONDS}`);
   try {
-    return await fn();
-  } finally {
-    await db.$queryRaw`SELECT RELEASE_LOCK(${name})`;
+    await db.$queryRaw`SELECT id FROM operating_hours WHERE day_of_week = ${dayOfWeek(date)} FOR UPDATE`;
+  } catch (error) {
+    if (String(error).includes("Lock wait timeout")) throw new BusinessError(503, "busy_try_again");
+    throw error;
   }
+  return fn();
 }
 
 async function assertBookable(db: Db, date: string, people: number): Promise<void> {
@@ -136,20 +139,47 @@ export type GateSaleInput = {
   customer?: { fullName?: string; phone?: string };
   cashReceived: number;
   staffId: bigint;
+  requestId?: string;
 };
 
+export type GateSaleResult = { bookingCode: string; total: Prisma.Decimal; change: Prisma.Decimal; checkedIn: boolean; replayed: boolean };
+
+// ການຂາຍທີ່ເຄີຍສຳເລັດດ້ວຍ requestId ນີ້ (ພາຍໃນ 1 ວັນ) — ເກັບໄວ້ໃນ audit_logs.new_value
+async function priorGateSale(db: Db, requestId: string): Promise<GateSaleResult | null> {
+  const rows = await db.$queryRaw<{ code: string; total: string; cash: string; checked: number | bigint | boolean }[]>`
+    SELECT JSON_UNQUOTE(JSON_EXTRACT(new_value, '$.bookingCode')) AS code,
+           JSON_UNQUOTE(JSON_EXTRACT(new_value, '$.total')) AS total,
+           JSON_UNQUOTE(JSON_EXTRACT(new_value, '$.cashReceived')) AS cash,
+           JSON_EXTRACT(new_value, '$.autoCheckin') = true AS checked
+    FROM audit_logs
+    WHERE action = 'booking.gate_sale' AND created_at > UTC_TIMESTAMP() - INTERVAL 1 DAY
+      AND JSON_UNQUOTE(JSON_EXTRACT(new_value, '$.requestId')) = ${requestId}
+    LIMIT 1`;
+  const r = rows[0];
+  if (!r) return null;
+  const total = new Prisma.Decimal(r.total);
+  return { bookingCode: r.code, total, change: new Prisma.Decimal(r.cash).sub(total), checkedIn: Boolean(Number(r.checked)), replayed: true };
+}
+
 // ຂາຍໜ້າປະຕູ: ມື້ນີ້ · ເງິນສົດ · paid ທັນທີ · ລູກຄ້າບໍ່ບັງຄັບ (ຂໍ້ຕົກລົງ 16, 17)
-export async function createGateSale(input: GateSaleInput) {
+export async function createGateSale(input: GateSaleInput): Promise<GateSaleResult> {
   const visitDate = todayInVientiane();
   return prisma.$transaction(
     (tx) =>
       withDateLock(tx, visitDate, async () => {
+        // ກວດພາຍໃນ lock ລາຍວັນ → request ຊ້ຳທີ່ມາພ້ອມກັນເຂົ້າຄິວ ແລະ ເຫັນອັນທຳອິດທີ່ commit ແລ້ວ
+        if (input.requestId) {
+          const prior = await priorGateSale(tx, input.requestId);
+          if (prior) return prior;
+        }
         await expireStaleBookings(tx, { visit_date: isoDateToDb(visitDate) });
         const q = await quote(tx, input.items, input.addOns);
         if (q.total.gt(input.cashReceived)) {
           throw new BusinessError(422, "insufficient_cash", { total: q.total.toFixed(2), short: q.total.sub(input.cashReceived).toFixed(2) });
         }
-        await assertBookable(tx, visitDate, q.people);
+        const window = await getPosWindow(tx);
+        if (window.state === "closed") throw new BusinessError(422, "date_closed", { date: visitDate, reason: window.closedReason });
+        if (q.people > window.left) throw new BusinessError(409, "sold_out", { date: visitDate, left: window.left });
 
         const autoCheckin = await getBoolSetting("pos_auto_checkin", tx);
         const customerId = input.customer ? await resolveCustomer(tx, input.customer) : null;
@@ -194,7 +224,14 @@ export async function createGateSale(input: GateSaleInput) {
             action: "booking.gate_sale",
             table_name: "bookings",
             record_id: booking.id,
-            new_value: { bookingCode: booking.booking_code, total: q.total.toFixed(2), people: q.people, autoCheckin },
+            new_value: {
+              bookingCode: booking.booking_code,
+              total: q.total.toFixed(2),
+              cashReceived: String(input.cashReceived),
+              people: q.people,
+              autoCheckin,
+              requestId: input.requestId ?? null,
+            },
           },
         });
 
@@ -203,6 +240,7 @@ export async function createGateSale(input: GateSaleInput) {
           total: q.total,
           change: q.total.neg().add(input.cashReceived),
           checkedIn: autoCheckin,
+          replayed: false,
         };
       }),
     { timeout: 20_000, maxWait: 10_000 },

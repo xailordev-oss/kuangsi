@@ -39,7 +39,7 @@ export function StaffHeader({
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur print:hidden">
       <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 px-4 py-2">
         <div className="min-w-0">
           <p className="truncate text-lg font-bold text-primary">{title}</p>

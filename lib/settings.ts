@@ -14,6 +14,7 @@ const INT_SETTINGS = {
   max_advance_days: { min: 1, max: 730 },
   booking_create_limit_per_ip: { min: 1, max: 100_000 },
   booking_create_window_minutes: { min: 1, max: 1440 },
+  pos_grace_minutes: { min: 0, max: 180 },
 } as const;
 
 export type IntSettingKey = keyof typeof INT_SETTINGS;

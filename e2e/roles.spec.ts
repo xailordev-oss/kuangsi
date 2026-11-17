@@ -22,7 +22,8 @@ test("viewer → ໜ້າແຈ້ງວ່າລາຍງານຍັງບໍ
   await expectLaoTextNotClipped(page);
 });
 
-test("cashier → ໜ້າກວດຫຼັກຖານ + ແຈ້ງວ່າ POS ຍັງບໍ່ພ້ອມ", async ({ page }) => {
+test("cashier → ໜ້າ POS · ມີເມນູໄປໜ້າກວດຫຼັກຖານ", async ({ page }) => {
   await loginAs(page, "cashier");
-  await expect(page).toHaveURL(/\/staff\/proofs\?notice=pos-not-ready$/);
+  await expect(page).toHaveURL(/\/staff\/pos$/);
+  await expect(page.getByRole("link", { name: "ກວດຫຼັກຖານ" })).toBeVisible();
 });

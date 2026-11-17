@@ -73,6 +73,8 @@ export const posSaleSchema = z.object({
     })
     .optional(),
   cashReceived: z.number().int().min(0).max(1_000_000_000),
+  // ຂໍ້ຕົກລົງ 41: ກົດຊ້ຳ / ເນັດຂາດກາງທາງ → ສົ່ງ requestId ເດີມ ໄດ້ຜົນເດີມ ບໍ່ຂາຍຊ້ຳ
+  requestId: z.uuid().optional(),
 });
 
 export const lookupSchema = z.object({ bookingCode: bookingCodeSchema, phone: phoneSchema });
