@@ -1,0 +1,634 @@
+# ແຜນອອກແບບ UI/UX — ລະບົບຈອງປີ້ຕາດກວາງຊີ (Phase 2)
+
+> ສະຖານະ: **ສະບັບ 2 — ອັບເດດຕາມຄຳຕອບ §8** · ເອກະສານເທົ່ານັ້ນ ບໍ່ມີ code
+> ອີງໃສ່: `docs/ui-brief.md`, `docs/requirements.md`, `CLAUDE.md` (ຂໍ້ຕົກລົງ 1–19), `db/kuangsi-schema.sql`
+> ອອກແບບ mobile-first ທີ່ 375px · ພາສາເລີ່ມຕົ້ນ: ລາວ
+
+ສາລະບານ
+1. ລາຍການໜ້າ + route (2.1)
+2. User flow ຫຼັກ 3 ອັນ (2.2)
+3. Wireframe ASCII (2.3)
+4. Design tokens (2.4)
+5. ບັນຊີ component (2.5)
+6. ສະຖານະຂອງທຸກໜ້າ (2.6)
+7. ຂໍ້ຄວາມ UI (ຂໍ້ 3)
+8. ການຕັດສິນໃຈ (ບັນທຶກ) + ຄຳຖາມທີ່ຍັງເປີດ
+
+---
+
+## 1. ລາຍການໜ້າ + route
+
+### 1.1 ຝັ່ງລູກຄ້າ — `/[lang]/…` (`lang` = `lo` | `en` | `zh` | `th`)
+
+ບໍ່ມີ login ຝັ່ງລູກຄ້າ (ຂໍ້ຕົກລົງ 12).
+
+| Route | ຊື່ໜ້າ | ໃຜເຂົ້າໄດ້ | ຈຸດປະສົງ |
+|---|---|---|---|
+| `/[lang]` | ໜ້າຫຼັກ | ທຸກຄົນ | ແນະນຳຕາດ, ລາຄາ, ເວລາເປີດ, ໄລຍະທາງຈາກຜູ້ໃຊ້, ປຸ່ມຈອງ |
+| `/[lang]/book` | ຂັ້ນ 1: ວັນທີ + ປີ້ | ທຸກຄົນ | ເລືອກວັນເຂົ້າຊົມ, ຈຳນວນປີ້ແຕ່ລະປະເພດ, ບໍລິການເສີມ |
+| `/[lang]/book/details` | ຂັ້ນ 2: ຂໍ້ມູນຜູ້ຈອງ | ທຸກຄົນ | ຊື່, ເບີໂທ, ອີເມວ, ສັນຊາດ, ເລກບັດ (ບໍ່ບັງຄັບ) |
+| `/[lang]/book/review` | ຂັ້ນ 3: ສະຫຼຸບ + ຈ່າຍເງິນ | ທຸກຄົນ | ກວດລາຍການ, ອ່ານຂັ້ນຕອນການໂອນ, ກົດຢືນຢັນ → ສ້າງການຈອງ (`pending`) |
+| `/[lang]/booking/[code]` | ຂັ້ນ 4: ການຈອງຂອງຂ້ອຍ | browser ທີ່ຫາກໍຈອງ (cookie) ຫຼື ຜ່ານໜ້າຄົ້ນຫາ (ຂໍ້ຕົກລົງ 19) | `pending` ໂອນ + ອັບໂຫຼດ → `verifying` ລໍພະນັກງານກວດ → `paid` **QR + ລະຫັດຈອງ** |
+| `/[lang]/lookup` | ຄົ້ນຫາປີ້ຂອງຂ້ອຍ | ທຸກຄົນ | ໃສ່ລະຫັດຈອງ + ເບີໂທ → ໄປໜ້າການຈອງ |
+| `/[lang]/privacy` | ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ | ທຸກຄົນ | ອະທິບາຍການໃຊ້ຕຳແໜ່ງ (requirements 4.11) |
+
+ໝາຍເຫດ: ໜ້າ "ຈ່າຍເງິນ" ແລະ "ສຳເລັດ" ໃນ brief ຖືກລວມເປັນ **ໜ້າດຽວ** (`/booking/[code]`) ທີ່ປ່ຽນຕາມສະຖານະ ເພື່ອໃຫ້ລູກຄ້າມີ URL ດຽວໄວ້ກັບມາເບິ່ງ ແລະ ໃຫ້ຈອງຈົບໃນ 4 ຂັ້ນ.
+
+### 1.2 ຝັ່ງພະນັກງານ — `/staff/…`
+
+| Route | ຊື່ໜ້າ | ໃຜເຂົ້າໄດ້ | ຈຸດປະສົງ |
+|---|---|---|---|
+| `/staff/login` | ເຂົ້າສູ່ລະບົບ | ທຸກຄົນ (ພະນັກງານ) | login ດຽວ → ພາໄປໜ້າຕາມບົດບາດ |
+| `/staff/scan` | ສະແກນປີ້ | `scanner`, `admin` | ກ້ອງເຕັມຈໍ ໃຊ້ມືດຽວ, ຜົນເຫັນຈາກໄກ, offline queue |
+| `/staff/pos` | ຂາຍປີ້ໜ້າປະຕູ | `cashier`, `admin` | ປຸ່ມໃຫຍ່ ເລືອກປີ້ → ຮັບເງິນ → ພິມ |
+| `/staff/pos/receipt/[code]` | ໃບປີ້ສຳລັບພິມ | `cashier`, `admin` | ໜ້າພິມ (QR + ລະຫັດ + ຈຳນວນຄົນ) |
+| `/staff/proofs` | ກວດຫຼັກຖານໂອນ | `cashier`, `admin` | ລາຍການລໍກວດ → ເບິ່ງຮູບ → ອະນຸມັດ/ປະຕິເສດ |
+
+### 1.3 ຝັ່ງ Admin — `/admin/…`
+
+| Route | ຊື່ໜ້າ | ໃຜເຂົ້າໄດ້ | ຈຸດປະສົງ |
+|---|---|---|---|
+| `/admin` | Dashboard | `admin`, `viewer` | ຕົວເລກມື້ນີ້: ການຈອງ, ຄົນເຂົ້າ, ລາຍໄດ້, ລໍກວດຫຼັກຖານ, ບ່ອນຫວ່າງ |
+| `/admin/bookings` | ການຈອງ | `admin` (ອ່ານ: `viewer`) | ຄົ້ນຫາ/ກັ່ນຕອງ ຕາມວັນ, ສະຖານະ, ຊ່ອງທາງ |
+| `/admin/bookings/[code]` | ລາຍລະອຽດການຈອງ | `admin` (ອ່ານ: `viewer`) | ລາຍການ, ການຈ່າຍ, ປະຫວັດສະແກນ, ຍົກເລີກ/ຄືນເງິນ |
+| `/admin/ticket-types` | ປີ້ ແລະ ລາຄາ | `admin` | ລາຄາ, ຊ່ວງອາຍຸ, ເປີດ/ປິດຂາຍ, ບໍລິການເສີມ (tab) |
+| `/admin/users` | ຜູ້ໃຊ້ | `admin` | ເພີ່ມ/ປິດບັນຊີ, ກຳນົດບົດບາດ |
+| `/admin/reports` | ລາຍງານ | `admin`, `viewer` | ລາຍໄດ້ ວັນ/ເດືອນ/ປີ, ສັນຊາດ, ຊ່ອງທາງ, ລະດູ — **ບໍ່ມີ `id_number`** |
+| `/admin/settings` | ຕັ້ງຄ່າ | `admin` | tab: ເວລາເປີດ-ປິດ · ວັນປິດ · ຈຳນວນຮັບ · ອັດຕາແລກປ່ຽນ · ນະໂຍບາຍຄືນເງິນ · ເວລາກັນບ່ອນ (30 ນາທີ) · ສະຖານທີ່ (`places`) |
+
+ໝາຍເຫດ: ຮອບເວລາ (`time_slots`) **ບໍ່ມີ UI ໃນ v1** (ຂໍ້ຕົກລົງ 13).
+
+---
+
+## 2. User flow ຫຼັກ 3 ອັນ
+
+### 2.1 ຈອງ online ຈົນໄດ້ QR — ເປົ້າ ≤ 4 ຂັ້ນ
+
+```
+[ໜ້າຫຼັກ] ──ຈອງປີ້ເລີຍ──▶ ① ວັນທີ + ປີ້ ──▶ ② ຂໍ້ມູນຜູ້ຈອງ ──▶ ③ ສະຫຼຸບ + ວິທີໂອນ ──ຢືນຢັນ──▶ ④ ການຈອງຂອງຂ້ອຍ
+
+④ ການຈອງຂອງຂ້ອຍ (ໜ້າດຽວ ປ່ຽນຕາມ bookings.status):
+
+  pending (ໂມງ 30 ນາທີ) ──ອັບໂຫຼດຫຼັກຖານ──▶ verifying (ໂມງຢຸດ, expires_at = NULL) ──ອະນຸມັດ──▶ paid → QR ✅
+     │  ▲                                        │
+     │  └──── ປະຕິເສດ (+ເຫດຜົນ) ─ ໂມງ 30 ນາທີໃໝ່ ─┘
+     └── ໝົດເວລາ ──▶ expired (ປ່ອຍບ່ອນຄືນ)
+```
+ບໍ່ມີທາງເລືອກ "ຈ່າຍເງິນສົດ" ຝັ່ງ online ເລີຍ (ຂໍ້ຕົກລົງ 14) — ເງິນສົດມີແຕ່ POS.
+
+| ຂັ້ນ | ສິ່ງທີ່ຜູ້ໃຊ້ເຮັດ | ⚠️ ຈຸດທີ່ມັກຖອນຕົວ | ວິທີຫຼຸດ |
+|---|---|---|---|
+| ① | ເລືອກວັນ, ກົດ +/− ປີ້ | ວັນທີ່ຢາກໄປ ຂາຍໝົດ/ປິດ · ສັບສົນ 6 ປະເພດປີ້ | ປະຕິທິນສະແດງວັນເຕັມ/ປິດ ລ່ວງໜ້າ (ບໍ່ໃຫ້ເລືອກແລ້ວຈຶ່ງບອກ) · ເລືອກ ລາວ/ຕ່າງປະເທດ ກ່ອນ (§3.2) |
+| ② | ກອກຟອມ | ເບີໂທຕ່າງປະເທດຮູບແບບຕ່າງກັນ · ຄິດວ່າຕ້ອງໃສ່ passport | ມີຕົວເລືອກລະຫັດປະເທດ · ໝາຍ "ບໍ່ບັງຄັບ" ຊັດ ແລະ ພັບຊ່ອງເລກບັດໄວ້ |
+| ③ | ກວດ + ຢືນຢັນ | ຕົກໃຈລາຄາລວມ · ບໍ່ມີແອັບທະນາຄານ / ຢາກຈ່າຍສົດ | ສະແດງລາຄາລວມຕັ້ງແຕ່ຂັ້ນ ① (sticky bar) · ອະທິບາຍຂັ້ນຕອນໂອນ **ກ່ອນ** ກົດຢືນຢັນ — ຄົນທີ່ໂອນບໍ່ໄດ້ຈະຮູ້ກ່ອນສ້າງການຈອງ (ຫຼີກເວັ້ນການຈອງຄ້າງ 30 ນາທີ) ແລະ ບອກວ່າຊື້ຢູ່ປະຕູໄດ້ |
+| ④ | ໂອນເງິນຜ່ານແອັບທະນາຄານ ແລ້ວກັບມາອັບໂຫຼດ | **ສູງສຸດ**: ສະຫຼັບແອັບແລ້ວບໍ່ກັບມາ · ໝົດ 30 ນາທີ · ກັງວົນຕອນລໍກວດ | ໂມງນັບຖອຍຫຼັງ · ປຸ່ມ copy ເລກບັນຊີ · ລິ້ງໜ້ານີ້ສົ່ງທາງ SMS/ອີເມວ (Phase 7) · ອັບໂຫຼດແລ້ວໂມງຢຸດ ແລະ ບອກຊັດວ່າ "ບໍ່ໝົດອາຍຸລະຫວ່າງກວດ" |
+
+ໝາຍເຫດ: ຜູ້ໃຊ້ກົດ 4 ຂັ້ນ ແຕ່ QR ຈະອອກ **ຫຼັງພະນັກງານອະນຸມັດ** — ເວລາລໍຂຶ້ນກັບພະນັກງານ ບໍ່ແມ່ນ UI.
+
+### 2.2 ຂາຍປີ້ຢູ່ປະຕູ (POS) — ເປົ້າ ≤ 30 ວິນາທີ/ກຸ່ມ
+
+```
+ເລືອກ ລາວ/ຕ່າງປະເທດ (ຈື່ຄ່າກ່ອນໜ້າ) → ແຕະ +/− ປຸ່ມໃຫຍ່ → [ຮັບເງິນ] → ໃສ່ເງິນທີ່ຮັບ (ປຸ່ມລັດ 50k/100k/ພໍດີ) → ເຫັນເງິນທອນ → [ຢືນຢັນ + ພິມ]
+```
+
+| ວິນາທີ | ຂັ້ນ | ⚠️ ຈຸດຊ້າ |
+|---|---|---|
+| 0–10 | ເລືອກປີ້ | ຖາມອາຍຸເດັກ → ສະແດງຊ່ວງອາຍຸໃຕ້ປຸ່ມ |
+| 10–20 | ຮັບເງິນ/ທອນ | ຄິດເງິນທອນ → ລະບົບຄິດໃຫ້ |
+| 20–30 | ພິມ | printer ຊ້າ/ບໍ່ພ້ອມ → ສະແດງ QR ເທິງຈໍໃຫ້ລູກຄ້າຖ່າຍຮູບແທນໄດ້ |
+
+- ບໍ່ຖາມຊື່/ເບີໂທ ເປັນຄ່າເລີ່ມຕົ້ນ → `customer_id = NULL` (ຂໍ້ຕົກລົງ 16)
+- ມີລິ້ງພັບໄວ້ "ເພີ່ມຊື່ / ເບີໂທ (ບໍ່ບັງຄັບ)" — ຖ້າໃສ່ → ສ້າງ ຫຼື ໃຊ້ customer ເກົ່າຕາມເບີໂທ
+- ສ້າງການຈອງ `channel = 'gate'`, `status = 'paid'`, `created_by = ພະນັກງານ`, payment `method = 'cash'`
+- `settings.pos_auto_checkin = 'false'` (ຄ່າເລີ່ມຕົ້ນ) → ລູກຄ້າຍັງຕ້ອງສະແກນຢູ່ປະຕູ · `'true'` → ບັນທຶກ `check_ins` (`ok`) ທັນທີຕອນຂາຍ ແລະ ໃບປີ້ຂຽນ "ເຂົ້າແລ້ວ" (ຂໍ້ຕົກລົງ 17)
+
+### 2.3 ສະແກນປີ້ເຂົ້າ — ເປົ້າ ≤ 3 ວິນາທີ/ກຸ່ມ
+
+```
+ກ້ອງເປີດຕະຫຼອດ → ຈັບ QR ໄດ້ (≈0.5 ວິ) → ກວດ (≈0.5 ວິ) → ຈໍເຕັມສີ + ສຽງ + ສັ່ນ → ພະນັກງານນັບຄົນຕາມ "ຜູ້ໃຫຍ່ 2 · ເດັກ 1" → ກັບໄປສະແກນເອງໃນ 2 ວິ (ຫຼື ແຕະ)
+```
+
+| ຜົນ (`check_ins.result`) | ຈໍ | ສຽງ/ສັ່ນ |
+|---|---|---|
+| `ok` | **ຂຽວເຕັມຈໍ** ✓ + ຈຳນວນຄົນໃຫຍ່ໆ | ຕິ໊ງ 1 ຄັ້ງ · ສັ່ນສັ້ນ |
+| `duplicate` | **ແດງ** ✕ "ໃຊ້ແລ້ວ" + ເວລາ/ປະຕູທີ່ສະແກນຄັ້ງກ່ອນ | ຕຶດ 2 ຄັ້ງ · ສັ່ນຍາວ |
+| `wrong_date` | **ເຫຼືອງ** ! "ບໍ່ແມ່ນວັນນີ້" + ວັນທີໃນປີ້ | ຕຶດ 1 ຄັ້ງ |
+| `expired` / `invalid` | **ແດງ** ✕ + ເຫດຜົນ | ຕຶດ 2 ຄັ້ງ |
+| `unpaid` (status `pending`/`verifying`) | **ແດງ** ✕ "ຍັງບໍ່ໄດ້ຈ່າຍເງິນ" + ແນະນຳໄປຊື້ທີ່ POS | ຕຶດ 2 ຄັ້ງ |
+| `cancelled` | **ແດງ** ✕ "ການຈອງຖືກຍົກເລີກ" | ຕຶດ 2 ຄັ້ງ |
+
+ທຸກຜົນທີ່ບໍ່ແມ່ນ `ok` ຖືກບັນທຶກໃນ `check_ins` ພ້ອມ `result` ເປັນເຫດຜົນ (ຂໍ້ຕົກລົງ 18) — ພະນັກງານເພີ່ມ `note` ໄດ້ (ບໍ່ບັງຄັບ ເພື່ອບໍ່ໃຫ້ຊ້າ).
+
+⚠️ ຈຸດຊ້າ: ກ້ອງໂຟກັດບໍ່ໄດ້ກາງແດດ / ຈໍໂທລະສັບລູກຄ້າມືດ → ປຸ່ມ "ໃສ່ລະຫັດເອງ" ຢູ່ເຄິ່ງລຸ່ມ + ໄຟແຟລດ · ເນັດຂາດ → offline queue (§8 ຂໍ້ 7)
+
+---
+
+## 3. Wireframe ASCII (375px)
+
+### 3.1 ໜ້າຫຼັກ `/[lang]`
+
+```
+┌─────────────────────────────┐
+│ ຕາດກວາງຊີ          [ລາວ ▾] │  ← LanguageSwitcher ທຸກໜ້າ
+├─────────────────────────────┤
+│ ┌─────────────────────────┐ │
+│ │      [ ຮູບຕາດ ]          │ │  placeholder
+│ └─────────────────────────┘ │
+│ ຕາດກວາງຊີ                    │
+│ ເປີດທຸກມື້ 08:00–17:30       │  ← operating_hours
+│                             │
+│ ┌─ ໄລຍະທາງ ──────────────┐ │  DistanceCard (Phase 8)
+│ │ 📍 ທ່ານຢູ່ຫ່າງປະມານ 31 ກມ │ │
+│ │    ຂັບລົດປະມານ 50 ນາທີ   │ │
+│ │ [ເປີດເສັ້ນທາງ]           │ │
+│ └─────────────────────────┘ │
+│                             │
+│ ລາຄາປີ້                      │
+│ ຄົນລາວ    ຜູ້ໃຫຍ່   25,000 ₭ │  ← ticket_types (active)
+│           ເດັກ      10,000 ₭ │
+│ ຕ່າງປະເທດ ຜູ້ໃຫຍ່   65,000 ₭ │
+│           ≈ $3 · ≈ ฿100     │  ← ຕົວເລກຮອງ "ປະມານ"
+│ [ຄົ້ນຫາປີ້ຂອງຂ້ອຍ]          │
+├─────────────────────────────┤
+│ ┌─────────────────────────┐ │  sticky ລຸ່ມ (ນິ້ວໂປ້ເອື້ອມເຖິງ)
+│ │       ຈອງປີ້ເລີຍ         │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+DistanceCard ກ່ອນກົດ: "[📍 ໄລຍະທາງຈາກບ່ອນຂ້ອຍ]" + ເຫດຜົນ "ເພື່ອຄຳນວນໄລຍະທາງ…" — ບໍ່ຂໍ GPS ທັນທີທີ່ເປີດໜ້າ.
+
+### 3.2 ຂັ້ນ 1: ວັນທີ + ປີ້ `/[lang]/book`
+
+**ຂໍ້ສະເໜີ: ເລືອກ "ຄົນລາວ / ຕ່າງປະເທດ" ກ່ອນ ແລ້ວສະແດງ 3 ແຖວ** ພ້ອມທາງອອກສຳລັບກຸ່ມປົນ
+
+ເຫດຜົນ:
+- ສ່ວນໃຫຍ່ກຸ່ມໜຶ່ງມີສັນຊາດດຽວ → 3 ແຖວອ່ານງ່າຍກວ່າ 6 ແຖວ ຢູ່ຈໍ 375px (ຂໍ້ຄວາມລາວຍາວ)
+- ລາຄາລາວ/ຕ່າງປະເທດຕ່າງກັນ 2–3 ເທົ່າ → ເຫັນທັງ 6 ພ້ອມກັນ ຜູ້ໃຊ້ອາດກົດຜິດແຖວ (ຄົນຕ່າງປະເທດກົດປີ້ລາວ)
+- ຄ່າເລີ່ມຕົ້ນຕາມພາສາ: `lo` → ຄົນລາວ, ອື່ນ → ຕ່າງປະເທດ (ແຕ່ຜູ້ໃຊ້ຕ້ອງເຫັນ ແລະ ປ່ຽນໄດ້)
+- ກຸ່ມປົນ (ໄກດ໌ລາວ + ນັກທ່ອງທ່ຽວ): ລິ້ງ "ກຸ່ມມີທັງຄົນລາວ ແລະ ຕ່າງປະເທດ" → ສະແດງທັງ 6 ແຖວ ແບ່ງ 2 ຫົວຂໍ້
+
+```
+┌─────────────────────────────┐
+│ ←  ຈອງປີ້          ① ② ③ ④  │  BookingStepper
+├─────────────────────────────┤
+│ ເລືອກວັນທີເຂົ້າຊົມ            │
+│ ┌─────────────────────────┐ │
+│ │ ‹   ພະຈິກ 2026        › │ │  DatePickerWithAvailability
+│ │ ອ  ຈ  ອ  ພ  ພຫ ສ  ສ     │ │
+│ │ 15 16 [17] 18 19 20 21  │ │  ✕ = ເຕັມ/ປິດ (ມີ icon ບໍ່ແມ່ນສີຢ່າງດຽວ)
+│ │ 22 23 24 ✕25 26 27 28   │ │  • = ເຫຼືອໜ້ອຍ
+│ └─────────────────────────┘ │
+│ ວັນທີ 17 ເຫຼືອ 1,240 ບ່ອນ    │
+│                             │
+│ ກຸ່ມຂອງທ່ານແມ່ນ              │
+│ ┌────────────┬────────────┐ │  VisitorGroupToggle
+│ │ ● ຄົນລາວ    │ ○ ຕ່າງປະເທດ │ │
+│ └────────────┴────────────┘ │
+│                             │
+│ ຜູ້ໃຫຍ່ (13 ປີຂຶ້ນໄປ)          │  TicketQuantityPicker
+│ 25,000 ₭        [−]  2  [+] │  ປຸ່ມ 44×44
+│ ເດັກ (6–12 ປີ)               │
+│ 10,000 ₭        [−]  1  [+] │
+│ ເດັກນ້ອຍ (0–5 ປີ) ຟຣີ        │
+│ 0 ₭             [−]  0  [+] │
+│ ກຸ່ມມີທັງຄົນລາວ ແລະ ຕ່າງປະເທດ ›│
+│                             │
+│ ບໍລິການເສີມ (ບໍ່ບັງຄັບ)        │  AddOnSelector
+│ ☐ ລົດຮັບສົ່ງ 50,000 ₭/ຄົນ     │
+│ ☐ ໄກ້ນຳທ່ຽວ 150,000 ₭/ກຸ່ມ    │
+├─────────────────────────────┤
+│ 3 ຄົນ · 60,000 ₭    [ຕໍ່ໄປ] │  StickyActionBar
+└─────────────────────────────┘
+```
+
+### 3.3 ຂັ້ນ 3: ສະຫຼຸບ + ວິທີຈ່າຍ `/[lang]/book/review`
+
+```
+┌─────────────────────────────┐
+│ ←  ກວດກ່ອນຢືນຢັນ   ① ② ③ ④  │
+├─────────────────────────────┤
+│ ວັນທີ  ອັງຄານ 17 ພະຈິກ 2026 [ແກ້]│
+│ ຜູ້ຈອງ ສົມໃຈ ພົມມະວົງ    [ແກ້]│
+│        020 5555 1234         │
+│ ─────────────────────────── │  PriceSummary
+│ ຄົນລາວ ຜູ້ໃຫຍ່ × 2   50,000 ₭ │
+│ ຄົນລາວ ເດັກ × 1      10,000 ₭ │
+│ ─────────────────────────── │
+│ ລວມ                 60,000 ₭ │
+│                 ≈ $2.80 (ປະມານ)│
+│                             │
+│ ວິທີຈ່າຍເງິນ: ໂອນຜ່ານທະນາຄານ  │  TransferInstructions (ບໍ່ມີຕົວເລືອກ)
+│ 1. ໂອນເງິນຕາມຍອດລວມ          │
+│ 2. ອັບໂຫຼດຮູບຫຼັກຖານ          │
+│ 3. ພະນັກງານກວດ ແລ້ວສົ່ງ QR ໃຫ້ │
+│                             │
+│ ⓘ ຫຼັງຢືນຢັນ ທ່ານມີ 30 ນາທີ   │  ← ອ່ານຈາກ settings
+│   ເພື່ອໂອນ ແລະ ອັບໂຫຼດຫຼັກຖານ  │
+│ ບໍ່ສາມາດໂອນໄດ້? ຊື້ປີ້ຢູ່ປະຕູ  │  ← ຂໍ້ມູນ ບໍ່ແມ່ນຕົວເລືອກຈ່າຍ
+│ ທາງເຂົ້າໄດ້ (ຈ່າຍເງິນສົດ)      │
+├─────────────────────────────┤
+│ ┌─────────────────────────┐ │
+│ │ ຢືນຢັນການຈອງ · 60,000 ₭  │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+### 3.4 ຂັ້ນ 4 (ລໍຈ່າຍ): ການຈອງຂອງຂ້ອຍ `/[lang]/booking/[code]` — status `pending`
+
+```
+┌─────────────────────────────┐
+│ ການຈອງ KS-7X4K9    ① ② ③ ④  │
+├─────────────────────────────┤
+│ ⏳ ລໍຖ້າການຈ່າຍເງິນ           │  BookingStatusBadge (icon + ຂໍ້ຄວາມ)
+│ ກະລຸນາຈ່າຍພາຍໃນ  24:13       │  HoldCountdown
+│                             │
+│ 1. ໂອນ 60,000 ₭ ໄປທີ່        │
+│    ທະນາຄານ: TODO            │  ← ບັນຊີແທ້ຍັງບໍ່ມີ (ຫ້າມສ້າງເອງ)
+│    ເລກບັນຊີ: TODO   [ສຳເນົາ] │
+│    ຊື່ບັນຊີ: TODO            │
+│                             │
+│ 2. ອັບໂຫຼດຮູບຫຼັກຖານການໂອນ    │  ProofUploader
+│ ┌─────────────────────────┐ │
+│ │  📷 ຖ່າຍຮູບ               │ │  capture="environment"
+│ ├─────────────────────────┤ │
+│ │  🖼 ເລືອກຈາກຄັງຮູບ         │ │
+│ └─────────────────────────┘ │
+│                             │
+│ ຈື່ລະຫັດນີ້ໄວ້: KS-7X4K9      │
+└─────────────────────────────┘
+
+ຫຼັງອັບໂຫຼດ → status `verifying` (expires_at = NULL, ບໍ່ມີໂມງນັບຖອຍຫຼັງ):
+┌─────────────────────────────┐
+│ 🔎 ລໍພະນັກງານກວດຫຼັກຖານ        │
+│ ການຈອງຂອງທ່ານບໍ່ໝົດອາຍຸ        │
+│ ລະຫວ່າງທີ່ພະນັກງານກວດ          │
+│ ປົກກະຕິໃຊ້ເວລາ TODO ນາທີ       │  ← ລໍຢືນຢັນເວລາຈິງ
+│ [ຮູບຫຼັກຖານ ນ້ອຍ]  [ປ່ຽນຮູບ]   │
+│ ທ່ານສາມາດປິດໜ້ານີ້ໄດ້ ແລ້ວກັບມາ │
+│ ຄົ້ນຫາດ້ວຍລະຫັດ + ເບີໂທ        │
+└─────────────────────────────┘
+```
+
+### 3.5 ຂັ້ນ 4 (ສຳເລັດ): QR `/[lang]/booking/[code]` — status `paid`
+
+```
+┌─────────────────────────────┐
+│ ການຈອງ KS-7X4K9    [ລາວ ▾] │
+├─────────────────────────────┤
+│ ✅ ຈ່າຍເງິນແລ້ວ ພ້ອມເຂົ້າຊົມ   │
+│ ┌─────────────────────────┐ │  QrTicket
+│ │                         │ │  QR ≥ 240px, ພື້ນຂາວ, ຂອບກວ້າງ
+│ │      ▓▓▓▓▓▓▓▓▓▓▓        │ │  ເພີ່ມຄວາມແຈ້ງຈໍອັດຕະໂນມັດບໍ່ໄດ້ → ບອກໃຫ້ເພີ່ມເອງ
+│ │      ▓▓   QR   ▓▓        │ │
+│ │      ▓▓▓▓▓▓▓▓▓▓▓        │ │
+│ │                         │ │
+│ │   K S - 7 X 4 K 9       │ │  ← ຕົວໃຫຍ່ ອ່ານດ້ວຍຕາໄດ້ (ສຳຮອງ)
+│ └─────────────────────────┘ │
+│ ອັງຄານ 17 ພະຈິກ 2026          │
+│ ຜູ້ໃຫຍ່ 2 · ເດັກ 1             │  ← ໃຫ້ພະນັກງານນັບກຸ່ມ (ຂໍ້ຕົກລົງ 2)
+│ ລົດຮັບສົ່ງ × 3                │
+│                             │
+│ ⓘ ເປີດໜ້ານີ້ໄດ້ ເຖິງບໍ່ມີເນັດ   │  (§8 ຂໍ້ 7)
+│ [ບັນທຶກຮູບປີ້]                │
+│ [ເປີດເສັ້ນທາງໄປຕາດ]          │
+└─────────────────────────────┘
+```
+ເມື່ອ status = `used` → QR ເປັນສີເທົາ + "ໃຊ້ແລ້ວ ເວລາ 09:12" · `cancelled`/`expired` → ບໍ່ສະແດງ QR.
+
+### 3.6 ສະແກນປີ້ `/staff/scan`
+
+```
+ກຳລັງສະແກນ                      ຜົນ: ຜ່ານ (ຂຽວເຕັມຈໍ)          ຜົນ: ໃຊ້ແລ້ວ (ແດງເຕັມຈໍ)
+┌─────────────────────────────┐┌─────────────────────────────┐┌─────────────────────────────┐
+│ ປະຕູ: main   ⚡  ☁ online    ││                             ││                             │
+│                             ││            ✓                ││            ✕                │
+│   ┌─────────────────────┐   ││                             ││                             │
+│   │                     │   ││       ປີ້ຖືກຕ້ອງ            ││     ປີ້ນີ້ຖືກໃຊ້ແລ້ວ          │
+│   │   [ ກ້ອງ ]           │   ││       ເຂົ້າໄດ້              ││                             │
+│   │                     │   ││                             ││  ສະແກນເມື່ອ 09:12            │
+│   └─────────────────────┘   ││   ຜູ້ໃຫຍ່ 2 · ເດັກ 1         ││  ປະຕູ main                   │
+│                             ││   (ຕົວ 48px)                ││  KS-7X4K9                   │
+│ ມື້ນີ້ເຂົ້າແລ້ວ 412 ຄົນ        ││   KS-7X4K9                  ││                             │
+│ ລໍສົ່ງ (offline): 0          ││                             ││                             │
+├─────────────────────────────┤├─────────────────────────────┤├─────────────────────────────┤
+│ [ໃສ່ລະຫັດເອງ]   [ໄຟແຟລດ]     ││ ┌─────────────────────────┐ ││ ┌─────────────────────────┐ │
+│                             ││ │      ສະແກນຕໍ່ (2)        │ ││ │       ສະແກນຕໍ່           │ │
+└─────────────────────────────┘│ └─────────────────────────┘ ││ └─────────────────────────┘ │
+   ↑ ປຸ່ມທັງໝົດຢູ່ເຄິ່ງລຸ່ມ       └─────────────────────────────┘└─────────────────────────────┘
+```
+- ຜ່ານ: ກັບໄປສະແກນເອງຫຼັງ 2 ວິ (ນັບຖອຍຫຼັງເທິງປຸ່ມ) · ບໍ່ຜ່ານ: **ຕ້ອງແຕະ** ເພື່ອບໍ່ໃຫ້ພາດ
+- ຂໍ້ຄວາມໃຫຍ່ ສີເຂັ້ມ contrast ສູງ ເພາະໃຊ້ກາງແດດ
+
+### 3.7 ກວດຫຼັກຖານໂອນ `/staff/proofs` (ຕາມ brief 4b)
+
+```
+┌─────────────────────────────┐
+│ ລໍກວດຫຼັກຖານ (3)              │
+├─────────────────────────────┤
+│ KS-7X4K9 · 60,000 ₭ · 4 ນາທີ │  ProofReviewCard
+│ ┌─────────────────────────┐ │
+│ │   [ ຮູບຫຼັກຖານ — ແຕະຂະຫຍາຍ ]│ │
+│ └─────────────────────────┘ │
+│ ສົມໃຈ ພົມມະວົງ · 17 ພ.ຈ.     │
+│ ເລກອ້າງອີງ: [__________]     │  → payments.transaction_id
+│ ┌───────────┐ ┌───────────┐ │
+│ │ ✕ ປະຕິເສດ  │ │ ✓ ອະນຸມັດ  │ │  ປະຕິເສດ → ຕ້ອງເລືອກເຫດຜົນ
+│ └───────────┘ └───────────┘ │
+└─────────────────────────────┘
+```
+- ສະແດງສະເພາະການຈອງ status `verifying` ລຽງເກົ່າສຸດກ່ອນ
+- ອະນຸມັດ → `paid` (ລູກຄ້າເຫັນ QR) · ປະຕິເສດ → `pending` + ໂມງ 30 ນາທີໃໝ່ + ເຫດຜົນສະແດງໃຫ້ລູກຄ້າ (ຂໍ້ຕົກລົງ 15)
+
+---
+
+## 4. Design tokens
+
+### 4.1 ສີ (ທຸກຄູ່ຄຳນວນ contrast ຕາມ WCAG ແລ້ວ ≥ 4.5:1)
+
+| Token | ຄ່າ | Contrast | ໃຊ້ສຳລັບ / ເຫດຜົນ |
+|---|---|---|---|
+| `primary` | `#0F766E` (teal-700) | 5.47 ເທິງຂາວ | ປຸ່ມຫຼັກ, ລິ້ງ — ໂທນສີນ້ຳຕາດ (turquoise) ແຕ່ເຂັ້ມພໍໃຫ້ຂໍ້ຄວາມຂາວອ່ານໄດ້ |
+| `primary-hover` | `#115E59` (teal-800) | 7.58 | ຕອນກົດ |
+| `primary-subtle` | `#F0FDFA` (teal-50) | primary ເທິງມັນ 5.25 | ພື້ນ card ທີ່ເລືອກ, toggle ທີ່ active |
+| `text` | `#0F172A` (slate-900) | 17.85 | ຂໍ້ຄວາມຫຼັກ |
+| `text-muted` | `#475569` (slate-600) | 7.58 | ຂໍ້ຄວາມຮອງ, ຕົວເລກ "ປະມານ" |
+| `border` | `#E2E8F0` (slate-200) | — | ເສັ້ນຂອບ (ບໍ່ແມ່ນຂໍ້ຄວາມ) |
+| `success` | `#15803D` (green-700) | 5.02 · ຂາວເທິງມັນ 5.02 | ຈ່າຍແລ້ວ, ສະແກນຜ່ານ (ພື້ນເຕັມຈໍ) |
+| `success-subtle` | `#F0FDF4` | success ເທິງມັນ 4.79 | badge |
+| `warning` | `#B45309` (amber-700) | 5.02 | ລໍຈ່າຍ, ລໍກວດ, ເຫຼືອໜ້ອຍ |
+| `warning-subtle` | `#FFFBEB` | warning ເທິງມັນ 4.84 | badge |
+| `scan-warn` | `#FBBF24` (amber-400) + ຂໍ້ຄວາມ `#0F172A` | 10.69 | ຈໍສະແກນ "ບໍ່ແມ່ນວັນນີ້" |
+| `danger` | `#B91C1C` (red-700) | 6.47 · ຂາວເທິງມັນ 6.47 | ຜິດພາດ, ສະແກນບໍ່ຜ່ານ |
+| `danger-subtle` | `#FEF2F2` | danger ເທິງມັນ 5.91 | badge, alert |
+| `neutral` | `#475569` (slate-600) | 7.58 | ຍົກເລີກ, ໝົດອາຍຸ, ໃຊ້ແລ້ວ |
+
+ສະຖານະການຈອງ → token + icon (ບໍ່ໃຊ້ສີຢ່າງດຽວ):
+
+| status | token | icon | ຂໍ້ຄວາມ |
+|---|---|---|---|
+| `pending` | warning | ⏳ | ລໍຖ້າການຈ່າຍເງິນ (+ ໂມງນັບຖອຍຫຼັງ) |
+| `verifying` | warning | 🔎 | ລໍພະນັກງານກວດ (ບໍ່ມີໂມງ) |
+| `paid` | success | ✓ | ຈ່າຍແລ້ວ |
+| `used` | neutral | ✓✓ | ໃຊ້ແລ້ວ |
+| `cancelled` | neutral | ⊘ | ຍົກເລີກແລ້ວ |
+| `expired` | neutral | ⌛ | ໝົດອາຍຸ |
+
+Dark mode: ເລື່ອນໄປພາຍຫຼັງ (brief ຂໍ້ 5).
+
+### 4.2 ຕົວອັກສອນ
+
+- Font: `'Noto Sans Lao', 'Noto Sans', sans-serif` (ລາວ+ອັງກິດ) · ຈີນ: `'Noto Sans SC'` · ໄທ: `'Noto Sans Thai'` — ໂຫຼດຜ່ານ `next/font` ສະເພາະພາສາທີ່ເປີດຢູ່ (font ຈີນໃຫຍ່ຫຼາຍ)
+- **line-height**: ເນື້ອຫາ `1.8` · ຫົວຂໍ້ `1.7` (ຕ່ຳສຸດຕາມກົດ) — ຫ້າມໃຊ້ `leading-tight/snug/normal/relaxed` ຂອງ Tailwind (ທັງໝົດຕ່ຳກວ່າ 1.7) → ກຳນົດ token ໃໝ່
+- ຫ້າມ `text-align: justify` · column ບໍ່ແຄບກວ່າ 280px · ປຸ່ມໃຊ້ padding ບໍ່ຕັ້ງຄວາມສູງຕາຍຕົວ
+
+| Token | ຂະໜາດ | line-height | ນ້ຳໜັກ | ໃຊ້ |
+|---|---|---|---|---|
+| `text-sm` | 14px | 1.8 | 400 | ປ້າຍຮອງ, ເວລາ, ໝາຍເຫດໃຕ້ຊ່ອງ (ບໍ່ໃຊ້ກັບເນື້ອຫາ) |
+| `text-base` | **16px** | 1.8 | 400 | ເນື້ອຫາທັງໝົດ, input (16px ກັນ iOS zoom) |
+| `text-lg` | 20px | 1.7 | 600 | ຫົວຂໍ້ພາກ, ລາຄາລວມ |
+| `text-2xl` | 28px | 1.7 | 700 | ຫົວໜ້າ, ລະຫັດຈອງ |
+| `text-scan` | 48px | 1.7 | 700 | ຜົນສະແກນ + ຈຳນວນຄົນ |
+
+### 4.3 ຍະຫວ່າງ
+
+ໃຊ້ scale ຂອງ Tailwind (4px): `2` (8px) ລະຫວ່າງ label–input · `4` (16px) ຂອບຈໍ ແລະ ລະຫວ່າງ field · `6` (24px) ລະຫວ່າງພາກ · `8` (32px) ລະຫວ່າງບລັອກໃຫຍ່. ເປົ້າແຕະ ≥ 44×44px (`min-h-11 min-w-11`).
+
+### 4.4 ມຸມໂຄ້ງ ແລະ ເງົາ
+
+| Token | ຄ່າ | ໃຊ້ |
+|---|---|---|
+| `radius-sm` | 6px | input, badge |
+| `radius-md` | 12px | ປຸ່ມ, card, QR card |
+| `radius-full` | 9999px | toggle pill, ປຸ່ມ +/− |
+| `shadow-sm` | Tailwind `shadow-sm` | card |
+| `shadow-lg` | Tailwind `shadow-lg` | sticky action bar, dialog |
+
+---
+
+## 5. ບັນຊີ component
+
+### 5.1 ເອົາຈາກ shadcn/ui ໂດຍບໍ່ແກ້
+
+Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup · Checkbox · Textarea · Calendar · Popover · Dialog · Sheet · Card · Badge · Alert · Skeleton · Table · Tabs · Separator · DropdownMenu · Sonner (toast)
+
+⚠️ Calendar ດຶງ `react-day-picker` + `date-fns` ແລະ Sonner ດຶງ `sonner` ມານຳ — ເບິ່ງ §8 ຂໍ້ 8.
+
+### 5.2 ຕ້ອງສ້າງເອງ
+
+| Component | Props | ສະຖານະ | ໃຊ້ຢູ່ໜ້າ |
+|---|---|---|---|
+| `LanguageSwitcher` | `current`, `locales` | ປົກກະຕິ · ເປີດ | ທຸກໜ້າ |
+| `BookingStepper` | `step: 1–4` | ຂັ້ນປັດຈຸບັນ · ຜ່ານແລ້ວ · ຍັງບໍ່ເຖິງ | book/*, booking/[code] |
+| `DatePickerWithAvailability` | `value`, `onChange`, `availability: Record<date, {left, closed}>`, `minDate` | ຫວ່າງ · ເຫຼືອໜ້ອຍ · ເຕັມ · ປິດ · ຜ່ານມາແລ້ວ · ກຳລັງໂຫຼດ | book |
+| `VisitorGroupToggle` | `value: 'lao'|'foreigner'|'mixed'`, `onChange` | ລາວ · ຕ່າງປະເທດ · ປົນ | book, pos |
+| `TicketQuantityPicker` | `ticketTypes`, `group`, `value: Record<id, qty>`, `onChange`, `maxTotal` | ປົກກະຕິ · ຮອດຂີດ (ປຸ່ມ + ປິດ) · ປະເພດປິດຂາຍ (ບໍ່ສະແດງ) | book |
+| `AddOnSelector` | `addOns`, `peopleCount`, `value`, `onChange` | ບໍ່ເລືອກ · ເລືອກ · ປິດຂາຍ | book |
+| `PriceSummary` | `items`, `addOns`, `total`, `approx?: {USD, THB}` | ມີອັດຕາແລກປ່ຽນ · ບໍ່ມີ (ເຊື່ອງຕົວເລກຮອງ) | book/review, booking/[code], pos |
+| `StickyActionBar` | `summary`, `label`, `disabled`, `loading`, `onClick` | ປົກກະຕິ · ປິດ · ກຳລັງສົ່ງ | book/* |
+| `CustomerInfoForm` | `defaultValues`, `onSubmit` | ວ່າງ · ຜິດ (ຕໍ່ field) · ກຳລັງສົ່ງ | book/details |
+| `PhoneInput` | `value`, `onChange`, `defaultCountry` | — | book/details, lookup |
+| `TransferInstructions` | `holdMinutes` | — (ຂໍ້ມູນຢ່າງດຽວ ບໍ່ມີຕົວເລືອກ — ຂໍ້ຕົກລົງ 14) | book/review |
+| `HoldCountdown` | `expiresAt` | ປົກກະຕິ · < 5 ນາທີ (warning) · ໝົດ · ເຊື່ອງ (`expiresAt = null` ຕອນ `verifying`) | booking/[code] |
+| `ProofUploader` | `bookingCode`, `maxSizeMb`, `onUploaded` | ວ່າງ · ສະແດງຕົວຢ່າງ · ກຳລັງອັບໂຫຼດ (%) · ສຳເລັດ · ຜິດ (ໄຟລ໌ໃຫຍ່/ບໍ່ແມ່ນຮູບ) · ຖືກປະຕິເສດ (+ເຫດຜົນ, ອັບໂຫຼດໃໝ່) | booking/[code] |
+| `BookingStatusBadge` | `status` | ຕາມຕາຕະລາງ §4.1 | booking/[code], admin, proofs |
+| `QrTicket` | `bookingCode`, `qrToken`, `visitDate`, `counts`, `addOns`, `status` | ໃຊ້ໄດ້ · ໃຊ້ແລ້ວ (ເທົາ) · ບໍ່ສະແດງ (pending/verifying/cancelled/expired) | booking/[code], pos/receipt |
+| `DistanceCard` | `destination` | ກ່ອນກົດ · ກຳລັງຫາ · ປະຕິເສດ GPS (→ dropdown `places`) · ຜົນ · ປະມານ (accuracy > 1 ກມ / API ລົ້ມ / offline) · ຢູ່ໃນພື້ນທີ່ແລ້ວ (< 1 ກມ) | ໜ້າຫຼັກ |
+| `ScannerView` | `gate`, `onResult` | ກຳລັງສະແກນ · ກ້ອງຖືກປະຕິເສດ · offline (+ ຈຳນວນລໍສົ່ງ) | staff/scan |
+| `ScanResultOverlay` | `result`, `counts`, `bookingCode`, `previousScan?` | ok · duplicate · wrong_date · expired · invalid · unpaid · cancelled | staff/scan |
+| `ManualCodeDialog` | `onSubmit` | — | staff/scan |
+| `PosTicketGrid` | `ticketTypes`, `group`, `cart`, `onChange` | — | staff/pos |
+| `CashCalculator` | `total`, `onConfirm` | ເງິນບໍ່ພໍ (ປິດປຸ່ມ) · ພໍ (ສະແດງເງິນທອນ) | staff/pos |
+| `PosOptionalCustomer` | `value`, `onChange` | ພັບ (ຄ່າເລີ່ມຕົ້ນ) · ເປີດ | staff/pos |
+| `ProofReviewCard` | `booking`, `proofUrl`, `onApprove`, `onReject(reason)` | ລໍ · ກຳລັງບັນທຶກ · ອະນຸມັດແລ້ວ · ປະຕິເສດແລ້ວ | staff/proofs |
+| `StatTile` | `label`, `value`, `delta?` | ໂຫຼດ · ມີຂໍ້ມູນ | admin |
+| `DataTableToolbar` | `filters`, `onChange` | — | admin/bookings, reports |
+| `EmptyState` | `icon`, `title`, `description`, `action?` | — | ທຸກລາຍການ |
+| `ErrorState` | `message`, `onRetry` | — | ທຸກໜ້າ |
+| `OfflineBanner` | — | online (ເຊື່ອງ) · offline | ທຸກໜ້າ |
+
+---
+
+## 6. ສະຖານະຂອງທຸກໜ້າ (5 ສະຖານະ)
+
+ສັນຍາລັກ: — = ບໍ່ມີກໍລະນີນີ້
+
+| ໜ້າ | ກຳລັງໂຫຼດ | ວ່າງເປົ່າ | ຜິດພາດ | ສຳເລັດ | ຂັດຂ້ອງ |
+|---|---|---|---|---|---|
+| ໜ້າຫຼັກ | skeleton ລາຄາ + ເວລາເປີດ | ບໍ່ມີປີ້ເປີດຂາຍ → "ຕອນນີ້ຍັງບໍ່ເປີດຈອງ online" | ໂຫຼດລາຄາບໍ່ໄດ້ + ລອງໃໝ່ | — | ມື້ນີ້ຕາດປິດ (holiday) → banner ບອກວັນເປີດຄັ້ງຕໍ່ໄປ |
+| ຂັ້ນ 1 ວັນທີ+ປີ້ | skeleton ປະຕິທິນ | ບໍ່ມີວັນຫວ່າງໃນເດືອນນີ້ → ປຸ່ມເດືອນຖັດໄປ | ກວດບ່ອນຫວ່າງບໍ່ໄດ້ + ລອງໃໝ່ | ເລືອກຄົບ → ປຸ່ມຕໍ່ໄປເປີດ | ວັນເຕັມ / ປິດ / ເກີນບ່ອນທີ່ເຫຼືອ |
+| ຂັ້ນ 2 ຂໍ້ມູນ | — | ຟອມວ່າງ (ປົກກະຕິ) | ຜິດຕໍ່ field ພ້ອມວິທີແກ້ | ໄປຂັ້ນ 3 | ຂໍ້ມູນຂັ້ນ 1 ຫາຍ (refresh) → ກັບໄປຂັ້ນ 1 |
+| ຂັ້ນ 3 ສະຫຼຸບ | ປຸ່ມຢືນຢັນ loading | — | ສ້າງການຈອງບໍ່ໄດ້ + ລອງໃໝ່ (ບໍ່ສ້າງຊ້ຳ) | ໄປໜ້າການຈອງ | ບ່ອນເຕັມລະຫວ່າງກອກ / ລາຄາປ່ຽນ → ກັບໄປຂັ້ນ 1 ພ້ອມບອກເຫດຜົນ |
+| ການຈອງຂອງຂ້ອຍ | skeleton QR | — | ໂຫຼດບໍ່ໄດ້ + ລອງໃໝ່ (ຖ້າເຄີຍເປີດ → ສະແດງສະບັບທີ່ cache) | QR (`paid`) / ລໍກວດ (`verifying`) | ໝົດ 30 ນາທີ (`expired`) · ຫຼັກຖານຖືກປະຕິເສດ → `pending` + ເຫດຜົນ + ໂມງໃໝ່ · ຍົກເລີກ · ບໍ່ມີສິດເບິ່ງ → ໄປໜ້າຄົ້ນຫາ |
+| ຄົ້ນຫາ | ປຸ່ມ loading | — | ລະບົບຂັດຂ້ອງ + ລອງໃໝ່ | ໄປໜ້າການຈອງ | ບໍ່ພົບ (ລະຫັດ ຫຼື ເບີໂທບໍ່ກົງ — ບໍ່ບອກວ່າອັນໃດຜິດ ເພື່ອຄວາມປອດໄພ) |
+| ນະໂຍບາຍ | — | — | — | — | — |
+| Login ພະນັກງານ | ປຸ່ມ loading | — | ລະຫັດຜິດ | ໄປໜ້າຕາມບົດບາດ | ບັນຊີຖືກປິດ |
+| ສະແກນ | ເປີດກ້ອງ | ມື້ນີ້ຍັງບໍ່ມີຄົນເຂົ້າ | ກ້ອງເປີດບໍ່ໄດ້ → ໃສ່ລະຫັດເອງ | ຈໍຂຽວ | ຈໍແດງ/ເຫຼືອງ (duplicate · wrong_date · expired · invalid · unpaid · cancelled) · offline → ເກັບໃນ queue |
+| POS | skeleton ປຸ່ມປີ້ | ບໍ່ມີປີ້ເປີດຂາຍ | ບັນທຶກບໍ່ໄດ້ + ລອງໃໝ່ (ບໍ່ສ້າງຊ້ຳ) | ໃບປີ້ + ພິມ (`pos_auto_checkin = true` → ຂຽນ "ເຂົ້າແລ້ວ") | ມື້ນີ້ເຕັມ · printer ບໍ່ພ້ອມ → ສະແດງ QR ເທິງຈໍ |
+| ກວດຫຼັກຖານ | skeleton card | "ບໍ່ມີຫຼັກຖານລໍກວດ" | ໂຫຼດຮູບບໍ່ໄດ້ | ອະນຸມັດ → toast + ອັນຕໍ່ໄປ | ມີຄົນອື່ນກວດແລ້ວ (ບໍ່ມີກໍລະນີໝົດອາຍຸ ເພາະ `verifying` ບໍ່ໝົດອາຍຸ) |
+| Dashboard | skeleton tiles | ມື້ນີ້ຍັງບໍ່ມີການຈອງ | ໂຫຼດບໍ່ໄດ້ + ລອງໃໝ່ | — | ບໍ່ມີສິດ (viewer ເຫັນແຕ່ອ່ານ) |
+| ການຈອງ (admin) | skeleton table | ບໍ່ພົບຕາມຕົວກັ່ນຕອງ + ລ້າງຕົວກັ່ນຕອງ | ໂຫຼດບໍ່ໄດ້ | ຍົກເລີກ/ຄືນເງິນສຳເລັດ | ຍົກເລີກບໍ່ໄດ້ (ໃຊ້ແລ້ວ) · ເກີນເວລາຄືນເງິນ |
+| ປີ້ ແລະ ລາຄາ | skeleton | ຍັງບໍ່ມີປະເພດປີ້ + ປຸ່ມເພີ່ມ | ບັນທຶກບໍ່ໄດ້ | toast ບັນທຶກແລ້ວ | ປິດປະເພດທີ່ມີການຈອງ pending |
+| ຜູ້ໃຊ້ | skeleton | (ມີ admin ສະເໝີ) | ບັນທຶກບໍ່ໄດ້ | toast | ປິດບັນຊີຕົວເອງ / admin ຄົນສຸດທ້າຍ |
+| ລາຍງານ | skeleton chart | ບໍ່ມີຂໍ້ມູນໃນຊ່ວງນີ້ | ໂຫຼດບໍ່ໄດ້ | — | ຊ່ວງວັນທີຍາວເກີນ |
+| ຕັ້ງຄ່າ | skeleton | ບໍ່ມີວັນປິດ / ສະຖານທີ່ + ປຸ່ມເພີ່ມ | ບັນທຶກບໍ່ໄດ້ | toast | ປິດວັນທີ່ມີການຈອງແລ້ວ → ຢືນຢັນ + ບອກຈຳນວນ |
+
+---
+
+## 7. ຂໍ້ຄວາມ UI (ລາວ + English)
+
+ຈີນ ແລະ ໄທ: ໂຄງ key ດຽວກັນ ລໍຜູ້ແປ (§8 ຂໍ້ 9). `{x}` = ຕົວແປ.
+
+| key | ລາວ | English |
+|---|---|---|
+| `common.next` | ຕໍ່ໄປ | Next |
+| `common.back` | ກັບຄືນ | Back |
+| `common.edit` | ແກ້ໄຂ | Edit |
+| `common.retry` | ລອງໃໝ່ | Try again |
+| `common.copy` | ສຳເນົາ | Copy |
+| `common.copied` | ສຳເນົາແລ້ວ | Copied |
+| `common.optional` | ບໍ່ບັງຄັບ | Optional |
+| `common.approx` | ປະມານ | approx. |
+| `common.offline` | ບໍ່ມີອິນເຕີເນັດ — ຂໍ້ມູນອາດບໍ່ແມ່ນລ່າສຸດ | You're offline — info may be out of date |
+| `home.open_hours` | ເປີດທຸກມື້ {open}–{close} | Open daily {open}–{close} |
+| `home.closed_today` | ມື້ນີ້ປິດບໍລິການ ເປີດອີກຄັ້ງ {date} | Closed today. Reopens {date} |
+| `home.prices` | ລາຄາປີ້ | Ticket prices |
+| `booking.cta` | ຈອງປີ້ເລີຍ | Book now |
+| `booking.find_mine` | ຄົ້ນຫາປີ້ຂອງຂ້ອຍ | Find my booking |
+| `booking.select_date` | ເລືອກວັນທີເຂົ້າຊົມ | Select visit date |
+| `booking.spots_left` | ເຫຼືອ {n} ບ່ອນ | {n} spots left |
+| `booking.sold_out` | ປີ້ວັນນີ້ຂາຍໝົດແລ້ວ | Sold out for this date |
+| `booking.date_closed` | ວັນນີ້ຕາດປິດ ກະລຸນາເລືອກວັນອື່ນ | Closed on this date — please pick another day |
+| `booking.group_question` | ກຸ່ມຂອງທ່ານແມ່ນ | Your group is |
+| `booking.group_lao` | ຄົນລາວ | Lao citizens |
+| `booking.group_foreigner` | ຕ່າງປະເທດ | Foreign visitors |
+| `booking.group_mixed` | ກຸ່ມມີທັງຄົນລາວ ແລະ ຕ່າງປະເທດ | Group has both Lao and foreign visitors |
+| `booking.age_range` | {min}–{max} ປີ | Ages {min}–{max} |
+| `booking.age_from` | {min} ປີຂຶ້ນໄປ | Ages {min}+ |
+| `booking.free` | ຟຣີ | Free |
+| `booking.add_ons` | ບໍລິການເສີມ | Extras |
+| `booking.people_total` | {n} ຄົນ | {n} people |
+| `booking.min_one` | ກະລຸນາເລືອກປີ້ຢ່າງໜ້ອຍ 1 ໃບ | Please choose at least 1 ticket |
+| `booking.over_capacity` | ວັນນີ້ເຫຼືອພຽງ {n} ບ່ອນ ກະລຸນາຫຼຸດຈຳນວນ ຫຼື ເລືອກວັນອື່ນ | Only {n} spots left — reduce the number or pick another day |
+| `details.title` | ຂໍ້ມູນຜູ້ຈອງ | Your details |
+| `details.full_name` | ຊື່ ແລະ ນາມສະກຸນ | Full name |
+| `details.phone` | ເບີໂທ | Phone number |
+| `details.phone_hint` | ໃຊ້ເບີນີ້ ກັບລະຫັດຈອງ ເພື່ອຄົ້ນຫາປີ້ພາຍຫຼັງ | You'll use this number with your booking code to find your ticket |
+| `details.email` | ອີເມວ | Email |
+| `details.email_hint` | ພວກເຮົາຈະສົ່ງປີ້ ແລະ ໃບຮັບເງິນໄປທີ່ນີ້ | We'll send your ticket and receipt here |
+| `details.nationality` | ສັນຊາດ | Nationality |
+| `details.id_number` | ເລກບັດປະຈຳຕົວ ຫຼື passport | ID or passport number |
+| `details.err_name` | ກະລຸນາໃສ່ຊື່ ແລະ ນາມສະກຸນ | Please enter your full name |
+| `details.err_phone` | ເບີໂທບໍ່ຄົບ ກະລຸນາກວດເບິ່ງລະຫັດປະເທດ ແລະ ຈຳນວນຕົວເລກ | That number looks incomplete — check the country code and digits |
+| `details.err_email` | ອີເມວບໍ່ຖືກຮູບແບບ ຕົວຢ່າງ: name@example.com | That email doesn't look right, e.g. name@example.com |
+| `review.title` | ກວດກ່ອນຢືນຢັນ | Check before confirming |
+| `review.total` | ລວມ | Total |
+| `review.pay_transfer` | ວິທີຈ່າຍເງິນ: ໂອນຜ່ານທະນາຄານ | Payment: bank transfer |
+| `review.pay_steps` | ໂອນເງິນຕາມຍອດລວມ · ອັບໂຫຼດຮູບຫຼັກຖານ · ພະນັກງານກວດ ແລ້ວສົ່ງ QR ໃຫ້ | Transfer the total · upload your receipt · we check it and send your QR code |
+| `review.hold_notice` | ຫຼັງຢືນຢັນ ທ່ານມີ {minutes} ນາທີ ເພື່ອໂອນ ແລະ ອັບໂຫຼດຫຼັກຖານ | After confirming, you have {minutes} minutes to transfer and upload your receipt |
+| `review.cant_transfer` | ບໍ່ສາມາດໂອນໄດ້? ຊື້ປີ້ຢູ່ປະຕູທາງເຂົ້າໄດ້ (ຈ່າຍເງິນສົດ) | Can't make a transfer? You can buy tickets with cash at the entrance |
+| `review.confirm` | ຢືນຢັນການຈອງ · {total} | Confirm booking · {total} |
+| `review.err_create` | ບັນທຶກການຈອງບໍ່ສຳເລັດ ກະລຸນາລອງໃໝ່ — ທ່ານຍັງບໍ່ຖືກຕັດເງິນ | We couldn't save your booking. Please try again — you haven't been charged |
+| `review.capacity_changed` | ບ່ອນວັນນີ້ເຕັມລະຫວ່າງທີ່ທ່ານກອກຂໍ້ມູນ ກະລຸນາເລືອກວັນໃໝ່ | This date filled up while you were booking — please choose another date |
+| `pay.title` | ລໍຖ້າການຈ່າຍເງິນ | Waiting for payment |
+| `pay.time_left` | ກະລຸນາຈ່າຍພາຍໃນ {mm:ss} | Please pay within {mm:ss} |
+| `pay.step_transfer` | ໂອນ {amount} ໄປທີ່ | Transfer {amount} to |
+| `pay.step_upload` | ອັບໂຫຼດຮູບຫຼັກຖານການໂອນ | Upload your transfer receipt |
+| `pay.take_photo` | ຖ່າຍຮູບ | Take a photo |
+| `pay.choose_photo` | ເລືອກຈາກຄັງຮູບ | Choose from gallery |
+| `pay.err_file` | ໄຟລ໌ນີ້ໃຊ້ບໍ່ໄດ້ ກະລຸນາເລືອກຮູບ (JPG ຫຼື PNG) ບໍ່ເກີນ {mb} MB | We can't use this file — choose a JPG or PNG under {mb} MB |
+| `pay.remember_code` | ຈື່ລະຫັດນີ້ໄວ້: {code} | Keep this code: {code} |
+| `pay.verifying` | ລໍພະນັກງານກວດຫຼັກຖານ | Our staff are checking your receipt |
+| `pay.verifying_no_expiry` | ການຈອງຂອງທ່ານບໍ່ໝົດອາຍຸ ລະຫວ່າງທີ່ພະນັກງານກວດ | Your booking won't expire while we check it |
+| `pay.verifying_hint` | ທ່ານປິດໜ້ານີ້ໄດ້ ແລ້ວກັບມາຄົ້ນຫາດ້ວຍລະຫັດຈອງ ແລະ ເບີໂທ | You can close this page and come back with your booking code and phone number |
+| `pay.rejected` | ຫຼັກຖານບໍ່ຜ່ານ: {reason} ກະລຸນາອັບໂຫຼດຮູບໃໝ່ພາຍໃນ {minutes} ນາທີ | Receipt not accepted: {reason}. Please upload a new one within {minutes} minutes |
+| `pay.expired` | ໝົດເວລາຈ່າຍເງິນແລ້ວ ບ່ອນຖືກປ່ອຍຄືນ ກະລຸນາຈອງໃໝ່ | Payment time ran out and the spots were released — please book again |
+| `ticket.ready` | ຈ່າຍເງິນແລ້ວ ພ້ອມເຂົ້າຊົມ | Paid — you're ready to visit |
+| `ticket.show_at_gate` | ສະແດງ QR ນີ້ຢູ່ປະຕູທາງເຂົ້າ | Show this QR code at the entrance |
+| `ticket.brightness` | ເພີ່ມຄວາມແຈ້ງຈໍ ເພື່ອໃຫ້ສະແກນງ່າຍ | Turn up your screen brightness for faster scanning |
+| `ticket.counts` | ຜູ້ໃຫຍ່ {adults} · ເດັກ {children} | Adults {adults} · Children {children} |
+| `ticket.offline_ok` | ເປີດໜ້ານີ້ໄດ້ ເຖິງບໍ່ມີເນັດ | This page works without internet |
+| `ticket.save_image` | ບັນທຶກຮູບປີ້ | Save ticket image |
+| `ticket.used` | ໃຊ້ແລ້ວ ເວລາ {time} | Used at {time} |
+| `ticket.cancelled` | ການຈອງນີ້ຖືກຍົກເລີກແລ້ວ | This booking has been cancelled |
+| `lookup.title` | ຄົ້ນຫາປີ້ຂອງຂ້ອຍ | Find my booking |
+| `lookup.code` | ລະຫັດຈອງ (ເຊັ່ນ KS-7X4K9) | Booking code (e.g. KS-7X4K9) |
+| `lookup.not_found` | ບໍ່ພົບການຈອງ ກະລຸນາກວດລະຫັດຈອງ ແລະ ເບີໂທທີ່ໃຊ້ຕອນຈອງ | No booking found — check the booking code and the phone number you used |
+| `distance.cta` | ໄລຍະທາງຈາກບ່ອນຂ້ອຍ | Distance from me |
+| `distance.why` | ເພື່ອຄຳນວນໄລຍະທາງ ແລະ ເວລາເດີນທາງໃຫ້ທ່ານ | So we can work out the distance and travel time for you |
+| `distance.away` | ທ່ານຢູ່ຫ່າງ {km} ກມ | {km} km away |
+| `distance.drive_time` | ຂັບລົດປະມານ {min} ນາທີ | About {min} min by car |
+| `distance.approx` | ຕົວເລກປະມານ | Approximate |
+| `distance.denied` | ບໍ່ເປັນຫຍັງ — ເລືອກບ່ອນພັກຂອງທ່ານແທນ | No problem — choose where you're staying instead |
+| `distance.on_site` | ທ່ານຢູ່ທີ່ຕາດກວາງຊີແລ້ວ | You're at Kuang Si Falls |
+| `distance.open_maps` | ເປີດເສັ້ນທາງ | Get directions |
+| `scan.success` | ປີ້ຖືກຕ້ອງ ເຂົ້າໄດ້ | Valid — allow entry |
+| `scan.duplicate` | ປີ້ນີ້ຖືກໃຊ້ແລ້ວ | Already used |
+| `scan.previous` | ສະແກນເມື່ອ {time} · ປະຕູ {gate} | Scanned at {time} · gate {gate} |
+| `scan.wrong_date` | ບໍ່ແມ່ນປີ້ຂອງມື້ນີ້ — ວັນທີໃນປີ້: {date} | Not for today — ticket date: {date} |
+| `scan.expired` | ປີ້ໝົດອາຍຸ | Ticket expired |
+| `scan.invalid` | ບໍ່ພົບປີ້ນີ້ໃນລະບົບ ກະລຸນາໃສ່ລະຫັດເອງ | Ticket not found — enter the code manually |
+| `scan.unpaid` | ຍັງບໍ່ໄດ້ຈ່າຍເງິນ — ແນະນຳໃຫ້ຊື້ປີ້ທີ່ບ່ອນຂາຍ | Not paid yet — send the visitor to the ticket counter |
+| `scan.cancelled` | ການຈອງນີ້ຖືກຍົກເລີກແລ້ວ | This booking was cancelled |
+| `scan.note` | ໝາຍເຫດ (ບໍ່ບັງຄັບ) | Note (optional) |
+| `scan.next` | ສະແກນຕໍ່ | Scan next |
+| `scan.manual` | ໃສ່ລະຫັດເອງ | Enter code |
+| `scan.camera_denied` | ເປີດກ້ອງບໍ່ໄດ້ ກະລຸນາອະນຸຍາດກ້ອງໃນການຕັ້ງຄ່າ ຫຼື ໃສ່ລະຫັດເອງ | Camera unavailable — allow camera access in settings, or enter the code |
+| `scan.queued` | ລໍສົ່ງ (offline): {n} | Waiting to sync (offline): {n} |
+| `pos.receive_cash` | ຮັບເງິນ | Take payment |
+| `pos.received` | ເງິນທີ່ຮັບ | Cash received |
+| `pos.change` | ເງິນທອນ | Change |
+| `pos.not_enough` | ເງິນບໍ່ພໍ ຂາດອີກ {amount} | Not enough — {amount} short |
+| `pos.confirm_print` | ຢືນຢັນ ແລະ ພິມ | Confirm & print |
+| `pos.printer_off` | ພິມບໍ່ໄດ້ — ໃຫ້ລູກຄ້າຖ່າຍຮູບ QR ເທິງຈໍແທນ | Can't print — let the visitor photograph the QR on screen |
+| `pos.add_customer` | ເພີ່ມຊື່ / ເບີໂທ (ບໍ່ບັງຄັບ) | Add name / phone (optional) |
+| `pos.checked_in` | ເຂົ້າແລ້ວ — ບໍ່ຕ້ອງສະແກນອີກ | Entry recorded — no scan needed |
+| `proofs.empty` | ບໍ່ມີຫຼັກຖານລໍກວດ | No receipts to check |
+| `proofs.approve` | ອະນຸມັດ | Approve |
+| `proofs.reject` | ປະຕິເສດ | Reject |
+| `proofs.reject_reason` | ເຫດຜົນທີ່ປະຕິເສດ (ລູກຄ້າຈະເຫັນ) | Reason (the visitor will see this) |
+| `proofs.already_done` | ການຈອງນີ້ຖືກກວດແລ້ວໂດຍ {name} | {name} has already checked this booking |
+| `status.pending` | ລໍຖ້າການຈ່າຍເງິນ | Awaiting payment |
+| `status.verifying` | ລໍພະນັກງານກວດ | Being checked |
+| `status.paid` | ຈ່າຍແລ້ວ | Paid |
+| `status.used` | ໃຊ້ແລ້ວ | Used |
+| `status.cancelled` | ຍົກເລີກແລ້ວ | Cancelled |
+| `status.expired` | ໝົດອາຍຸ | Expired |
+| `error.generic` | ມີບາງຢ່າງຜິດພາດ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ | Something went wrong — please try again |
+| `error.network` | ເຊື່ອມຕໍ່ບໍ່ໄດ້ ກະລຸນາກວດອິນເຕີເນັດ ແລ້ວລອງໃໝ່ | Can't connect — check your internet and try again |
+| `empty.bookings` | ຍັງບໍ່ມີການຈອງ | No bookings yet |
+| `staff.login_failed` | ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກ | Username or password is incorrect |
+| `staff.account_disabled` | ບັນຊີນີ້ຖືກປິດ ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບ | This account is disabled — contact your administrator |
+
+---
+
+## 8. ການຕັດສິນໃຈ (ບັນທຶກ) + ຄຳຖາມທີ່ຍັງເປີດ
+
+### 8.1 ຂໍ້ 1–5 — ຜູ້ໃຊ້ຕັດສິນແລ້ວ (ຢູ່ໃນ CLAUDE.md ຂໍ້ຕົກລົງ 14–18)
+
+| # | ຫົວຂໍ້ | ຕັດສິນ | ກະທົບ |
+|---|---|---|---|
+| 1 | ຈ່າຍເງິນສົດ online | online **ໂອນເທົ່ານັ້ນ** · ເງິນສົດມີແຕ່ POS · ຫ້າມສະແດງຕົວເລືອກຈ່າຍໜ້າງານ | §2.1, §3.3, `TransferInstructions` ແທນ `PaymentMethodPicker` |
+| 2 | ໂມງຫຼັງອັບໂຫຼດ | status `verifying` + `expires_at = NULL` · ປະຕິເສດ → `pending` + ໂມງໃໝ່ | schema · §2.1, §3.4, §3.7, §4.1 |
+| 3 | POS ບໍ່ມີລູກຄ້າ | `bookings.customer_id` NULL ໄດ້ · ໃສ່ຊື່/ເບີ → ສ້າງ customer ປົກກະຕິ | schema · §2.2, `PosOptionalCustomer` |
+| 4 | ປີ້ POS ສະແກນບໍ່ | ຍັງສະແກນ (ຄ່າເລີ່ມຕົ້ນ) · `settings.pos_auto_checkin = 'false'` · TODO ຢືນຢັນຜັງພື້ນທີ່ | seed settings · §2.2 |
+| 5 | ເຫດຜົນປະຕິເສດຢູ່ປະຕູ | ເພີ່ມ `unpaid`, `cancelled` ໃນ `check_ins.result` | schema · §2.3, `ScanResultOverlay` |
+
+### 8.2 ຂໍ້ 6–12 — ເຮັດຕາມຄຳແນະນຳຂອງ agent (ລໍຜູ້ໃຊ້ກວດ)
+
+ໝາຍເຫດ: ບາງຂໍ້ໃນສະບັບ 1 **ບໍ່ມີຄຳແນະນຳທີ່ຊັດເຈນ** — ຂໍ້ເຫຼົ່ານັ້ນໝາຍ ⚠️ ພ້ອມບອກວ່າເລືອກຫຍັງເປັນຄ່າຊົ່ວຄາວ ຫຼື ຍັງເປີດຢູ່.
+
+| # | ຫົວຂໍ້ | ສະບັບ 1 ແນະນຳຫຍັງ | ຕັດສິນ |
+|---|---|---|---|
+| 6 | ພາສາໜ້າພະນັກງານ/admin | ⚠️ ບໍ່ໄດ້ແນະນຳ | **ຄ່າຊົ່ວຄາວ: ລາວ + ອັງກິດ** — ຂໍ້ຄວາມຢູ່ໃນໄຟລ໌ແປຕາມກົດ ສະນັ້ນເພີ່ມຈີນ/ໄທພາຍຫຼັງ ແມ່ນແປຢ່າງດຽວ ບໍ່ແກ້ code. ລໍຢືນຢັນ |
+| 7a | Service worker (PWA) ສຳລັບ offline | ⚠️ ບໍ່ໄດ້ແນະນຳ (ຖາມເທົ່ານັ້ນ) | **ຍັງເປີດ** — brief ບັງຄັບ offline ສຳລັບໜ້າ QR ແລະ ໜ້າສະແກນ ເຊິ່ງເຮັດບໍ່ໄດ້ຖ້າບໍ່ມີ service worker (ຂຽນເອງໄດ້ ບໍ່ຕ້ອງໃຊ້ package). ຈະຖາມອີກຄັ້ງກ່ອນ Phase 7 |
+| 7b | ສະແກນ offline (ໂຫຼດລາຍການປີ້ມື້ນີ້ລົງເຄື່ອງ) | ⚠️ ບໍ່ໄດ້ແນະນຳ — ເປັນການຍອມຮັບຄວາມສ່ຽງທາງທຸລະກິດ | **ຍັງເປີດ** — ຕ້ອງການ: ຈຳນວນປະຕູ ແລະ ຍອມຮັບຄວາມສ່ຽງ "ປີ້ດຽວຜ່ານ 2 ປະຕູຕອນ offline ພ້ອມກັນ" ໄດ້ບໍ່. ຖ້າມີປະຕູດຽວ ຄວາມສ່ຽງນີ້ບໍ່ມີ |
+| 8 | Package ນອກ stack | ຖາມອີກຄັ້ງຕອນ phase ນັ້ນ | **ບໍ່ຕິດຕັ້ງຕອນນີ້** — Phase 5: `react-day-picker`, `date-fns`, `sonner` · Phase 7: ສ້າງ QR + ອ່ານ QR ຈາກກ້ອງ → ຂໍອະນຸຍາດກ່ອນຕິດຕັ້ງ |
+| 9 | ຜູ້ແປຈີນ/ໄທ | ⚠️ ບໍ່ໄດ້ແນະນຳ (ສະເໜີ 2 ທາງ) | **ຍັງເປີດ** — ຄ່າຊົ່ວຄາວ: ໄຟລ໌ `zh`/`th` ມີ key ຄົບ ແຕ່ຄ່າ fallback ເປັນອັງກິດ ຈົນກວ່າຈະມີຄຳແປທີ່ຄົນກວດແລ້ວ |
+| 10 | ສິດເຂົ້າໜ້າ `/booking/[code]` | cookie ຫຼັງຈອງ ຫຼື ຄົ້ນຫາ (ລະຫັດ + ເບີໂທ) · ອີເມວໃຊ້ `qr_token` | **ຕາມຄຳແນະນຳ** → CLAUDE.md ຂໍ້ຕົກລົງ 19 |
+| 11 | ຂໍ້ມູນທີ່ຕ້ອງມີກ່ອນ Phase 5 | ຫ້າມສ້າງເອງ | **ຍັງຂາດ** (ໝາຍ TODO ໄວ້ໃນແຜນ): ທະນາຄານ + ເລກບັນຊີ + ຊື່ບັນຊີ · ເວລາກວດຫຼັກຖານປະມານ · ຂະໜາດຮູບສູງສຸດ · ບ່ອນເກັບຮູບ (disk / cloud) |
+| 12 | ສະແດງ USD/THB ປະມານ | ⚠️ ບໍ່ໄດ້ແນະນຳ | **ຄ່າຊົ່ວຄາວ**: ສະແດງເປັນຕົວເລກຮອງ "ປະມານ" ທຸກພາສາ ເມື່ອ `exchange_rates` ມີອັດຕາ · ບໍ່ມີອັດຕາ → ເຊື່ອງ. ລໍຢືນຢັນ |
+
+### 8.3 ຄຳຖາມໃໝ່ທີ່ເກີດຈາກການແກ້ຮອບນີ້
+
+13. **ເຫດຜົນທີ່ປະຕິເສດຫຼັກຖານ ເກັບໄວ້ໃສ?** ລູກຄ້າຕ້ອງເຫັນເຫດຜົນ (`pay.rejected`) ແຕ່ `payments` ມີແຕ່ `refund_reason` (ສຳລັບຄືນເງິນ). ທາງເລືອກ: (ກ) `payments.status = 'failed'` + ເພີ່ມຄໍລຳ `reject_reason` (ແກ້ schema) (ຂ) ໃຊ້ `bookings.note` (ບໍ່ແກ້ schema ແຕ່ປົນກັບໝາຍເຫດອື່ນ)
+14. **ໃຜເປັນຜູ້ອະນຸມັດຫຼັກຖານ?** `payments` ບໍ່ມີ `verified_by` — ດຽວນີ້ຮູ້ໄດ້ຈາກ `audit_logs` ເທົ່ານັ້ນ (ພໍໃຊ້ສຳລັບ `proofs.already_done`). ພໍບໍ່ ຫຼື ຕ້ອງການຄໍລຳ?

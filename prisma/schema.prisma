@@ -72,7 +72,7 @@ model bookings {
   id              BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
   booking_code    String            @unique(map: "uk_bookings_code") @db.VarChar(20)
   qr_token        String            @unique(map: "uk_bookings_qr") @db.Char(36)
-  customer_id     BigInt            @db.UnsignedBigInt
+  customer_id     BigInt?           @db.UnsignedBigInt
   visit_date      DateTime          @db.Date
   time_slot_id    BigInt?           @db.UnsignedBigInt
   subtotal        Decimal           @default(0.00) @db.Decimal(12, 2)
@@ -88,7 +88,7 @@ model bookings {
   updated_at      DateTime          @default(now()) @db.DateTime(0)
   booking_add_ons booking_add_ons[]
   booking_items   booking_items[]
-  customers       customers         @relation(fields: [customer_id], references: [id], onUpdate: NoAction, map: "fk_bookings_customer")
+  customers       customers?        @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_bookings_customer")
   time_slots      time_slots?       @relation(fields: [time_slot_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_bookings_time_slot")
   users           users?            @relation(fields: [created_by], references: [id], onUpdate: NoAction, map: "fk_bookings_user")
   check_ins       check_ins[]
@@ -303,14 +303,6 @@ enum payments_method {
   other
 }
 
-enum check_ins_result {
-  ok
-  duplicate
-  expired
-  invalid
-  wrong_date
-}
-
 enum customers_id_type {
   national_id
   passport
@@ -349,14 +341,6 @@ enum payments_status {
   refunded
 }
 
-enum bookings_status {
-  pending
-  paid
-  used
-  cancelled
-  expired
-}
-
 enum bookings_channel {
   online
   gate
@@ -367,4 +351,23 @@ enum places_type {
   hotel
   landmark
   airport
+}
+
+enum check_ins_result {
+  ok
+  duplicate
+  expired
+  invalid
+  wrong_date
+  unpaid
+  cancelled
+}
+
+enum bookings_status {
+  pending
+  verifying
+  paid
+  used
+  cancelled
+  expired
 }

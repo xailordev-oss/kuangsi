@@ -139,7 +139,7 @@ CREATE TABLE bookings (
   id             BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   booking_code   VARCHAR(20)  NOT NULL,             -- 'KS-7X4K9'
   qr_token       CHAR(36)     NOT NULL,             -- UUID ສຳລັບ QR
-  customer_id    BIGINT UNSIGNED NOT NULL,
+  customer_id    BIGINT UNSIGNED NULL,              -- NULL = ຂາຍໜ້າປະຕູ ບໍ່ມີຂໍ້ມູນລູກຄ້າ (ຂໍ້ຕົກລົງ 16)
 
   visit_date     DATE         NOT NULL,
   time_slot_id   BIGINT UNSIGNED NULL,              -- NULL = ຈອງທັງວັນ (v1)
@@ -149,7 +149,8 @@ CREATE TABLE bookings (
   total_amount   DECIMAL(12,2) NOT NULL DEFAULT 0,
   currency       CHAR(3)      NOT NULL DEFAULT 'LAK',
 
-  status         ENUM('pending','paid','used','cancelled','expired')
+  -- verifying = ອັບໂຫຼດຫຼັກຖານແລ້ວ ລໍພະນັກງານກວດ (expires_at = NULL, ຂໍ້ຕົກລົງ 15)
+  status         ENUM('pending','verifying','paid','used','cancelled','expired')
                  NOT NULL DEFAULT 'pending',
   channel        ENUM('online','gate','tour_agency') NOT NULL DEFAULT 'online',
 
@@ -245,7 +246,8 @@ CREATE TABLE check_ins (
   gate        VARCHAR(30)  NOT NULL DEFAULT 'main',
   scanned_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   scanned_by  BIGINT UNSIGNED NULL,
-  result      ENUM('ok','duplicate','expired','invalid','wrong_date') NOT NULL DEFAULT 'ok',
+  result      ENUM('ok','duplicate','expired','invalid','wrong_date','unpaid','cancelled')
+              NOT NULL DEFAULT 'ok',
   note        VARCHAR(255) NULL,
 
   -- ປີ້ 1 ອັນ ຜ່ານປະຕູໄດ້ຄັ້ງດຽວ: ບັງຄັບດ້ວຍ unique ສະເພາະ result='ok'
@@ -444,7 +446,8 @@ INSERT INTO settings (setting_key, setting_value, description) VALUES
   ('refund_full_hours',   '24',        'ຍົກເລີກກ່ອນ x ຊມ ຄືນ 100%'),
   ('refund_half_hours',   '12',        'ຍົກເລີກກ່ອນ x ຊມ ຄືນ 50%'),
   ('default_currency',    'LAK',       'ສະກຸນເງິນຫຼັກ'),
-  ('max_visitors_per_day','3000',      'ຈຳນວນສູງສຸດຕໍ່ວັນ — TODO: ຢືນຢັນ');
+  ('max_visitors_per_day','3000',      'ຈຳນວນສູງສຸດຕໍ່ວັນ — TODO: ຢືນຢັນ'),
+  ('pos_auto_checkin',    'false',     'true = ປີ້ທີ່ຂາຍຢູ່ POS ໝາຍເຂົ້າແລ້ວທັນທີ — TODO: ຢືນຢັນຜັງພື້ນທີ່ປະຕູ/ບ່ອນຂາຍກັບຜູ້ຈັດການຕາດ');
 
 -- ບັນຊີ admin ເລີ່ມຕົ້ນ
 -- ⚠️ password_hash ຂ້າງລຸ່ມເປັນ placeholder — ຕ້ອງສ້າງ hash ຈິງດ້ວຍ bcrypt
