@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isIsoCountry } from "@/lib/countries";
 import { normalizePhone } from "@/lib/phone";
 import { isValidIsoDate } from "@/lib/time";
 
@@ -48,7 +49,7 @@ const onlineCustomer = z
     fullName: z.string().trim().min(1).max(150),
     phone: phoneSchema,
     email: z.email().max(255).optional(),
-    nationality: z.string().regex(/^[A-Z]{2}$/).optional(),
+    nationality: z.string().refine(isIsoCountry, { message: "expected ISO 3166-1 alpha-2 country code" }).optional(),
     idType: z.enum(["national_id", "passport", "other"]).optional(),
     idNumber: z.string().trim().min(1).max(50).optional(),
   })

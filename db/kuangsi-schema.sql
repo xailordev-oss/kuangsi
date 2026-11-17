@@ -465,7 +465,16 @@ INSERT INTO settings (setting_key, setting_value, description) VALUES
   ('max_people_per_booking','30',      'ຈຳນວນຄົນສູງສຸດຕໍ່ການຈອງ online 1 ອັນ (POS ບໍ່ຈຳກັດ)'),
   ('max_advance_days',    '90',        'ຈອງ online ລ່ວງໜ້າໄດ້ໄກສຸດ x ວັນ — ລາຄາປ່ຽນທຸກໄຕມາດ'),
   ('booking_create_limit_per_ip','20', 'ສ້າງການຈອງ online ໄດ້ x ຄັ້ງຕໍ່ IP ໃນ booking_create_window_minutes (ກັນ bot ກັນບ່ອນ) — ໂຮງແຮມໃຊ້ IP ຮ່ວມກັນ ຢ່າຕັ້ງຕ່ຳເກີນ'),
-  ('booking_create_window_minutes','60','ໄລຍະເວລາ (ນາທີ) ສຳລັບ booking_create_limit_per_ip');
+  ('booking_create_window_minutes','60','ໄລຍະເວລາ (ນາທີ) ສຳລັບ booking_create_limit_per_ip'),
+  -- ຂໍ້ຕົກລົງ 28: ຍັງເປັນ TODO → ການຈອງ online ປິດອັດຕະໂນມັດ ຈົນກວ່າ admin ໃສ່ຂໍ້ມູນແທ້
+  ('bank_name',           'TODO: ຕ້ອງຢືນຢັນ', 'ຊື່ທະນາຄານສຳລັບໂອນເງິນ'),
+  ('bank_account_number', 'TODO: ຕ້ອງຢືນຢັນ', 'ເລກບັນຊີສຳລັບໂອນເງິນ'),
+  ('bank_account_name',   'TODO: ຕ້ອງຢືນຢັນ', 'ຊື່ບັນຊີສຳລັບໂອນເງິນ'),
+  -- ເວລາກວດຫຼັກຖານ ສະແດງຕອນລູກຄ້າກຳລັງຈະໂອນ → ຕ້ອງມີຄົບ 4 ພາສາ ຈຶ່ງເປີດຈອງ online ໄດ້
+  ('verify_time_note_lo', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາກວດຫຼັກຖານ (ລາວ) ເຊັ່ນ "ກວດພາຍໃນ 1 ຊົ່ວໂມງ ໃນເວລາເຮັດວຽກ"'),
+  ('verify_time_note_en', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາກວດຫຼັກຖານ (ອັງກິດ) ເຊັ່ນ "Checked within 1 hour during opening hours"'),
+  ('verify_time_note_zh', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາກວດຫຼັກຖານ (ຈີນ)'),
+  ('verify_time_note_th', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາກວດຫຼັກຖານ (ໄທ)');
 
 -- ບັນຊີ admin ເລີ່ມຕົ້ນ
 -- ⚠️ password_hash ຂ້າງລຸ່ມເປັນ placeholder — ຕ້ອງສ້າງ hash ຈິງດ້ວຍ bcrypt

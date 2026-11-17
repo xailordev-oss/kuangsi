@@ -1,26 +1,134 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
+/* Dark mode ເລື່ອນໄປພາຍຫຼັງ (ui-brief ຂໍ້ 5) — variant ຄົງໄວ້ໃຫ້ component ຂອງ shadcn compile ໄດ້ */
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design tokens — docs/ui-plan.md §4 (contrast ທຸກຄູ່ ≥ 4.5:1 ຄຳນວນແລ້ວ)
+ * ຊື່ຕົວແປຂອງ shadcn ຄົງໄວ້ ແຕ່ຄ່າເປັນຂອງໂປຣເຈັກ
+ */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+  --primary-hover: #115e59;
+  --primary-subtle: #f0fdfa;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+  --accent: #f0fdfa;
+  --accent-foreground: #115e59;
+  --destructive: #b91c1c;
+  --destructive-subtle: #fef2f2;
+  --success: #15803d;
+  --success-subtle: #f0fdf4;
+  --warning: #b45309;
+  --warning-subtle: #fffbeb;
+  --neutral: #475569;
+  --border: #e2e8f0;
+  --input: #cbd5e1;
+  --ring: #0f766e;
+  --radius: 0.75rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-subtle: var(--destructive-subtle);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-neutral: var(--neutral);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* ລາວ + ລາຕິນ + ໄທ + ຈີນ: browser ເລືອກ font ຕາມຕົວອັກສອນ (ແຕ່ລະ font ຄອບຄຸມ script ຂອງຕົນ) */
+  --font-sans: var(--font-noto-latin), var(--font-noto-lao), var(--font-noto-thai), var(--font-noto-sc), "Phetsarath OT", sans-serif;
+  --font-heading: var(--font-sans);
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/*
+ * ກົດຂໍ້ຄວາມລາວ (CLAUDE.md ພາກ 4): line-height ເນື້ອຫາ 1.8 · ຫົວຂໍ້ 1.7 · ຫ້າມຕ່ຳກວ່າ 1.7
+ * Tailwind ຕັ້ງ line-height ໃຫ້ແຕ່ລະຂະໜາດ text-* ແລະ leading-* ຕ່ຳກວ່ານັ້ນ (shadcn ໃຊ້ leading-none/snug)
+ * → override ທັງໝົດຢູ່ທີ່ນີ້ ເພື່ອບໍ່ໃຫ້ component ໃດຕັດວັນນະຍຸດ
+ */
+@theme {
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.8;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.8;
+  --text-base: 1rem;
+  --text-base--line-height: 1.8;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.7;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.7;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 1.7;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 1.7;
+  --text-4xl: 2.5rem;
+  --text-4xl--line-height: 1.7;
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1.7;
+
+  --leading-none: 1.7;
+  --leading-tight: 1.7;
+  --leading-snug: 1.7;
+  --leading-normal: 1.8;
+  --leading-relaxed: 1.8;
+  --leading-loose: 2;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+    line-height: 1.8;
+  }
+  h1, h2, h3, h4 {
+    line-height: 1.7;
+  }
+  /* ພາສາລາວບໍ່ມີຍະຫວ່າງລະຫວ່າງຄຳ — ຫ້າມ justify */
+  p, li, td, th, label {
+    text-align: start;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }

@@ -1,0 +1,199 @@
+{
+  "meta": {
+    "title": "Kuang Si Falls — Tickets",
+    "description": "Book entry tickets for Kuang Si Falls, Luang Prabang"
+  },
+  "common": {
+    "siteName": "Kuang Si Falls",
+    "kip": "LAK",
+    "next": "Next",
+    "back": "Back",
+    "edit": "Edit",
+    "retry": "Try again",
+    "copy": "Copy",
+    "copied": "Copied",
+    "optional": "Optional",
+    "approx": "approx.",
+    "loading": "Loading…",
+    "lakOnly": "You pay in Lao kip (LAK) only. Other currencies are approximate.",
+    "skipToContent": "Skip to content"
+  },
+  "nav": {
+    "home": "Home",
+    "lookup": "Find my booking",
+    "privacy": "Privacy",
+    "language": "Language"
+  },
+  "home": {
+    "intro": "Turquoise pools and a three-tier waterfall, about 29 km south of Luang Prabang.",
+    "photoAlt": "Photo of Kuang Si Falls (coming soon)",
+    "openHours": "Opening hours",
+    "openDaily": "Open daily {open}–{close}",
+    "closedDays": "Closed: {days}",
+    "closedToday": "Closed today",
+    "prices": "Ticket prices",
+    "noTickets": "Online ticket sales are not available right now.",
+    "loadError": "We couldn't load ticket prices."
+  },
+  "booking": {
+    "cta": "Book now",
+    "findMine": "Find my booking",
+    "stepOf": "Step {n} of 4",
+    "steps": {
+      "date": "Date & tickets",
+      "details": "Your details",
+      "review": "Review & pay",
+      "done": "Booking"
+    },
+    "selectDate": "Select visit date",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "spotsLeft": "{n} spots left",
+    "fewLeft": "Few left",
+    "soldOut": "Sold out for this date",
+    "closed": "Closed",
+    "closedReasons": {
+      "past": "This date has passed",
+      "beyond_booking_window": "Too far ahead — book closer to your visit",
+      "holiday": "Closed on this date — please pick another day",
+      "weekly_closed": "Closed on this day of the week",
+      "after_hours": "Closed for today — please pick another day"
+    },
+    "selectedDate": "Visit date: {date}",
+    "availabilityError": "We couldn't check availability.",
+    "groupQuestion": "Your group is",
+    "groupLao": "Lao citizens",
+    "groupForeigner": "Foreign visitors",
+    "groupMixed": "Group has both Lao and foreign visitors",
+    "groupSingle": "Show one group only",
+    "ageRange": "Ages {min}–{max}",
+    "ageFrom": "Ages {min}+",
+    "ageUpTo": "Up to age {max}",
+    "free": "Free",
+    "decrease": "Remove one {name}",
+    "increase": "Add one {name}",
+    "addOns": "Extras",
+    "addOnUnits": {
+      "per_person": "per person",
+      "per_booking": "per group",
+      "per_item": "each"
+    },
+    "peopleTotal": "{n} people",
+    "minOne": "Please choose at least 1 ticket",
+    "chooseDateFirst": "Please choose a visit date",
+    "overCapacity": "Only {n} spots left — reduce the number or pick another day",
+    "tooManyPeople": "Online bookings are limited to {max} people — split your group or buy at the entrance",
+    "beyondWindow": "You can book up to {days} days ahead — please pick an earlier date",
+    "nothingToPay": "Infants enter free and don't need a booking — add an adult or child ticket if needed",
+    "rateLimited": "Too many bookings from this network — please try again in {minutes} minutes",
+    "startOver": "Start a new booking"
+  },
+  "onlineClosed": {
+    "title": "Online booking isn't open yet",
+    "body": "You can buy tickets directly at the entrance."
+  },
+  "details": {
+    "title": "Your details",
+    "fullName": "Full name",
+    "phone": "Phone number",
+    "phoneCountry": "Country code",
+    "phoneOther": "Other (type +code)",
+    "phoneHint": "You'll use this number with your booking code to find your ticket",
+    "phoneLaoHint": "Lao numbers: type 020… · Other numbers: choose your country code",
+    "email": "Email",
+    "emailHint": "We'll send your ticket and receipt here",
+    "nationality": "Nationality",
+    "nationalityNone": "Prefer not to say",
+    "nationalitySearch": "Search countries",
+    "nationalityCommon": "Common",
+    "nationalityAll": "All countries",
+    "nationalityNoMatch": "No country found — try another name",
+    "nationalityChange": "Change nationality",
+    "idSection": "ID or passport (optional)",
+    "idType": "Document type",
+    "idTypes": {
+      "national_id": "National ID card",
+      "passport": "Passport",
+      "other": "Other"
+    },
+    "idNumber": "Document number",
+    "errName": "Please enter your full name",
+    "errPhone": "That number looks incomplete — check the country code and digits",
+    "errEmail": "That email doesn't look right, e.g. name@example.com",
+    "errIdType": "Choose the document type for this number"
+  },
+  "review": {
+    "title": "Check before confirming",
+    "visitDate": "Visit date",
+    "bookedBy": "Booked by",
+    "tickets": "Tickets",
+    "total": "Total",
+    "payTransfer": "Payment: bank transfer",
+    "paySteps": "Transfer the total · upload your receipt · we check it and send your QR code",
+    "holdNotice": "After confirming, you have {minutes} minutes to transfer and upload your receipt",
+    "cantTransfer": "Can't transfer? You can buy tickets directly at the entrance",
+    "confirm": "Confirm booking · {total}",
+    "missingDraft": "Your booking details were lost — please start again",
+    "errCreate": "We couldn't save your booking. Please try again — you haven't been charged",
+    "capacityChanged": "This date filled up while you were booking — please choose another date"
+  },
+  "pay": {
+    "pending": "Waiting for payment",
+    "timeLeft": "Please pay within {time}",
+    "stepTransfer": "1. Transfer {amount} to",
+    "bank": "Bank",
+    "accountNumber": "Account number",
+    "accountName": "Account name",
+    "stepUpload": "2. Upload your transfer receipt",
+    "uploadSoon": "Receipt upload is being set up — please keep your transfer receipt",
+    "rememberCode": "Keep this code: {code}",
+    "verifying": "Our staff are checking your receipt",
+    "verifyingNoExpiry": "Your booking won't expire while we check it",
+    "verifyingHint": "You can close this page and come back with your booking code and phone number",
+    "verifyTime": "Usually checked: {note}",
+    "rejected": "Receipt not accepted: {reason}. Please upload a new one within the time shown",
+    "expired": "Payment time ran out and the spots were released — please book again"
+  },
+  "ticket": {
+    "ready": "Paid — you're ready to visit",
+    "showAtGate": "Show this booking code at the entrance",
+    "used": "This ticket has been used",
+    "cancelled": "This booking has been cancelled"
+  },
+  "lookup": {
+    "title": "Find my booking",
+    "intro": "Enter the booking code and the phone number you used when booking.",
+    "code": "Booking code",
+    "codeHint": "e.g. KS-7X4K9",
+    "submit": "Find booking",
+    "notFound": "No booking found — check the booking code and the phone number you used",
+    "errCode": "Booking codes look like KS-7X4K9"
+  },
+  "access": {
+    "title": "Confirm it's your booking",
+    "body": "To protect your details, please enter your booking code and phone number.",
+    "goLookup": "Enter code and phone"
+  },
+  "status": {
+    "pending": "Awaiting payment",
+    "verifying": "Being checked",
+    "paid": "Paid",
+    "used": "Used",
+    "cancelled": "Cancelled",
+    "expired": "Expired"
+  },
+  "error": {
+    "generic": "Something went wrong — please try again",
+    "network": "Can't connect — check your internet and try again"
+  },
+  "privacy": {
+    "title": "Privacy",
+    "intro": "We only collect what we need to manage your booking.",
+    "collectTitle": "What we collect",
+    "collectBody": "Your name, phone number, and optionally email, nationality and ID number. Your ID number is never shown in reports or exports.",
+    "locationTitle": "Your location",
+    "locationBody": "If you choose to share your location, we use it only to calculate the distance and travel time to the falls. We ask only when you tap the button, and we never store your exact location.",
+    "receiptTitle": "Payment receipts",
+    "receiptBody": "Transfer receipts are stored privately. Only you (with your booking code and phone number) and our cashier staff can view them."
+  }
+}

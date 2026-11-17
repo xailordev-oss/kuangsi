@@ -4,7 +4,7 @@ import { createOnlineBooking } from "@/lib/booking/create";
 import { findBookingByCode, toCustomerBookingDto } from "@/lib/booking/read";
 import { createOnlineBookingSchema } from "@/lib/booking/schemas";
 import { clientIp, hitRateLimit } from "@/lib/rate-limit";
-import { getIntSetting } from "@/lib/settings";
+import { getBankTransferInfo, getIntSetting } from "@/lib/settings";
 
 // POST /api/public/bookings — ສ້າງການຈອງ online (status pending, ລໍໂອນ + ອັບໂຫຼດຫຼັກຖານ)
 export async function POST(req: Request) {
@@ -21,6 +21,9 @@ export async function POST(req: Request) {
         { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
       );
     }
+
+    // ຂໍ້ຕົກລົງ 28: ຍັງບໍ່ມີບັນຊີທະນາຄານ → ບໍ່ມີທາງຈ່າຍ → ບໍ່ສ້າງການຈອງ
+    if (!(await getBankTransferInfo()).configured) return jsonError(503, "online_booking_unavailable");
 
     const body = await parseJsonBody(req, createOnlineBookingSchema);
     if (!body.ok) return body.response;
