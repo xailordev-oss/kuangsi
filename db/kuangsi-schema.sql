@@ -39,6 +39,9 @@ CREATE TABLE users (
   role          ENUM('admin','cashier','scanner','viewer') NOT NULL DEFAULT 'viewer',
   is_active     BOOLEAN      NOT NULL DEFAULT TRUE,
   last_login_at DATETIME     NULL,
+  -- ກັນການເດົາລະຫັດ (ຂໍ້ຕົກລົງ 22): ຜິດຄົບ settings.login_max_attempts → ລັອກ settings.login_lockout_minutes
+  failed_login_count SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  locked_until  DATETIME     NULL,
   created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -172,7 +175,7 @@ CREATE TABLE bookings (
   CONSTRAINT fk_bookings_time_slot FOREIGN KEY (time_slot_id)
     REFERENCES time_slots(id) ON DELETE RESTRICT,
   CONSTRAINT fk_bookings_user FOREIGN KEY (created_by)
-    REFERENCES users(id) ON DELETE SET NULL
+    REFERENCES users(id) ON DELETE RESTRICT  -- ຫ້າມລຶບ user (CLAUDE.md ພາກ 4)
 ) ENGINE=InnoDB;
 
 -- ລາຍການປີ້ໃນແຕ່ລະການຈອງ
@@ -270,7 +273,7 @@ CREATE TABLE check_ins (
   CONSTRAINT fk_checkins_booking FOREIGN KEY (booking_id)
     REFERENCES bookings(id) ON DELETE RESTRICT,
   CONSTRAINT fk_checkins_user FOREIGN KEY (scanned_by)
-    REFERENCES users(id) ON DELETE SET NULL
+    REFERENCES users(id) ON DELETE RESTRICT  -- ຫ້າມລຶບ user (CLAUDE.md ພາກ 4)
 ) ENGINE=InnoDB;
 
 -- =====================================================================
@@ -376,7 +379,7 @@ CREATE TABLE settings (
   updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
   CONSTRAINT fk_settings_user FOREIGN KEY (updated_by)
-    REFERENCES users(id) ON DELETE SET NULL
+    REFERENCES users(id) ON DELETE RESTRICT  -- ຫ້າມລຶບ user (CLAUDE.md ພາກ 4)
 ) ENGINE=InnoDB;
 
 CREATE TABLE audit_logs (
@@ -394,7 +397,7 @@ CREATE TABLE audit_logs (
   KEY idx_audit_created (created_at),
   KEY idx_audit_record (table_name, record_id),
   CONSTRAINT fk_audit_user FOREIGN KEY (user_id)
-    REFERENCES users(id) ON DELETE SET NULL
+    REFERENCES users(id) ON DELETE RESTRICT  -- ຫ້າມລຶບ user (CLAUDE.md ພາກ 4)
 ) ENGINE=InnoDB;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -455,7 +458,10 @@ INSERT INTO settings (setting_key, setting_value, description) VALUES
   ('refund_half_hours',   '12',        'ຍົກເລີກກ່ອນ x ຊມ ຄືນ 50%'),
   ('default_currency',    'LAK',       'ສະກຸນເງິນຫຼັກ'),
   ('max_visitors_per_day','3000',      'ຈຳນວນສູງສຸດຕໍ່ວັນ — TODO: ຢືນຢັນ'),
-  ('pos_auto_checkin',    'false',     'true = ປີ້ທີ່ຂາຍຢູ່ POS ໝາຍເຂົ້າແລ້ວທັນທີ — TODO: ຢືນຢັນຜັງພື້ນທີ່ປະຕູ/ບ່ອນຂາຍກັບຜູ້ຈັດການຕາດ');
+  ('pos_auto_checkin',    'false',     'true = ປີ້ທີ່ຂາຍຢູ່ POS ໝາຍເຂົ້າແລ້ວທັນທີ — TODO: ຢືນຢັນຜັງພື້ນທີ່ປະຕູ/ບ່ອນຂາຍກັບຜູ້ຈັດການຕາດ'),
+  ('session_hours',       '12',        'ອາຍຸ session ພະນັກງານ (ຊົ່ວໂມງ, 1–24) — 1 ກະເຮັດວຽກ, ບັງຄັບ login ໃໝ່ທຸກເຊົ້າ'),
+  ('login_max_attempts',  '5',         'ລະຫັດຜ່ານຜິດຕິດກັນ x ຄັ້ງ → ລັອກບັນຊີ'),
+  ('login_lockout_minutes','15',       'ລັອກບັນຊີ x ນາທີ ຫຼັງຜິດຄົບ login_max_attempts');
 
 -- ບັນຊີ admin ເລີ່ມຕົ້ນ
 -- ⚠️ password_hash ຂ້າງລຸ່ມເປັນ placeholder — ຕ້ອງສ້າງ hash ຈິງດ້ວຍ bcrypt

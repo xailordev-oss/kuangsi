@@ -1,7 +1,7 @@
 # ແຜນອອກແບບ UI/UX — ລະບົບຈອງປີ້ຕາດກວາງຊີ (Phase 2)
 
-> ສະຖານະ: **ສະບັບ 3 — ອັບເດດຕາມຄຳຕອບ §8** · ເອກະສານເທົ່ານັ້ນ ບໍ່ມີ code
-> ອີງໃສ່: `docs/ui-brief.md`, `docs/requirements.md`, `CLAUDE.md` (ຂໍ້ຕົກລົງ 1–20), `db/kuangsi-schema.sql`
+> ສະຖານະ: **ສະບັບ 4 — ອັບເດດຕາມຄຳຕອບ §8 + Phase 3** · ເອກະສານເທົ່ານັ້ນ ບໍ່ມີ code
+> ອີງໃສ່: `docs/ui-brief.md`, `docs/requirements.md`, `CLAUDE.md` (ຂໍ້ຕົກລົງ 1–22), `db/kuangsi-schema.sql`
 > ອອກແບບ mobile-first ທີ່ 375px · ພາສາເລີ່ມຕົ້ນ: ລາວ
 
 ສາລະບານ
@@ -97,6 +97,7 @@
 | 10–20 | ຮັບເງິນ/ທອນ | ຄິດເງິນທອນ → ລະບົບຄິດໃຫ້ |
 | 20–30 | ພິມ | printer ຊ້າ/ບໍ່ພ້ອມ → ສະແດງ QR ເທິງຈໍໃຫ້ລູກຄ້າຖ່າຍຮູບແທນໄດ້ |
 
+- ຫົວຈໍ POS ໃຊ້ `StaffHeader` ດຽວກັບໜ້າສະແກນ: ຊື່ພະນັກງານ + ປຸ່ມ **"ອອກຈາກລະບົບ"** ເຫັນຊັດທີ່ມຸມຂວາເທິງ (ຂໍ້ຕົກລົງ 21)
 - ບໍ່ຖາມຊື່/ເບີໂທ ເປັນຄ່າເລີ່ມຕົ້ນ → `customer_id = NULL` (ຂໍ້ຕົກລົງ 16)
 - ມີລິ້ງພັບໄວ້ "ເພີ່ມຊື່ / ເບີໂທ (ບໍ່ບັງຄັບ)" — ຖ້າໃສ່ → ສ້າງ ຫຼື ໃຊ້ customer ເກົ່າຕາມເບີໂທ
 - ສ້າງການຈອງ `channel = 'gate'`, `status = 'paid'`, `created_by = ພະນັກງານ`, payment `method = 'cash'`
@@ -304,7 +305,7 @@ DistanceCard ກ່ອນກົດ: "[📍 ໄລຍະທາງຈາກບ່�
 ```
 ກຳລັງສະແກນ                      ຜົນ: ຜ່ານ (ຂຽວເຕັມຈໍ)          ຜົນ: ໃຊ້ແລ້ວ (ແດງເຕັມຈໍ)
 ┌─────────────────────────────┐┌─────────────────────────────┐┌─────────────────────────────┐
-│ ປະຕູ: main   ⚡  ☁ online    ││                             ││                             │
+│ main ☁  [ອອກຈາກລະບົບ ⎋]      ││                             ││                             │
 │                             ││            ✓                ││            ✕                │
 │   ┌─────────────────────┐   ││                             ││                             │
 │   │                     │   ││       ປີ້ຖືກຕ້ອງ            ││     ປີ້ນີ້ຖືກໃຊ້ແລ້ວ          │
@@ -320,6 +321,7 @@ DistanceCard ກ່ອນກົດ: "[📍 ໄລຍະທາງຈາກບ່�
 └─────────────────────────────┘│ └─────────────────────────┘ ││ └─────────────────────────┘ │
    ↑ ປຸ່ມທັງໝົດຢູ່ເຄິ່ງລຸ່ມ       └─────────────────────────────┘└─────────────────────────────┘
 ```
+- ຫົວຈໍ (`StaffHeader`): ຊື່ປະຕູ · ສະຖານະເນັດ · ປຸ່ມ **"ອອກຈາກລະບົບ"** ມີທັງ icon ແລະ ຂໍ້ຄວາມ ຢູ່ມຸມຂວາເທິງ — ບໍ່ຢູ່ເຄິ່ງລຸ່ມ ເພື່ອບໍ່ໃຫ້ແຕະໂດຍບັງເອີນລະຫວ່າງສະແກນ · ກົດແລ້ວຖາມຢືນຢັນ 1 ຄັ້ງ (ຂໍ້ຕົກລົງ 21)
 - ຜ່ານ: ກັບໄປສະແກນເອງຫຼັງ 2 ວິ (ນັບຖອຍຫຼັງເທິງປຸ່ມ) · ບໍ່ຜ່ານ: **ຕ້ອງແຕະ** ເພື່ອບໍ່ໃຫ້ພາດ
 - ຂໍ້ຄວາມໃຫຍ່ ສີເຂັ້ມ contrast ສູງ ເພາະໃຊ້ກາງແດດ
 
@@ -442,6 +444,8 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | Component | Props | ສະຖານະ | ໃຊ້ຢູ່ໜ້າ |
 |---|---|---|---|
 | `LanguageSwitcher` | `current`, `locales` | ປົກກະຕິ · ເປີດ | ທຸກໜ້າ |
+| `StaffHeader` | `title`, `staffName`, `online` | ປົກກະຕິ · ຢືນຢັນອອກຈາກລະບົບ (Dialog) · offline | staff/scan, staff/pos, staff/proofs, admin |
+| `StaffLoginForm` | `callbackUrl` | ວ່າງ · ກຳລັງສົ່ງ · ຜິດ (ຂໍ້ຄວາມລວມ) · ບັນຊີຖືກປິດ · session ໝົດອາຍຸ | staff/login |
 | `BookingStepper` | `step: 1–4` | ຂັ້ນປັດຈຸບັນ · ຜ່ານແລ້ວ · ຍັງບໍ່ເຖິງ | book/*, booking/[code] |
 | `DatePickerWithAvailability` | `value`, `onChange`, `availability: Record<date, {left, closed}>`, `minDate` | ຫວ່າງ · ເຫຼືອໜ້ອຍ · ເຕັມ · ປິດ · ຜ່ານມາແລ້ວ · ກຳລັງໂຫຼດ | book |
 | `VisitorGroupToggle` | `value: 'lao'|'foreigner'|'mixed'`, `onChange` | ລາວ · ຕ່າງປະເທດ · ປົນ | book, pos |
@@ -487,7 +491,7 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | ການຈອງຂອງຂ້ອຍ | skeleton QR | — | ໂຫຼດບໍ່ໄດ້ + ລອງໃໝ່ (ຖ້າເຄີຍເປີດ → ສະແດງສະບັບທີ່ cache) | QR (`paid`) / ລໍກວດ (`verifying`) | ໝົດ 30 ນາທີ (`expired`) · ຫຼັກຖານຖືກປະຕິເສດ → `pending` + ເຫດຜົນ + ໂມງໃໝ່ · ຍົກເລີກ · ບໍ່ມີສິດເບິ່ງ → ໄປໜ້າຄົ້ນຫາ |
 | ຄົ້ນຫາ | ປຸ່ມ loading | — | ລະບົບຂັດຂ້ອງ + ລອງໃໝ່ | ໄປໜ້າການຈອງ | ບໍ່ພົບ (ລະຫັດ ຫຼື ເບີໂທບໍ່ກົງ — ບໍ່ບອກວ່າອັນໃດຜິດ ເພື່ອຄວາມປອດໄພ) |
 | ນະໂຍບາຍ | — | — | — | — | — |
-| Login ພະນັກງານ | ປຸ່ມ loading | — | ລະຫັດຜິດ | ໄປໜ້າຕາມບົດບາດ | ບັນຊີຖືກປິດ |
+| Login ພະນັກງານ | ປຸ່ມ loading | — | ຊື່ຜູ້ໃຊ້ຜິດ / ລະຫັດຜິດ / ຖືກລັອກ → **ຂໍ້ຄວາມດຽວກັນ** `staff.login_failed` (ຂໍ້ຕົກລົງ 22) | ໄປໜ້າຕາມບົດບາດ | ບັນຊີຖືກປິດ (ສະເພາະເມື່ອລະຫັດຖືກ) · session ໝົດອາຍຸ (ຫຼັງ `session_hours`) → `staff.session_expired` |
 | ສະແກນ | ເປີດກ້ອງ | ມື້ນີ້ຍັງບໍ່ມີຄົນເຂົ້າ | ກ້ອງເປີດບໍ່ໄດ້ → ໃສ່ລະຫັດເອງ | ຈໍຂຽວ | ຈໍແດງ/ເຫຼືອງ (duplicate · wrong_date · expired · invalid · unpaid · cancelled) · offline → ເກັບໃນ queue |
 | POS | skeleton ປຸ່ມປີ້ | ບໍ່ມີປີ້ເປີດຂາຍ | ບັນທຶກບໍ່ໄດ້ + ລອງໃໝ່ (ບໍ່ສ້າງຊ້ຳ) | ໃບປີ້ + ພິມ (`pos_auto_checkin = true` → ຂຽນ "ເຂົ້າແລ້ວ") | ມື້ນີ້ເຕັມ · printer ບໍ່ພ້ອມ → ສະແດງ QR ເທິງຈໍ |
 | ກວດຫຼັກຖານ | skeleton card | "ບໍ່ມີຫຼັກຖານລໍກວດ" | ໂຫຼດຮູບບໍ່ໄດ້ | ອະນຸມັດ → toast + ອັນຕໍ່ໄປ | ມີຄົນອື່ນກວດແລ້ວ (ບໍ່ມີກໍລະນີໝົດອາຍຸ ເພາະ `verifying` ບໍ່ໝົດອາຍຸ) |
@@ -630,7 +634,11 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | `error.generic` | ມີບາງຢ່າງຜິດພາດ ກະລຸນາລອງໃໝ່ອີກຄັ້ງ | Something went wrong — please try again |
 | `error.network` | ເຊື່ອມຕໍ່ບໍ່ໄດ້ ກະລຸນາກວດອິນເຕີເນັດ ແລ້ວລອງໃໝ່ | Can't connect — check your internet and try again |
 | `empty.bookings` | ຍັງບໍ່ມີການຈອງ | No bookings yet |
-| `staff.login_failed` | ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກ | Username or password is incorrect |
+| `staff.login_failed` | ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ | Username or password is incorrect |
+| `staff.login_lockout_hint` | ຖ້າໃສ່ຜິດ {attempts} ຄັ້ງຕິດກັນ ບັນຊີຈະຖືກລັອກ {minutes} ນາທີ | After {attempts} wrong tries in a row, the account is locked for {minutes} minutes |
+| `staff.session_expired` | ໝົດເວລາເຮັດວຽກຂອງ session ແລ້ວ ກະລຸນາເຂົ້າສູ່ລະບົບໃໝ່ | Your session has ended — please sign in again |
+| `staff.logout` | ອອກຈາກລະບົບ | Sign out |
+| `staff.logout_confirm` | ອອກຈາກລະບົບແທ້ບໍ່? | Sign out now? |
 | `staff.account_disabled` | ບັນຊີນີ້ຖືກປິດ ກະລຸນາຕິດຕໍ່ຜູ້ດູແລລະບົບ | This account is disabled — contact your administrator |
 
 ---

@@ -67,6 +67,13 @@ DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
 - ຫ້າມແກ້ schema ຫຼັງຈາກຜູ້ໃຊ້ອະນຸມັດແລ້ວ — ຖ້າຕ້ອງແກ້ ຕ້ອງຖາມ ແລະ ອະທິບາຍເຫດຜົນ
 - ຫ້າມໃຊ້ `prisma migrate` ແກ້ໂຄງສ້າງ — ແຫຼ່ງຄວາມຈິງແມ່ນ `db/kuangsi-schema.sql` ແກ້ SQL ແລ້ວ `prisma db pull`
 - ຫ້າມຂຽນ `prisma/schema.prisma` ດ້ວຍມື
+- **ຫ້າມລຶບ user** — ປິດບັນຊີດ້ວຍ `is_active = false` ແທນ (ທັງໃນ code, API, UI ແລະ script)
+  ເຫດຜົນ: ການລຶບຈະເຮັດໃຫ້ປະຫວັດຜູ້ຮັບຜິດຊອບຂາດ
+  - DB ບັງຄັບໄວ້ແລ້ວ: ທຸກ FK ທີ່ຊີ້ໄປ `users` ເປັນ RESTRICT
+    (`payments.verified_by`, `bookings.created_by`, `check_ins.scanned_by`, `settings.updated_by`, `audit_logs.user_id`)
+  - FK ໃໝ່ທີ່ຊີ້ໄປ `users` ໃນອະນາຄົດ ຕ້ອງເປັນ RESTRICT ຄືກັນ (ຫ້າມ CASCADE / SET NULL)
+- **ຫ້າມ upgrade Auth.js (`next-auth`)** ໂດຍບໍ່ທົດສອບ login ທັງ 4 ບົດບາດ (admin / cashier / scanner / viewer)
+  ລວມທັງ: ສິດເຂົ້າໜ້າ, ລັອກຫຼັງຜິດ, ບັນຊີຖືກປິດ, session ໝົດອາຍຸ — ເວີຊັນຖືກ pin ໄວ້ (`5.0.0-beta.32`) ເພາະຍັງເປັນ beta
 - ຫ້າມສ້າງໄຟລ໌ທີ່ບໍ່ຢູ່ໃນແຜນທີ່ອະນຸມັດແລ້ວ
 - ຫ້າມເພີ່ມ feature ທີ່ບໍ່ໄດ້ສັ່ງ (ບໍ່ຕ້ອງ "ແຖມ" ໃຫ້)
 - ຫ້າມສ້າງ API key, endpoint, ຫຼື ລາຄາ ຂຶ້ນມາເອງ — ໃຊ້ `.env.example` + `// TODO:`
@@ -148,6 +155,13 @@ DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
     reject_reason ແມ່ນຂໍ້ຄວາມທີ່ລູກຄ້າເຫັນ — ຫ້າມໃຊ້ bookings.note ຫຼື refund_reason ແທນ
     ອັບໂຫຼດໃໝ່ຫຼັງຖືກປະຕິເສດ → ສ້າງແຖວ payments ໃໝ່ (ເກັບປະຫວັດແຖວເກົ່າໄວ້)
     payments.verified_by → users ເປັນ RESTRICT: ຫ້າມລຶບ user ທີ່ເຄີຍກວດເງິນ ໃຫ້ປິດດ້ວຍ is_active
+21. session ພະນັກງານ = settings.session_hours (ຄ່າເລີ່ມຕົ້ນ 12) ສຳລັບທຸກບົດບາດ — ຫ້າມ hardcode
+    ເຫດຜົນ: 1 ກະເຮັດວຽກ (ຕາດເປີດ 08:00–17:30) · ບັງຄັບ login ໃໝ່ທຸກເຊົ້າ ບໍ່ຄ້າງຂ້າມຄືນໃນເຄື່ອງໃຊ້ຮ່ວມກັນ
+    ໝົດອາຍຸແບບ absolute ນັບຈາກ login (ບໍ່ຕໍ່ອາຍຸເອງ) · ຄ່າໃນ settings ຕ້ອງຢູ່ໃນ 1–24
+    ໜ້າ POS ແລະ ໜ້າສະແກນ ຕ້ອງມີປຸ່ມ "ອອກຈາກລະບົບ" ເຫັນໄດ້ຊັດ
+22. ກັນການເດົາລະຫັດ: ຜິດຕິດກັນ settings.login_max_attempts (5) ຄັ້ງ → ລັອກ settings.login_lockout_minutes (15) ນາທີ
+    ຂໍ້ຄວາມແຈ້ງຜູ້ໃຊ້ ຫ້າມແຍກ "ຊື່ຜູ້ໃຊ້ຜິດ" / "ລະຫັດຜິດ" / "ຖືກລັອກ" — ບອກລວມວ່າ "ຊື່ຜູ້ໃຊ້ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ"
+    ລະຫວ່າງລັອກ ບໍ່ນັບຄັ້ງເພີ່ມ · login ສຳເລັດ ຫຼື ຕັ້ງລະຫັດໃໝ່ (npm run user:upsert) → ປົດລັອກ
 
 ## 7b. ຂໍ້ມູນທີ່ຍັງບໍ່ຢືນຢັນ — ໃຊ້ placeholder ແລະ ໝາຍ TODO
 

@@ -33,7 +33,7 @@ model audit_logs {
   new_value  Json?
   ip_address String?  @db.VarChar(45)
   created_at DateTime @default(now()) @db.DateTime(0)
-  users      users?   @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_audit_user")
+  users      users?   @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_audit_user")
 
   @@index([created_at], map: "idx_audit_created")
   @@index([table_name, record_id], map: "idx_audit_record")
@@ -90,7 +90,7 @@ model bookings {
   booking_items   booking_items[]
   customers       customers?        @relation(fields: [customer_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_bookings_customer")
   time_slots      time_slots?       @relation(fields: [time_slot_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_bookings_time_slot")
-  users           users?            @relation(fields: [created_by], references: [id], onUpdate: NoAction, map: "fk_bookings_user")
+  users           users?            @relation(fields: [created_by], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_bookings_user")
   check_ins       check_ins[]
   payments        payments[]
 
@@ -111,7 +111,7 @@ model check_ins {
   note          String?          @db.VarChar(255)
   ok_booking_id BigInt?          @unique(map: "uk_check_ins_ok") @db.UnsignedBigInt
   bookings      bookings         @relation(fields: [booking_id], references: [id], onUpdate: NoAction, map: "fk_checkins_booking")
-  users         users?           @relation(fields: [scanned_by], references: [id], onUpdate: NoAction, map: "fk_checkins_user")
+  users         users?           @relation(fields: [scanned_by], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_checkins_user")
 
   @@index([scanned_by], map: "fk_checkins_user")
   @@index([booking_id], map: "idx_check_ins_booking")
@@ -221,7 +221,7 @@ model settings {
   description   String?  @db.VarChar(255)
   updated_by    BigInt?  @db.UnsignedBigInt
   updated_at    DateTime @default(now()) @db.DateTime(0)
-  users         users?   @relation(fields: [updated_by], references: [id], onUpdate: NoAction, map: "fk_settings_user")
+  users         users?   @relation(fields: [updated_by], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_settings_user")
 
   @@index([updated_by], map: "fk_settings_user")
 }
@@ -264,22 +264,24 @@ model time_slots {
 }
 
 model users {
-  id            BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
-  username      String       @unique(map: "uk_users_username") @db.VarChar(50)
-  email         String       @unique(map: "uk_users_email") @db.VarChar(255)
-  password_hash String       @db.VarChar(255)
-  full_name     String       @db.VarChar(150)
-  phone         String?      @db.VarChar(30)
-  role          users_role   @default(viewer)
-  is_active     Boolean      @default(true)
-  last_login_at DateTime?    @db.DateTime(0)
-  created_at    DateTime     @default(now()) @db.DateTime(0)
-  updated_at    DateTime     @default(now()) @db.DateTime(0)
-  audit_logs    audit_logs[]
-  bookings      bookings[]
-  check_ins     check_ins[]
-  payments      payments[]
-  settings      settings[]
+  id                 BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  username           String       @unique(map: "uk_users_username") @db.VarChar(50)
+  email              String       @unique(map: "uk_users_email") @db.VarChar(255)
+  password_hash      String       @db.VarChar(255)
+  full_name          String       @db.VarChar(150)
+  phone              String?      @db.VarChar(30)
+  role               users_role   @default(viewer)
+  is_active          Boolean      @default(true)
+  last_login_at      DateTime?    @db.DateTime(0)
+  failed_login_count Int          @default(0) @db.UnsignedSmallInt
+  locked_until       DateTime?    @db.DateTime(0)
+  created_at         DateTime     @default(now()) @db.DateTime(0)
+  updated_at         DateTime     @default(now()) @db.DateTime(0)
+  audit_logs         audit_logs[]
+  bookings           bookings[]
+  check_ins          check_ins[]
+  payments           payments[]
+  settings           settings[]
 
   @@index([role], map: "idx_users_role")
 }
