@@ -140,7 +140,6 @@ model daily_capacity {
   capacity_date DateTime    @db.Date
   time_slot_id  BigInt?     @db.UnsignedBigInt
   max_visitors  Int         @db.UnsignedInt
-  booked_count  Int         @default(0) @db.UnsignedInt
   slot_key      BigInt?     @db.UnsignedBigInt
   time_slots    time_slots? @relation(fields: [time_slot_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_capacity_time_slot")
 

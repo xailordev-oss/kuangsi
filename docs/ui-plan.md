@@ -1,7 +1,7 @@
 # ແຜນອອກແບບ UI/UX — ລະບົບຈອງປີ້ຕາດກວາງຊີ (Phase 2)
 
-> ສະຖານະ: **ສະບັບ 4 — ອັບເດດຕາມຄຳຕອບ §8 + Phase 3** · ເອກະສານເທົ່ານັ້ນ ບໍ່ມີ code
-> ອີງໃສ່: `docs/ui-brief.md`, `docs/requirements.md`, `CLAUDE.md` (ຂໍ້ຕົກລົງ 1–22), `db/kuangsi-schema.sql`
+> ສະຖານະ: **ສະບັບ 5 — ອັບເດດຕາມຄຳຕອບ §8 + Phase 3–4** · ເອກະສານເທົ່ານັ້ນ ບໍ່ມີ code
+> ອີງໃສ່: `docs/ui-brief.md`, `docs/requirements.md`, `CLAUDE.md` (ຂໍ້ຕົກລົງ 1–27), `db/kuangsi-schema.sql`
 > ອອກແບບ mobile-first ທີ່ 375px · ພາສາເລີ່ມຕົ້ນ: ລາວ
 
 ສາລະບານ
@@ -106,7 +106,7 @@
 ### 2.3 ສະແກນປີ້ເຂົ້າ — ເປົ້າ ≤ 3 ວິນາທີ/ກຸ່ມ
 
 ```
-ກ້ອງເປີດຕະຫຼອດ → ຈັບ QR ໄດ້ (≈0.5 ວິ) → ກວດ (≈0.5 ວິ) → ຈໍເຕັມສີ + ສຽງ + ສັ່ນ → ພະນັກງານນັບຄົນຕາມ "ຜູ້ໃຫຍ່ 2 · ເດັກ 1" → ກັບໄປສະແກນເອງໃນ 2 ວິ (ຫຼື ແຕະ)
+ກ້ອງເປີດຕະຫຼອດ → ຈັບ QR ໄດ້ (≈0.5 ວິ) → ກວດ (≈0.5 ວິ) → ຈໍເຕັມສີ + ສຽງ + ສັ່ນ → ພະນັກງານນັບຄົນ ແລະ ເບິ່ງປະເພດປີ້ "ຄົນລາວ ຜູ້ໃຫຍ່ 2 · ຕ່າງປະເທດ ຜູ້ໃຫຍ່ 1" (ກວດບັດສະເພາະທີ່ເຫັນວ່າບໍ່ກົງ — ຂໍ້ຕົກລົງ 23) → ກັບໄປສະແກນເອງໃນ 2 ວິ (ຫຼື ແຕະ)
 ```
 
 | ຜົນ (`check_ins.result`) | ຈໍ | ສຽງ/ສັ່ນ |
@@ -311,7 +311,7 @@ DistanceCard ກ່ອນກົດ: "[📍 ໄລຍະທາງຈາກບ່�
 │   │                     │   ││       ປີ້ຖືກຕ້ອງ            ││     ປີ້ນີ້ຖືກໃຊ້ແລ້ວ          │
 │   │   [ ກ້ອງ ]           │   ││       ເຂົ້າໄດ້              ││                             │
 │   │                     │   ││                             ││  ສະແກນເມື່ອ 09:12            │
-│   └─────────────────────┘   ││   ຜູ້ໃຫຍ່ 2 · ເດັກ 1         ││  ປະຕູ main                   │
+│   └─────────────────────┘   ││ ຄົນລາວ ຜູ້ໃຫຍ່ 2            ││  ປະຕູ main                   │
 │                             ││   (ຕົວ 48px)                ││  KS-7X4K9                   │
 │ ມື້ນີ້ເຂົ້າແລ້ວ 412 ຄົນ        ││   KS-7X4K9                  ││                             │
 │ ລໍສົ່ງ (offline): 0          ││                             ││                             │
@@ -322,6 +322,14 @@ DistanceCard ກ່ອນກົດ: "[📍 ໄລຍະທາງຈາກບ່�
    ↑ ປຸ່ມທັງໝົດຢູ່ເຄິ່ງລຸ່ມ       └─────────────────────────────┘└─────────────────────────────┘
 ```
 - ຫົວຈໍ (`StaffHeader`): ຊື່ປະຕູ · ສະຖານະເນັດ · ປຸ່ມ **"ອອກຈາກລະບົບ"** ມີທັງ icon ແລະ ຂໍ້ຄວາມ ຢູ່ມຸມຂວາເທິງ — ບໍ່ຢູ່ເຄິ່ງລຸ່ມ ເພື່ອບໍ່ໃຫ້ແຕະໂດຍບັງເອີນລະຫວ່າງສະແກນ · ກົດແລ້ວຖາມຢືນຢັນ 1 ຄັ້ງ (ຂໍ້ຕົກລົງ 21)
+- ຈໍຜ່ານ (ສີຂຽວ) ສະແດງປະເພດປີ້ ແຍກ ກຸ່ມ × ອາຍຸ ແຖວລະອັນ ຕົວ 48px (ຂໍ້ຕົກລົງ 23) ເຊັ່ນ:
+  ```
+  ຄົນລາວ ຜູ້ໃຫຍ່ 2
+  ຕ່າງປະເທດ ຜູ້ໃຫຍ່ 1
+  ຕ່າງປະເທດ ເດັກ 1
+  ລວມ 4 ຄົນ
+  ```
+  ແຖວ "ຄົນລາວ" ແລະ "ຕ່າງປະເທດ" ມີ icon/ປ້າຍຕ່າງກັນ (ບໍ່ໃຊ້ສີຢ່າງດຽວ) ເພື່ອໃຫ້ເຫັນໄວວ່າຕ້ອງກວດບັດໃຜ
 - ຜ່ານ: ກັບໄປສະແກນເອງຫຼັງ 2 ວິ (ນັບຖອຍຫຼັງເທິງປຸ່ມ) · ບໍ່ຜ່ານ: **ຕ້ອງແຕະ** ເພື່ອບໍ່ໃຫ້ພາດ
 - ຂໍ້ຄວາມໃຫຍ່ ສີເຂັ້ມ contrast ສູງ ເພາະໃຊ້ກາງແດດ
 
@@ -447,14 +455,14 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | `StaffHeader` | `title`, `staffName`, `online` | ປົກກະຕິ · ຢືນຢັນອອກຈາກລະບົບ (Dialog) · offline | staff/scan, staff/pos, staff/proofs, admin |
 | `StaffLoginForm` | `callbackUrl` | ວ່າງ · ກຳລັງສົ່ງ · ຜິດ (ຂໍ້ຄວາມລວມ) · ບັນຊີຖືກປິດ · session ໝົດອາຍຸ | staff/login |
 | `BookingStepper` | `step: 1–4` | ຂັ້ນປັດຈຸບັນ · ຜ່ານແລ້ວ · ຍັງບໍ່ເຖິງ | book/*, booking/[code] |
-| `DatePickerWithAvailability` | `value`, `onChange`, `availability: Record<date, {left, closed}>`, `minDate` | ຫວ່າງ · ເຫຼືອໜ້ອຍ · ເຕັມ · ປິດ · ຜ່ານມາແລ້ວ · ກຳລັງໂຫຼດ | book |
+| `DatePickerWithAvailability` | `value`, `onChange`, `availability: Record<date, {left, closedReason}>` | ຫວ່າງ · ເຫຼືອໜ້ອຍ · ເຕັມ · ປິດ (holiday / weekly_closed / after_hours) · ຜ່ານມາແລ້ວ · ເກີນ max_advance_days · ກຳລັງໂຫຼດ | book |
 | `VisitorGroupToggle` | `value: 'lao'|'foreigner'|'mixed'`, `onChange` | ລາວ · ຕ່າງປະເທດ · ປົນ | book, pos |
 | `TicketQuantityPicker` | `ticketTypes`, `group`, `value: Record<id, qty>`, `onChange`, `maxTotal` | ປົກກະຕິ · ຮອດຂີດ (ປຸ່ມ + ປິດ) · ປະເພດປິດຂາຍ (ບໍ່ສະແດງ) | book |
 | `AddOnSelector` | `addOns`, `peopleCount`, `value`, `onChange` | ບໍ່ເລືອກ · ເລືອກ · ປິດຂາຍ | book |
 | `PriceSummary` | `items`, `addOns`, `total`, `approx?: {USD, THB}` | ມີອັດຕາແລກປ່ຽນ · ບໍ່ມີ (ເຊື່ອງຕົວເລກຮອງ) | book/review, booking/[code], pos |
 | `StickyActionBar` | `summary`, `label`, `disabled`, `loading`, `onClick` | ປົກກະຕິ · ປິດ · ກຳລັງສົ່ງ | book/* |
 | `CustomerInfoForm` | `defaultValues`, `onSubmit` | ວ່າງ · ຜິດ (ຕໍ່ field) · ກຳລັງສົ່ງ | book/details |
-| `PhoneInput` | `value`, `onChange`, `defaultCountry` | — | book/details, lookup |
+| `PhoneInput` | `value`, `onChange`, `defaultCountry = 'LA'` | ລາວ (ພິມ 020… ໄດ້) · ຕ່າງປະເທດ (ເລືອກລະຫັດປະເທດ) · ຜິດ — ແປງດ້ວຍ `lib/phone.ts` ດຽວກັບ server (ຂໍ້ຕົກລົງ 24) | book/details, lookup, staff/pos |
 | `TransferInstructions` | `holdMinutes` | — (ຂໍ້ມູນຢ່າງດຽວ ບໍ່ມີຕົວເລືອກ · ລວມຂໍ້ຄວາມນ້ອຍ "ໂອນບໍ່ໄດ້?" ເປັນ `<p>` ທຳມະດາ — ຂໍ້ຕົກລົງ 14) | book/review |
 | `HoldCountdown` | `expiresAt` | ປົກກະຕິ · < 5 ນາທີ (warning) · ໝົດ · ເຊື່ອງ (`expiresAt = null` ຕອນ `verifying`) | booking/[code] |
 | `ProofUploader` | `bookingCode`, `maxSizeMb`, `onUploaded` | ວ່າງ · ສະແດງຕົວຢ່າງ · ກຳລັງອັບໂຫຼດ (%) · ສຳເລັດ · ຜິດ (ໄຟລ໌ໃຫຍ່/ບໍ່ແມ່ນຮູບ) · ຖືກປະຕິເສດ (+ເຫດຜົນ, ອັບໂຫຼດໃໝ່) | booking/[code] |
@@ -462,7 +470,7 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | `QrTicket` | `bookingCode`, `qrToken`, `visitDate`, `counts`, `addOns`, `status` | ໃຊ້ໄດ້ · ໃຊ້ແລ້ວ (ເທົາ) · ບໍ່ສະແດງ (pending/verifying/cancelled/expired) | booking/[code], pos/receipt |
 | `DistanceCard` | `destination` | ກ່ອນກົດ · ກຳລັງຫາ · ປະຕິເສດ GPS (→ dropdown `places`) · ຜົນ · ປະມານ (accuracy > 1 ກມ / API ລົ້ມ / offline) · ຢູ່ໃນພື້ນທີ່ແລ້ວ (< 1 ກມ) | ໜ້າຫຼັກ |
 | `ScannerView` | `gate`, `onResult` | ກຳລັງສະແກນ · ກ້ອງຖືກປະຕິເສດ · offline (+ ຈຳນວນລໍສົ່ງ) | staff/scan |
-| `ScanResultOverlay` | `result`, `counts`, `bookingCode`, `previousScan?` | ok · duplicate · wrong_date · expired · invalid · unpaid · cancelled | staff/scan |
+| `ScanResultOverlay` | `result`, `lines: {visitorGroup, ageGroup, quantity}[]`, `bookingCode`, `previousScan?` | ok · duplicate · wrong_date · expired · invalid · unpaid · cancelled | staff/scan |
 | `ManualCodeDialog` | `onSubmit` | — | staff/scan |
 | `PosTicketGrid` | `ticketTypes`, `group`, `cart`, `onChange` | — | staff/pos |
 | `CashCalculator` | `total`, `onConfirm` | ເງິນບໍ່ພໍ (ປິດປຸ່ມ) · ພໍ (ສະແດງເງິນທອນ) | staff/pos |
@@ -538,6 +546,14 @@ Button · Input · Label · Form (react-hook-form + zod) · Select · RadioGroup
 | `booking.add_ons` | ບໍລິການເສີມ | Extras |
 | `booking.people_total` | {n} ຄົນ | {n} people |
 | `booking.min_one` | ກະລຸນາເລືອກປີ້ຢ່າງໜ້ອຍ 1 ໃບ | Please choose at least 1 ticket |
+| `booking.too_many_people` | ຈອງ online ໄດ້ສູງສຸດ {max} ຄົນຕໍ່ຄັ້ງ ກຸ່ມໃຫຍ່ກວ່ານີ້ ກະລຸນາແບ່ງຈອງ ຫຼື ຊື້ທີ່ປະຕູ | Online bookings are limited to {max} people — split your group or buy at the entrance |
+| `booking.beyond_window` | ຈອງລ່ວງໜ້າໄດ້ບໍ່ເກີນ {days} ວັນ ກະລຸນາເລືອກວັນທີໃກ້ກວ່ານີ້ | You can book up to {days} days ahead — please pick an earlier date |
+| `booking.nothing_to_pay` | ເດັກນ້ອຍເຂົ້າຟຣີ ບໍ່ຕ້ອງຈອງ — ກະລຸນາເພີ່ມປີ້ຜູ້ໃຫຍ່ ຫຼື ເດັກ ຖ້າມີ | Infants enter free and don't need a booking — add an adult or child ticket if needed |
+| `booking.rate_limited` | ມີການຈອງຈາກເຄືອຂ່າຍນີ້ຫຼາຍເກີນໄປ ກະລຸນາລອງໃໝ່ໃນ {minutes} ນາທີ | Too many bookings from this network — please try again in {minutes} minutes |
+| `details.err_phone_lao_hint` | ເບີລາວພິມ 020… ໄດ້ເລີຍ · ເບີຕ່າງປະເທດ ກະລຸນາເລືອກລະຫັດປະເທດ | Lao numbers: type 020… · Other numbers: choose your country code |
+| `scan.group_lao` | ຄົນລາວ | Lao |
+| `scan.group_foreigner` | ຕ່າງປະເທດ | Foreigner |
+| `scan.total_people` | ລວມ {n} ຄົນ | {n} people total |
 | `booking.over_capacity` | ວັນນີ້ເຫຼືອພຽງ {n} ບ່ອນ ກະລຸນາຫຼຸດຈຳນວນ ຫຼື ເລືອກວັນອື່ນ | Only {n} spots left — reduce the number or pick another day |
 | `details.title` | ຂໍ້ມູນຜູ້ຈອງ | Your details |
 | `details.full_name` | ຊື່ ແລະ ນາມສະກຸນ | Full name |

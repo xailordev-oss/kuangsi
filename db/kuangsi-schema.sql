@@ -285,7 +285,7 @@ CREATE TABLE daily_capacity (
   capacity_date DATE         NOT NULL,
   time_slot_id  BIGINT UNSIGNED NULL,               -- NULL = ທັງວັນ
   max_visitors  INT UNSIGNED NOT NULL,
-  booked_count  INT UNSIGNED NOT NULL DEFAULT 0,
+  -- ບໍ່ເກັບຈຳນວນທີ່ຈອງແລ້ວໄວ້ທີ່ນີ້ — ຄິດຈາກ bookings ທຸກຄັ້ງ ເພື່ອບໍ່ໃຫ້ຕົວເລກໄປຄົນລະທາງ (ຂໍ້ຕົກລົງ 27)
 
   -- UNIQUE ຖືວ່າ NULL ບໍ່ຊ້ຳກັນ → ໃຊ້ 0 ແທນ NULL ເພື່ອກັນແຖວ "ທັງວັນ" ຊ້ຳ
   slot_key      BIGINT UNSIGNED
@@ -461,7 +461,11 @@ INSERT INTO settings (setting_key, setting_value, description) VALUES
   ('pos_auto_checkin',    'false',     'true = ປີ້ທີ່ຂາຍຢູ່ POS ໝາຍເຂົ້າແລ້ວທັນທີ — TODO: ຢືນຢັນຜັງພື້ນທີ່ປະຕູ/ບ່ອນຂາຍກັບຜູ້ຈັດການຕາດ'),
   ('session_hours',       '12',        'ອາຍຸ session ພະນັກງານ (ຊົ່ວໂມງ, 1–24) — 1 ກະເຮັດວຽກ, ບັງຄັບ login ໃໝ່ທຸກເຊົ້າ'),
   ('login_max_attempts',  '5',         'ລະຫັດຜ່ານຜິດຕິດກັນ x ຄັ້ງ → ລັອກບັນຊີ'),
-  ('login_lockout_minutes','15',       'ລັອກບັນຊີ x ນາທີ ຫຼັງຜິດຄົບ login_max_attempts');
+  ('login_lockout_minutes','15',       'ລັອກບັນຊີ x ນາທີ ຫຼັງຜິດຄົບ login_max_attempts'),
+  ('max_people_per_booking','30',      'ຈຳນວນຄົນສູງສຸດຕໍ່ການຈອງ online 1 ອັນ (POS ບໍ່ຈຳກັດ)'),
+  ('max_advance_days',    '90',        'ຈອງ online ລ່ວງໜ້າໄດ້ໄກສຸດ x ວັນ — ລາຄາປ່ຽນທຸກໄຕມາດ'),
+  ('booking_create_limit_per_ip','20', 'ສ້າງການຈອງ online ໄດ້ x ຄັ້ງຕໍ່ IP ໃນ booking_create_window_minutes (ກັນ bot ກັນບ່ອນ) — ໂຮງແຮມໃຊ້ IP ຮ່ວມກັນ ຢ່າຕັ້ງຕ່ຳເກີນ'),
+  ('booking_create_window_minutes','60','ໄລຍະເວລາ (ນາທີ) ສຳລັບ booking_create_limit_per_ip');
 
 -- ບັນຊີ admin ເລີ່ມຕົ້ນ
 -- ⚠️ password_hash ຂ້າງລຸ່ມເປັນ placeholder — ຕ້ອງສ້າງ hash ຈິງດ້ວຍ bcrypt
