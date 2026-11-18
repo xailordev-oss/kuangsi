@@ -503,14 +503,16 @@
         "warning": "Customers will see and transfer to this account as soon as you save — check every character"
       },
       "rates": {
-        "intro": "Only used to show approximate prices to foreign visitors — payment is always in kip · cannot be edited after adding (add a new rate instead)",
+        "intro": "Only used to show approximate prices to foreign visitors — payment is always in kip · rates of past dates cannot be changed (history)",
         "currency": "Currency",
         "lakPerUnit": "Kip per 1 unit",
         "effectiveDate": "Effective from",
         "line": "1 {currency} = {rate} LAK",
         "empty": "No rates yet — customer pages show kip only",
         "current": "In use",
-        "future": "Upcoming"
+        "future": "Upcoming",
+        "formHint": "An existing currency + date (today or later) replaces that rate · press \"Edit\" in the list to load its current value",
+        "locked": "Past — locked"
       },
       "places": {
         "intro": "Starting points customers can pick for the distance card · deactivate instead of deleting",
@@ -564,7 +566,8 @@
         "user.deactivate": "Account deactivated",
         "user.activate": "Account reactivated",
         "user.password_reset": "Password reset",
-        "user.unlock": "Account unlocked"
+        "user.unlock": "Account unlocked",
+        "exchange_rate.update": "Exchange rate changed"
       },
       "confirm": {
         "title": "Check before saving",
@@ -588,8 +591,9 @@
         "ratePrevious": "Previous: 1 {currency} = {rate} LAK (from {date})",
         "rateNone": "No previous rate",
         "rateNext": "New: 1 {currency} = {rate} LAK (from {date})",
-        "rateEffect": "Cannot be edited or deleted after adding — check the number of zeros",
-        "more": "… and {n} more day(s)"
+        "rateEffect": "Foreign visitors will see approximate prices at this rate from the effective date — check the number of zeros",
+        "more": "… and {n} more day(s)",
+        "rateLine": "1 {currency} = {rate} LAK"
       },
       "errors": {
         "validation": "Please check — some values are not valid",

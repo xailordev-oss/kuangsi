@@ -171,3 +171,51 @@ test("ທຸກ tab ເປີດໄດ້ທີ່ 375px · ວັນປິດ �
   });
   expect(place.status()).toBe(400);
 });
+
+test("ອັດຕາແລກປ່ຽນ (ຂໍ້ຕົກລົງ 49): ອະນາຄົດ ແກ້/ແທນທີ່ໄດ້ ພ້ອມຄ່າເກົ່າ-ໃໝ່ + audit · ວັນທີຜ່ານມາ ແກ້ບໍ່ໄດ້", async ({ page }) => {
+  const far = new Date(Date.now() + 650 * 864e5).toISOString().slice(0, 10);
+  const PAST = "2020-01-01";
+  await withDb(async (c) => {
+    await c.query("DELETE FROM exchange_rates WHERE effective_date IN (?, ?) AND (from_currency = 'THB' OR to_currency = 'THB')", [far, PAST]);
+    await c.query("INSERT INTO exchange_rates (from_currency, to_currency, rate, effective_date) VALUES ('THB', 'LAK', 600, ?)", [PAST]);
+  });
+  try {
+    await loginAs(page, "admin");
+    await expect(page).toHaveURL(/\/admin$/);
+    await page.goto("/admin/settings?tab=rates");
+    await expect(page.getByTestId(`rate-THB-${PAST}`)).toContainText("ຜ່ານມາແລ້ວ — ແກ້ບໍ່ໄດ້");
+    await expect(page.getByTestId(`rate-THB-${PAST}`).getByRole("button", { name: "ແກ້" })).toHaveCount(0);
+
+    const form = page.locator("form").filter({ has: page.getByLabel("ກີບ ຕໍ່ 1 ໜ່ວຍ") });
+    await form.getByLabel("ສະກຸນເງິນ").selectOption("THB");
+    await form.getByLabel("ກີບ ຕໍ່ 1 ໜ່ວຍ").fill("6500");
+    await form.getByLabel("ມີຜົນແຕ່ວັນທີ").fill(far);
+    await form.getByRole("button", { name: "ບັນທຶກ" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "ຢືນຢັນ ບັນທຶກ" }).click();
+    const row = page.getByTestId(`rate-THB-${far}`);
+    await expect(row).toContainText("1 THB = 6,500 ກີບ");
+
+    // ພິມຜິດ → ແກ້ຄືນໄດ້ (ແທນທີ່ແຖວເດີມ ບໍ່ສ້າງແຖວໃໝ່)
+    await row.getByRole("button", { name: "ແກ້" }).click();
+    await form.getByLabel("ກີບ ຕໍ່ 1 ໜ່ວຍ").fill("650");
+    await form.getByRole("button", { name: "ບັນທຶກ" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toContainText("ເກົ່າ: 1 THB = 6,500 ກີບ");
+    await expect(dialog).toContainText("ອັດຕາໃໝ່: 1 THB = 650 ກີບ");
+    await dialog.getByRole("button", { name: "ຢືນຢັນ ບັນທຶກ" }).click();
+    await expect(row).toContainText("1 THB = 650 ກີບ");
+
+    const rows = await withDb((c) => c.query("SELECT id FROM exchange_rates WHERE effective_date = ? AND from_currency = 'THB'", [far]));
+    expect(rows).toHaveLength(1);
+    const [audit] = await withDb((c) => c.query("SELECT old_value o, new_value n FROM audit_logs WHERE action = 'exchange_rate.update' AND record_id = ? ORDER BY id DESC LIMIT 1", [rows[0].id]));
+    const j = (v: unknown) => (typeof v === "string" ? JSON.parse(v) : v);
+    expect(j(audit.o).lakPerUnit).toBe("6500");
+    expect(j(audit.n).lakPerUnit).toBe("650");
+
+    // ວັນທີຜ່ານມາ → server ປະຕິເສດ ເຖິງຈະສົ່ງ confirm
+    const past = await page.request.post("/api/admin/settings/rates", { data: { currency: "THB", lakPerUnit: "1", effectiveDate: PAST, confirm: true } });
+    expect(past.status()).toBe(400);
+  } finally {
+    await withDb((c) => c.query("DELETE FROM exchange_rates WHERE effective_date IN (?, ?) AND (from_currency = 'THB' OR to_currency = 'THB')", [far, PAST]));
+  }
+});

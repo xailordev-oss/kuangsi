@@ -7,7 +7,8 @@ import { DISPLAY_CURRENCIES } from "@/lib/exchange";
 import { Prisma } from "@/lib/generated/prisma/client";
 import { dbDateToIso, isoDateToDb, isValidIsoDate, todayInVientiane } from "@/lib/time";
 
-// ===== ອັດຕາແລກປ່ຽນ — ເພີ່ມຢ່າງດຽວ ບໍ່ແກ້ແຖວເກົ່າ (ຄຳຖາມ B3) · ໃຊ້ສະແດງຄ່າປະມານເທົ່ານັ້ນ (ຂໍ້ຕົກລົງ 30) =====
+// ===== ອັດຕາແລກປ່ຽນ — ໃຊ້ສະແດງຄ່າປະມານເທົ່ານັ້ນ (ຂໍ້ຕົກລົງ 30) =====
+// ຂໍ້ຕົກລົງ 49: ວັນທີຜ່ານມາແລ້ວ ແກ້ບໍ່ໄດ້ (ປະຫວັດ) · ມື້ນີ້ / ອະນາຄົດ ແກ້ ຫຼື ແທນທີ່ໄດ້ · ຢືນຢັນຄ່າເກົ່າ-ໃໝ່ທຸກຄັ້ງ · audit
 
 export const rateSchema = z.object({
   currency: z.enum(DISPLAY_CURRENCIES),
@@ -17,45 +18,57 @@ export const rateSchema = z.object({
   confirm: z.boolean().optional(),
 });
 
+// ແຖວເກົ່າອາດເກັບເປັນ LAK→X (lib/exchange.ts ຮັບທັງ 2 ທິດ) → ແປງເປັນ ກີບຕໍ່ 1 ໜ່ວຍ
+const lakPerUnitOf = (r: { from_currency: string; rate: Prisma.Decimal }) =>
+  r.from_currency === "LAK" ? new Prisma.Decimal(1).div(r.rate).toDecimalPlaces(6).toString() : r.rate.toString();
+const pairOf = (currency: string) => [
+  { from_currency: currency, to_currency: "LAK" },
+  { from_currency: "LAK", to_currency: currency },
+];
+
 export async function listRates() {
   const rows = await prisma.exchange_rates.findMany({ orderBy: [{ effective_date: "desc" }, { id: "desc" }], take: 50 });
   return rows.map((r) => ({
     id: String(r.id),
-    from: r.from_currency,
-    to: r.to_currency,
-    rate: r.rate.toString(),
+    currency: r.from_currency === "LAK" ? r.to_currency : r.from_currency,
+    lakPerUnit: lakPerUnitOf(r),
     effectiveDate: dbDateToIso(r.effective_date),
   }));
 }
 
-export async function addRate(input: z.infer<typeof rateSchema>, actor: Actor) {
+export async function saveRate(input: z.infer<typeof rateSchema>, actor: Actor) {
   try {
     return await prisma.$transaction(async (tx) => {
-      // ເພີ່ມແລ້ວແກ້ບໍ່ໄດ້ → ຢືນຢັນທຸກຄັ້ງ ພ້ອມອັດຕາກ່ອນໜ້າໃຫ້ປຽບທຽບ (ກັນພິມເລກສູນເກີນ/ຂາດ)
+      const date = isoDateToDb(input.effectiveDate);
+      const existing = await tx.exchange_rates.findFirst({ where: { effective_date: date, OR: pairOf(input.currency) } });
+      const replacing = existing ? lakPerUnitOf(existing) : null;
+      if (replacing !== null && Number(replacing) === Number(input.lakPerUnit)) return { changed: 0 };
       if (!input.confirm) {
         const prev = await tx.exchange_rates.findFirst({
-          where: { from_currency: input.currency, to_currency: "LAK" },
+          where: { effective_date: { lt: date }, OR: pairOf(input.currency) },
           orderBy: { effective_date: "desc" },
         });
         const impact: Impact = {
           kind: "rate",
           currency: input.currency,
-          previous: prev ? { rate: prev.rate.toString(), date: dbDateToIso(prev.effective_date) } : null,
+          previous: prev ? { rate: lakPerUnitOf(prev), date: dbDateToIso(prev.effective_date) } : null,
+          replacing,
           next: { rate: input.lakPerUnit, date: input.effectiveDate },
         };
         throw new BusinessError(409, "confirm_required", { impact });
       }
-      const r = await tx.exchange_rates.create({
-        data: { from_currency: input.currency, to_currency: "LAK", rate: input.lakPerUnit, effective_date: isoDateToDb(input.effectiveDate) },
-        select: { id: true },
-      });
+      const data = { from_currency: input.currency, to_currency: "LAK", rate: input.lakPerUnit, effective_date: date };
+      const row = existing
+        ? await tx.exchange_rates.update({ where: { id: existing.id }, data, select: { id: true } })
+        : await tx.exchange_rates.create({ data, select: { id: true } });
       await writeAudit(tx, actor, {
-        action: "exchange_rate.create",
+        action: existing ? "exchange_rate.update" : "exchange_rate.create",
         table: "exchange_rates",
-        recordId: r.id,
+        recordId: row.id,
+        oldValue: existing ? { currency: input.currency, lakPerUnit: replacing, effectiveDate: input.effectiveDate } : null,
         newValue: { currency: input.currency, lakPerUnit: input.lakPerUnit, effectiveDate: input.effectiveDate },
       });
-      return { id: String(r.id) };
+      return { id: String(row.id), changed: 1 };
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") throw new BusinessError(409, "rate_exists");

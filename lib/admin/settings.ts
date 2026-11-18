@@ -15,7 +15,7 @@ export type Impact =
   | { kind: "capacity"; days: DayLoad[] }
   | { kind: "hours"; closing: DayLoad[]; shortened: DayLoad[] }
   | { kind: "holiday"; day: DayLoad }
-  | { kind: "rate"; currency: string; previous: { rate: string; date: string } | null; next: { rate: string; date: string } };
+  | { kind: "rate"; currency: string; previous: { rate: string; date: string } | null; replacing: string | null; next: { rate: string; date: string } };
 
 // ການຈອງລ່ວງໜ້າສູງສຸດທີ່ເປັນໄປໄດ້ (ຂອບເຂດ max_advance_days) — ນັບຈາກມື້ນີ້
 const HORIZON_DAYS = INT_SETTINGS.max_advance_days.max;
@@ -149,7 +149,7 @@ function impactSummary(impact: Impact): Prisma.InputJsonValue {
     case "holiday":
       return { bookings: impact.day.bookings, people: impact.day.people };
     case "rate":
-      return { previous: impact.previous?.rate ?? null };
+      return { previous: impact.previous?.rate ?? null, replacing: impact.replacing };
   }
 }
 

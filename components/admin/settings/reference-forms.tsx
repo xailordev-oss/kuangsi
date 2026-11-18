@@ -11,9 +11,9 @@ import { t } from "@/lib/i18n/format";
 
 const selectClass = "min-h-11 w-full rounded-md border border-input bg-background px-2 text-base";
 
-type Rate = { id: string; currency: string; lakPerUnit: string; effectiveDate: string; status: "current" | "future" | "old" };
+type Rate = { id: string; currency: string; lakPerUnit: string; effectiveDate: string; status: "current" | "future" | "old"; editable: boolean };
 
-// ອັດຕາແລກປ່ຽນ — ເພີ່ມຢ່າງດຽວ (ຄຳຖາມ B3) · server ຂໍຢືນຢັນທຸກຄັ້ງ ພ້ອມອັດຕາກ່ອນໜ້າ
+// ອັດຕາແລກປ່ຽນ (ຂໍ້ຕົກລົງ 49): ມື້ນີ້ / ອະນາຄົດ ແກ້ໄດ້ (ວັນທີ + ສະກຸນເດີມ = ແທນທີ່) · ຜ່ານມາແລ້ວ ອ່ານຢ່າງດຽວ · server ຂໍຢືນຢັນທຸກຄັ້ງ
 export function RatesManager({ rates, currencies, today, d }: { rates: Rate[]; currencies: readonly string[]; today: string; d: SD }) {
   const s = useSettingsSave(d);
   const r = d.rates;
@@ -55,9 +55,10 @@ export function RatesManager({ rates, currencies, today, d }: { rates: Rate[]; c
         </label>
         <div className="flex items-end">
           <Button type="submit" className="min-h-11 w-full" disabled={s.busy}>
-            {d.add}
+            {d.save}
           </Button>
         </div>
+        <p className="col-span-2 text-sm text-muted-foreground sm:col-span-4">{r.formHint}</p>
       </form>
       <SaveFeedback s={s} d={d} />
       {rates.length === 0 ? (
@@ -65,16 +66,31 @@ export function RatesManager({ rates, currencies, today, d }: { rates: Rate[]; c
       ) : (
         <ul className="flex flex-col gap-2">
           {rates.map((x) => (
-            <li key={x.id} className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 ${x.status === "old" ? "text-muted-foreground" : "bg-card"}`}>
+            <li key={x.id} data-testid={`rate-${x.currency}-${x.effectiveDate}`} className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 ${x.status === "old" ? "text-muted-foreground" : "bg-card"}`}>
               <span className="flex flex-col">
                 <span className="font-semibold">{t(r.line, { currency: x.currency, rate: formatAmount(x.lakPerUnit) })}</span>
                 <span className="text-sm">{fmtDate(x.effectiveDate, d)}</span>
               </span>
-              {x.status !== "old" && (
-                <span className={`rounded-full px-2.5 py-0.5 text-sm font-semibold ${x.status === "current" ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning"}`}>
-                  {x.status === "current" ? r.current : r.future}
-                </span>
-              )}
+              <span className="flex items-center gap-2">
+                {x.status !== "old" && (
+                  <span className={`rounded-full px-2.5 py-0.5 text-sm font-semibold ${x.status === "current" ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning"}`}>
+                    {x.status === "current" ? r.current : r.future}
+                  </span>
+                )}
+                {x.editable ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="min-h-11"
+                    onClick={() => setForm({ currency: x.currency, lakPerUnit: x.lakPerUnit, effectiveDate: x.effectiveDate })}
+                  >
+                    <Pencil aria-hidden />
+                    {d.edit}
+                  </Button>
+                ) : (
+                  <span className="text-sm">{r.locked}</span>
+                )}
+              </span>
             </li>
           ))}
         </ul>

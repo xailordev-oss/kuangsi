@@ -134,19 +134,16 @@ async function TabBody({ tab, d, locale }: { tab: Tab; d: StaffDictionary["admin
     case "system":
       return <SettingsGroupForm group={tab} fields={specs(tab)} initial={await readSettings(groupKeys(tab))} d={d} />;
     case "rates": {
-      const rows = await listRates();
-      // ກີບຕໍ່ 1 ໜ່ວຍ (ຮັບທັງ X→LAK ແລະ LAK→X ຄືກັບ lib/exchange.ts) · ອັນໃໝ່ສຸດທີ່ມີຜົນແລ້ວ = ໃຊ້ຢູ່
       const seen = new Set<string>();
-      const rates = rows.map((r) => {
-        const currency = r.from === "LAK" ? r.to : r.from;
-        const lakPerUnit = r.from === "LAK" ? String(1 / Number(r.rate)) : r.rate;
+      // ອັນໃໝ່ສຸດທີ່ມີຜົນແລ້ວ = ໃຊ້ຢູ່ · ມື້ນີ້ / ອະນາຄົດ ແກ້ໄດ້ (ຂໍ້ຕົກລົງ 49)
+      const rates = (await listRates()).map((r) => {
         let status: "current" | "future" | "old" = "old";
         if (r.effectiveDate > today) status = "future";
-        else if (!seen.has(currency)) {
-          seen.add(currency);
+        else if (!seen.has(r.currency)) {
+          seen.add(r.currency);
           status = "current";
         }
-        return { id: r.id, currency, lakPerUnit, effectiveDate: r.effectiveDate, status };
+        return { ...r, status, editable: r.effectiveDate >= today };
       });
       return <RatesManager rates={rates} currencies={DISPLAY_CURRENCIES} today={today} d={d} />;
     }

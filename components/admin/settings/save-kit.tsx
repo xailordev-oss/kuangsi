@@ -189,6 +189,12 @@ function ConfirmDialog({ s, d }: { s: SaveState; d: SD }) {
                 ? t(c.ratePrevious, { currency: impact.currency, rate: n(impact.previous.rate), date: fmtDate(impact.previous.date, d) })
                 : c.rateNone}
             </p>
+            {impact.replacing && (
+              <p className="break-words">
+                <span className="text-sm text-muted-foreground">{c.old}: </span>
+                <span className="line-through decoration-destructive/60">{t(c.rateLine, { currency: impact.currency, rate: n(impact.replacing) })}</span>
+              </p>
+            )}
             <p className="text-lg font-semibold">{t(c.rateNext, { currency: impact.currency, rate: n(impact.next.rate), date: fmtDate(impact.next.date, d) })}</p>
             <p className="rounded-lg bg-warning-subtle p-3 text-sm">{c.rateEffect}</p>
           </div>
