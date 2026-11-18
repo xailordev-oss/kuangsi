@@ -154,13 +154,13 @@
     "uncertain": "Not sure the sale was saved — press \"Send again\" (it won't sell twice)",
     "retrySame": "Send again",
     "error": "Sale failed — please try again",
-    "graceBanner": "After closing time — sales allowed until {time} for people still in the queue",
+    "graceBanner": "Outside opening hours ({open}–{close}) — sales still allowed for people waiting",
     "left": "{n} spots left",
     "phoneCountry": "Country code",
     "phoneOther": "Other (type +code)",
     "maxed": "Max {n} tickets",
     "sessionEnded": "Your session ended — please log in again",
-    "beforeHours": "Not open yet — sales start at {time}"
+    "beforeHours": "Too early to sell — sales start at {time}"
   },
   "nav": {
     "pos": "Sell",

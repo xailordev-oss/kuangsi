@@ -169,7 +169,7 @@ test("ຫຼັງເວລາປິດ: ພາຍໃນ pos_grace_minutes → �
   const closeAgo = (min: number) => `TIME(CONVERT_TZ(UTC_TIMESTAMP() - INTERVAL ${min} MINUTE, '+00:00', '+07:00'))`;
   await setTodayHours("'00:00:00'", closeAgo(10));
   await openPos(page);
-  await expect(page.getByRole("status").filter({ hasText: /ນອກເວລາເປີດ — ຂາຍຕໍ່ໄດ້ຮອດ \d\d:\d\d/ })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: /ນອກເວລາເປີດ \(\d\d:\d\d–\d\d:\d\d\) — ຍັງຂາຍໄດ້ຊົ່ວຄາວ/ })).toBeVisible();
   await page.getByRole("button", { name: "ເພີ່ມ ຄົນລາວ — ຜູ້ໃຫຍ່" }).click();
   await page.getByRole("button", { name: "ຮັບເງິນ" }).click();
   await page.getByRole("button", { name: "ພໍດີ" }).click();

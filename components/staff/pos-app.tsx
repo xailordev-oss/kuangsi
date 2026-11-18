@@ -156,7 +156,7 @@ export function PosApp({
   function errorText(body: Record<string, unknown>): string {
     switch (body.error) {
       case "date_closed":
-        return body.reason === "before_hours" ? t(p.beforeHours, { time: status.openTime?.slice(0, 5) ?? "" }) : p.dateClosed;
+        return body.reason === "before_hours" ? t(p.beforeHours, { time: status.graceFrom?.slice(0, 5) ?? "" }) : p.dateClosed;
       case "sold_out":
         return t(p.soldOut, { n: Number(body.left ?? 0) });
       case "customer_name_required":
@@ -249,15 +249,15 @@ export function PosApp({
             </div>
           </div>
         )}
-        {online && status.state === "grace" && status.graceUntil && (
+        {online && status.state === "grace" && status.openTime && status.closeTime && (
           <div role="status" className="flex items-start gap-3 rounded-lg bg-scan-warn p-3 text-foreground">
             <AlertTriangle aria-hidden className="mt-1 size-5 shrink-0" />
-            <p className="font-semibold">{t(p.graceBanner, { time: status.graceUntil.slice(0, 5) })}</p>
+            <p className="font-semibold">{t(p.graceBanner, { open: status.openTime.slice(0, 5), close: status.closeTime.slice(0, 5) })}</p>
           </div>
         )}
         {online && closed && (
           <div role="alert" className="rounded-lg bg-destructive-subtle p-3 font-semibold text-destructive">
-            {status.closedReason === "before_hours" && status.openTime ? t(p.beforeHours, { time: status.openTime.slice(0, 5) }) : p.dateClosed}
+            {status.closedReason === "before_hours" && status.graceFrom ? t(p.beforeHours, { time: status.graceFrom.slice(0, 5) }) : p.dateClosed}
           </div>
         )}
       </div>
