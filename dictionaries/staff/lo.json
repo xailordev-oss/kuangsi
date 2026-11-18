@@ -50,12 +50,7 @@
     "approved": "ອະນຸມັດແລ້ວ {code}",
     "rejected": "ປະຕິເສດແລ້ວ {code}",
     "alreadyDone": "ການຈອງນີ້ຖືກກວດແລ້ວໂດຍ {name}",
-    "notVerifying": "ການຈອງນີ້ບໍ່ໄດ້ລໍກວດແລ້ວ",
-    "adminNotReady": "ໜ້າ admin ແລະ ລາຍງານ ຍັງບໍ່ພ້ອມໃຊ້ງານ — ລະຫວ່າງນີ້ ທ່ານກວດຫຼັກຖານການໂອນໄດ້ທີ່ໜ້ານີ້"
-  },
-  "notReady": {
-    "title": "ໜ້າລາຍງານຍັງບໍ່ພ້ອມ",
-    "body": "ໜ້າລາຍງານສຳລັບບົດບາດຂອງທ່ານກຳລັງກຽມ. ກະລຸນາກັບມາພາຍຫຼັງ."
+    "notVerifying": "ການຈອງນີ້ບໍ່ໄດ້ລໍກວດແລ້ວ"
   },
   "scan": {
     "title": "ສະແກນປີ້",
@@ -165,6 +160,170 @@
   "nav": {
     "pos": "ຂາຍປີ້",
     "proofs": "ກວດຫຼັກຖານ",
-    "scan": "ສະແກນ"
+    "scan": "ສະແກນ",
+    "overview": "ພາບລວມ",
+    "bookings": "ການຈອງ",
+    "reports": "ລາຍງານ",
+    "scanReviews": "ປີ້ຊ້ຳ offline"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "ພາບລວມມື້ນີ້",
+      "today": "ມື້ນີ້ · {date}",
+      "entered": "ຄົນເຂົ້າແລ້ວ",
+      "enteredHint": "ສະແກນຜ່ານປະຕູມື້ນີ້",
+      "booked": "ຈອງມາມື້ນີ້",
+      "bookedHint": "ຈ່າຍແລ້ວ ຫຼື ເຂົ້າແລ້ວ",
+      "revenue": "ລາຍໄດ້ມື້ນີ້",
+      "revenueBasis": "ນັບຕາມວັນທີຮັບເງິນ (ບໍ່ແມ່ນວັນເຂົ້າຊົມ)",
+      "left": "ບ່ອນຫວ່າງມື້ນີ້",
+      "closedToday": "ມື້ນີ້ປິດບໍລິການ",
+      "pendingProofs": "ລໍກວດຫຼັກຖານໂອນ",
+      "offlineDuplicates": "ປີ້ຊ້ຳຈາກ offline ມື້ນີ້",
+      "byMethod": "ລາຍໄດ້ມື້ນີ້ຕາມວິທີຈ່າຍ",
+      "noRevenue": "ມື້ນີ້ຍັງບໍ່ມີລາຍໄດ້",
+      "people": "{n} ຄົນ",
+      "open": "ເບິ່ງ"
+    },
+    "method": {
+      "bank_transfer": "ໂອນ",
+      "cash": "ເງິນສົດ",
+      "bcel_one": "BCEL One",
+      "ldb": "LDB",
+      "onepay": "OnePay",
+      "card": "ບັດ",
+      "other": "ອື່ນໆ"
+    },
+    "channel": {
+      "online": "online",
+      "gate": "ໜ້າປະຕູ",
+      "tour_agency": "ບໍລິສັດທ່ອງທ່ຽວ"
+    },
+    "status": {
+      "pending": "ລໍຈ່າຍ",
+      "verifying": "ລໍກວດໂອນ",
+      "paid": "ຈ່າຍແລ້ວ",
+      "used": "ເຂົ້າແລ້ວ",
+      "cancelled": "ຍົກເລີກ",
+      "expired": "ໝົດອາຍຸ"
+    },
+    "paymentStatus": {
+      "pending": "ລໍກວດ",
+      "success": "ສຳເລັດ",
+      "failed": "ປະຕິເສດ",
+      "refunded": "ຄືນເງິນແລ້ວ"
+    },
+    "checkResult": {
+      "ok": "ຜ່ານ",
+      "duplicate": "ໃຊ້ແລ້ວ",
+      "expired": "ໝົດອາຍຸ",
+      "invalid": "ບໍ່ພົບປີ້",
+      "wrong_date": "ຜິດວັນ",
+      "unpaid": "ຍັງບໍ່ຈ່າຍ",
+      "cancelled": "ຍົກເລີກ"
+    },
+    "bookings": {
+      "title": "ການຈອງ",
+      "search": "ຄົ້ນຫາ: ລະຫັດຈອງ / ເບີໂທ / ຊື່",
+      "from": "ວັນເຂົ້າຊົມ ແຕ່",
+      "to": "ຫາ",
+      "status": "ສະຖານະ",
+      "channel": "ຊ່ອງທາງ",
+      "all": "ທັງໝົດ",
+      "apply": "ກັ່ນຕອງ",
+      "clear": "ລ້າງຕົວກັ່ນຕອງ",
+      "empty": "ບໍ່ພົບການຈອງຕາມຕົວກັ່ນຕອງ",
+      "count": "{n} ລາຍການ",
+      "prev": "ກ່ອນໜ້າ",
+      "next": "ຕໍ່ໄປ",
+      "page": "ໜ້າ {page} / {pages}",
+      "noCustomer": "ບໍ່ມີຂໍ້ມູນລູກຄ້າ",
+      "people": "{n} ຄົນ",
+      "maskedHint": "ເບີໂທຖືກປິດບາງສ່ວນ (ສິດອ່ານຢ່າງດຽວ)"
+    },
+    "detail": {
+      "back": "ກັບໄປລາຍການ",
+      "notFound": "ບໍ່ພົບການຈອງ {code}",
+      "visitDate": "ວັນເຂົ້າຊົມ",
+      "created": "ສ້າງເມື່ອ",
+      "soldBy": "ຂາຍໂດຍ",
+      "customer": "ລູກຄ້າ",
+      "nationality": "ສັນຊາດ",
+      "email": "ອີເມວ",
+      "items": "ລາຍການ",
+      "addOns": "ບໍລິການເສີມ",
+      "subtotal": "ລວມຍ່ອຍ",
+      "discount": "ສ່ວນຫຼຸດ",
+      "total": "ລວມ",
+      "payments": "ການຈ່າຍເງິນ",
+      "noPayments": "ຍັງບໍ່ມີການຈ່າຍເງິນ",
+      "verifiedBy": "ກວດໂດຍ {name} · {time}",
+      "paidAt": "ຮັບເງິນ {time}",
+      "submittedAt": "ສົ່ງ {time}",
+      "rejected": "ເຫດຜົນປະຕິເສດ: {reason}",
+      "refunded": "ຄືນ {amount} · {reason}",
+      "scans": "ການສະແກນ",
+      "noScans": "ຍັງບໍ່ມີການສະແກນ",
+      "offline": "offline",
+      "by": "ໂດຍ {name}"
+    },
+    "reports": {
+      "title": "ລາຍງານ",
+      "today": "ມື້ນີ້",
+      "last7": "7 ວັນ",
+      "thisMonth": "ເດືອນນີ້",
+      "thisYear": "ປີນີ້",
+      "from": "ແຕ່ວັນທີ",
+      "to": "ຫາວັນທີ",
+      "groupBy": "ຈັດກຸ່ມລາຍໄດ້",
+      "day": "ວັນ",
+      "month": "ເດືອນ",
+      "year": "ປີ",
+      "show": "ສະແດງ",
+      "range": "{from} – {to}",
+      "tooLong": "ຊ່ວງວັນທີຍາວເກີນ {max} ວັນ — ກະລຸນາຫຍໍ້ລົງ",
+      "empty": "ບໍ່ມີຂໍ້ມູນໃນຊ່ວງນີ້",
+      "revenue": "ລາຍໄດ້",
+      "revenueBasis": "ນັບຕາມວັນທີຮັບເງິນ (ບໍ່ແມ່ນວັນເຂົ້າຊົມ)",
+      "total": "ລວມ",
+      "byChannel": "ລາຍໄດ້ຕາມຊ່ອງທາງ",
+      "byMethod": "ລາຍໄດ້ຕາມວິທີຈ່າຍ",
+      "visitors": "ນັກທ່ອງທ່ຽວ",
+      "entered": "ເຂົ້າແລ້ວ (ສະແກນຜ່ານ · ຕາມວັນສະແກນ)",
+      "booked": "ຈອງແລ້ວ (ຈ່າຍແລ້ວ / ເຂົ້າແລ້ວ · ຕາມວັນເຂົ້າຊົມ)",
+      "group": "ລາວ / ຕ່າງປະເທດ ຕາມປະເພດປີ້",
+      "nationality": "ສັນຊາດ (ສະເພາະທີ່ລູກຄ້າລະບຸ)",
+      "unknown": "ບໍ່ລະບຸ",
+      "weekday": "ຄົນເຂົ້າຕາມມື້ໃນອາທິດ",
+      "hour": "ຄົນເຂົ້າຕາມຊົ່ວໂມງ",
+      "hourLabel": "{h}:00",
+      "download": "ດາວໂຫຼດ CSV",
+      "downloadHint": "ຕົວເລກລວມເທົ່ານັ້ນ — ບໍ່ມີຊື່ ຫຼື ເບີໂທ",
+      "payments": "{n} ລາຍການ",
+      "people": "{n} ຄົນ",
+      "csv": {
+        "section": "ໝວດ",
+        "item": "ລາຍການ",
+        "amount": "ຈຳນວນເງິນ (ກີບ)",
+        "count": "ຈຳນວນ",
+        "people": "ຄົນ"
+      }
+    },
+    "scanReviews": {
+      "title": "ປີ້ຊ້ຳຈາກການສະແກນ offline",
+      "intro": "ປີ້ທີ່ຖືກປ່ອຍເຂົ້າຕອນ offline ແຕ່ຕອນ sync ພົບວ່າຜ່ານປະຕູໄປແລ້ວ — ອາດມີຄົນເຂົ້າຊ້ຳ",
+      "from": "ແຕ່ວັນທີ",
+      "to": "ຫາວັນທີ",
+      "show": "ສະແດງ",
+      "empty": "ບໍ່ມີປີ້ຊ້ຳໃນຊ່ວງນີ້",
+      "count": "{n} ລາຍການ",
+      "offlineAt": "ປ່ອຍເຂົ້າ offline: {gate} · {time}",
+      "first": "ຜ່ານຄັ້ງທຳອິດ: {gate} · {time}",
+      "by": "ໂດຍ {name}"
+    },
+    "error": {
+      "title": "ໂຫຼດຂໍ້ມູນບໍ່ໄດ້",
+      "retry": "ລອງໃໝ່"
+    }
   }
 }

@@ -8,17 +8,23 @@ test("scanner → ໜ້າສະແກນ", async ({ page }) => {
   await expect(page).toHaveURL(/\/staff\/scan$/);
 });
 
-test("admin → ໜ້າກວດຫຼັກຖານ + ແຈ້ງວ່າໜ້າ admin ຍັງບໍ່ພ້ອມ", async ({ page }) => {
+test("admin → dashboard · ເມນູມີທຸກໜ້າ ລວມ POS / ກວດຫຼັກຖານ / ສະແກນ", async ({ page }) => {
   await loginAs(page, "admin");
-  await expect(page).toHaveURL(/\/staff\/proofs\?notice=admin-not-ready$/);
-  await expect(page.getByText(/ໜ້າ admin ແລະ ລາຍງານ ຍັງບໍ່ພ້ອມໃຊ້ງານ/)).toBeVisible();
+  await expect(page).toHaveURL(/\/admin$/);
+  await expect(page.getByRole("heading", { name: "ພາບລວມມື້ນີ້" })).toBeVisible();
+  for (const name of ["ພາບລວມ", "ການຈອງ", "ລາຍງານ", "ປີ້ຊ້ຳ offline", "ຂາຍປີ້", "ກວດຫຼັກຖານ", "ສະແກນ"]) {
+    await expect(page.getByRole("navigation").getByRole("link", { name, exact: true })).toBeAttached();
+  }
 });
 
-test("viewer → ໜ້າແຈ້ງວ່າລາຍງານຍັງບໍ່ພ້ອມ (ບໍ່ແມ່ນ 404)", async ({ page }) => {
+test("viewer → dashboard (ອ່ານຢ່າງດຽວ) · ບໍ່ມີເມນູ POS / ກວດຫຼັກຖານ / ສະແກນ", async ({ page }) => {
   await loginAs(page, "viewer");
   await expect(page).toHaveURL(/\/admin$/);
-  await expect(page.getByRole("heading", { name: "ໜ້າລາຍງານຍັງບໍ່ພ້ອມ" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "ພາບລວມມື້ນີ້" })).toBeVisible();
   await expect(page.getByRole("button", { name: "ອອກຈາກລະບົບ" })).toBeVisible();
+  for (const name of ["ຂາຍປີ້", "ກວດຫຼັກຖານ", "ສະແກນ"]) {
+    await expect(page.getByRole("navigation").getByRole("link", { name, exact: true })).toHaveCount(0);
+  }
   await expectLaoTextNotClipped(page);
 });
 

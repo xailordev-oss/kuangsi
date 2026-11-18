@@ -50,12 +50,7 @@
     "approved": "Approved {code}",
     "rejected": "Rejected {code}",
     "alreadyDone": "{name} already checked this booking",
-    "notVerifying": "This booking is no longer waiting for a check",
-    "adminNotReady": "The admin and reports screens aren't ready yet — meanwhile you can check transfer receipts here"
-  },
-  "notReady": {
-    "title": "Reports aren't ready yet",
-    "body": "The reports screen for your role is being prepared. Please check back later."
+    "notVerifying": "This booking is no longer waiting for a check"
   },
   "scan": {
     "title": "Scan tickets",
@@ -165,6 +160,170 @@
   "nav": {
     "pos": "Sell",
     "proofs": "Receipts",
-    "scan": "Scan"
+    "scan": "Scan",
+    "overview": "Overview",
+    "bookings": "Bookings",
+    "reports": "Reports",
+    "scanReviews": "Offline duplicates"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Today at a glance",
+      "today": "Today · {date}",
+      "entered": "Entered",
+      "enteredHint": "Scanned in at the gate today",
+      "booked": "Booked for today",
+      "bookedHint": "Paid or entered",
+      "revenue": "Revenue today",
+      "revenueBasis": "Counted by the date money was received (not the visit date)",
+      "left": "Spots left today",
+      "closedToday": "Closed today",
+      "pendingProofs": "Transfers to check",
+      "offlineDuplicates": "Offline duplicates today",
+      "byMethod": "Today's revenue by payment method",
+      "noRevenue": "No revenue yet today",
+      "people": "{n} people",
+      "open": "Open"
+    },
+    "method": {
+      "bank_transfer": "Transfer",
+      "cash": "Cash",
+      "bcel_one": "BCEL One",
+      "ldb": "LDB",
+      "onepay": "OnePay",
+      "card": "Card",
+      "other": "Other"
+    },
+    "channel": {
+      "online": "Online",
+      "gate": "Gate",
+      "tour_agency": "Tour agency"
+    },
+    "status": {
+      "pending": "Awaiting payment",
+      "verifying": "Checking transfer",
+      "paid": "Paid",
+      "used": "Entered",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "paymentStatus": {
+      "pending": "To check",
+      "success": "Successful",
+      "failed": "Rejected",
+      "refunded": "Refunded"
+    },
+    "checkResult": {
+      "ok": "Admitted",
+      "duplicate": "Already used",
+      "expired": "Expired",
+      "invalid": "Not found",
+      "wrong_date": "Wrong date",
+      "unpaid": "Unpaid",
+      "cancelled": "Cancelled"
+    },
+    "bookings": {
+      "title": "Bookings",
+      "search": "Search: booking code / phone / name",
+      "from": "Visit date from",
+      "to": "to",
+      "status": "Status",
+      "channel": "Channel",
+      "all": "All",
+      "apply": "Filter",
+      "clear": "Clear filters",
+      "empty": "No bookings match these filters",
+      "count": "{n} bookings",
+      "prev": "Previous",
+      "next": "Next",
+      "page": "Page {page} / {pages}",
+      "noCustomer": "No customer details",
+      "people": "{n} people",
+      "maskedHint": "Phone numbers are partly hidden (read-only access)"
+    },
+    "detail": {
+      "back": "Back to list",
+      "notFound": "Booking {code} not found",
+      "visitDate": "Visit date",
+      "created": "Created",
+      "soldBy": "Sold by",
+      "customer": "Customer",
+      "nationality": "Nationality",
+      "email": "Email",
+      "items": "Items",
+      "addOns": "Add-ons",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "Total",
+      "payments": "Payments",
+      "noPayments": "No payments yet",
+      "verifiedBy": "Checked by {name} · {time}",
+      "paidAt": "Received {time}",
+      "submittedAt": "Submitted {time}",
+      "rejected": "Rejection reason: {reason}",
+      "refunded": "Refunded {amount} · {reason}",
+      "scans": "Scans",
+      "noScans": "Not scanned yet",
+      "offline": "offline",
+      "by": "by {name}"
+    },
+    "reports": {
+      "title": "Reports",
+      "today": "Today",
+      "last7": "7 days",
+      "thisMonth": "This month",
+      "thisYear": "This year",
+      "from": "From",
+      "to": "To",
+      "groupBy": "Group revenue by",
+      "day": "Day",
+      "month": "Month",
+      "year": "Year",
+      "show": "Show",
+      "range": "{from} – {to}",
+      "tooLong": "The date range is longer than {max} days — please shorten it",
+      "empty": "No data in this range",
+      "revenue": "Revenue",
+      "revenueBasis": "Counted by the date money was received (not the visit date)",
+      "total": "Total",
+      "byChannel": "Revenue by channel",
+      "byMethod": "Revenue by payment method",
+      "visitors": "Visitors",
+      "entered": "Entered (scanned in · by scan date)",
+      "booked": "Booked (paid / entered · by visit date)",
+      "group": "Lao / foreigner by ticket type",
+      "nationality": "Nationality (only where the customer gave it)",
+      "unknown": "Not given",
+      "weekday": "Entries by day of week",
+      "hour": "Entries by hour",
+      "hourLabel": "{h}:00",
+      "download": "Download CSV",
+      "downloadHint": "Totals only — no names or phone numbers",
+      "payments": "{n} payments",
+      "people": "{n} people",
+      "csv": {
+        "section": "Section",
+        "item": "Item",
+        "amount": "Amount (LAK)",
+        "count": "Count",
+        "people": "People"
+      }
+    },
+    "scanReviews": {
+      "title": "Duplicates from offline scanning",
+      "intro": "Tickets let in while offline that turned out, on sync, to have already been used — someone may have entered twice",
+      "from": "From",
+      "to": "To",
+      "show": "Show",
+      "empty": "No duplicates in this range",
+      "count": "{n} items",
+      "offlineAt": "Let in offline: {gate} · {time}",
+      "first": "First admitted: {gate} · {time}",
+      "by": "by {name}"
+    },
+    "error": {
+      "title": "Couldn't load the data",
+      "retry": "Try again"
+    }
   }
 }

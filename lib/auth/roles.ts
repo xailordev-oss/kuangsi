@@ -41,6 +41,7 @@ const ROUTE_RULES: ReadonlyArray<{ path: string; permission: Permission }> = [
   { path: "/admin/settings", permission: "settings.manage" },
   { path: "/admin/reports", permission: "report.read" },
   { path: "/admin/bookings", permission: "booking.read" },
+  { path: "/admin/scan-reviews", permission: "report.read" },
   { path: "/admin", permission: "report.read" },
 ];
 
