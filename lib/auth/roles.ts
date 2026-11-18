@@ -12,6 +12,8 @@ export const PERMISSIONS = {
   "booking.manage": ["admin"],
   "pos.sell": ["admin", "cashier"],
   "proof.verify": ["admin", "cashier"],
+  // Phase 11: ໂອນຄືນ + ຍົກເລີກການຂາຍ POS ຂອງມື້ນີ້ (ຂໍ້ຕົກລົງ 55, 57)
+  "refund.process": ["admin", "cashier"],
   "checkin.scan": ["admin", "scanner"],
   "report.read": ["admin", "viewer"],
   "catalog.manage": ["admin"],
@@ -36,6 +38,7 @@ const ROUTE_RULES: ReadonlyArray<{ path: string; permission: Permission }> = [
   { path: "/staff/scan", permission: "checkin.scan" },
   { path: "/staff/pos", permission: "pos.sell" },
   { path: "/staff/proofs", permission: "proof.verify" },
+  { path: "/staff/refunds", permission: "refund.process" },
   { path: "/admin/ticket-types", permission: "catalog.manage" },
   { path: "/admin/users", permission: "users.manage" },
   { path: "/admin/settings", permission: "settings.manage" },

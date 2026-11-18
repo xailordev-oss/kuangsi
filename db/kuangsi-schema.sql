@@ -158,6 +158,10 @@ CREATE TABLE bookings (
   channel        ENUM('online','gate','tour_agency') NOT NULL DEFAULT 'online',
 
   expires_at     DATETIME     NULL,                 -- ປີ້ pending ໝົດອາຍຸ
+  -- Phase 11: ການຍົກເລີກ · cancelled_by NULL + cancelled_at ມີຄ່າ = ລູກຄ້າຍົກເລີກເອງ
+  cancelled_at   DATETIME     NULL,
+  cancelled_by   BIGINT UNSIGNED NULL,
+  cancel_reason  VARCHAR(255) NULL,
   note           TEXT         NULL,
   created_by     BIGINT UNSIGNED NULL,              -- ພະນັກງານ (ຖ້າຂາຍຢູ່ປະຕູ)
   created_at     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -175,7 +179,9 @@ CREATE TABLE bookings (
   CONSTRAINT fk_bookings_time_slot FOREIGN KEY (time_slot_id)
     REFERENCES time_slots(id) ON DELETE RESTRICT,
   CONSTRAINT fk_bookings_user FOREIGN KEY (created_by)
-    REFERENCES users(id) ON DELETE RESTRICT  -- ຫ້າມລຶບ user (CLAUDE.md ພາກ 4)
+    REFERENCES users(id) ON DELETE RESTRICT,  -- ຫ້າມລຶບ user (CLAUDE.md ພາກ 4)
+  CONSTRAINT fk_bookings_cancelled_by FOREIGN KEY (cancelled_by)
+    REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
 -- ລາຍການປີ້ໃນແຕ່ລະການຈອງ
@@ -246,7 +252,60 @@ CREATE TABLE payments (
     REFERENCES bookings(id) ON DELETE RESTRICT,
   -- RESTRICT ບໍ່ແມ່ນ SET NULL: ລຶບ user ບໍ່ໄດ້ຖ້າເຄີຍກວດເງິນ (ໃຫ້ປິດດ້ວຍ is_active ແທນ)
   CONSTRAINT fk_payments_verified_by FOREIGN KEY (verified_by)
-    REFERENCES users(id) ON DELETE RESTRICT
+    REFERENCES users(id) ON DELETE RESTRICT,
+  -- Phase 11: ຄືນເງິນບໍ່ເກີນຍອດທີ່ຈ່າຍ (ຕັ້ງຕອນຄືນສຳເລັດເທົ່ານັ້ນ — ລາຍງານນັບຕາມ refunded_at, ຂໍ້ຕົກລົງ 44)
+  CONSTRAINT chk_payments_refund CHECK (refund_amount IS NULL OR (refund_amount >= 0 AND refund_amount <= amount))
+) ENGINE=InnoDB;
+
+-- =====================================================================
+--  6b. ການຄືນເງິນ (Phase 11) — 1 ການຄືນ ຕໍ່ 1 payment (UNIQUE) ກັນຄືນຊ້ຳ
+-- =====================================================================
+
+CREATE TABLE refunds (
+  id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  booking_id      BIGINT UNSIGNED NOT NULL,
+  payment_id      BIGINT UNSIGNED NOT NULL,
+  amount          DECIMAL(12,2)   NOT NULL,          -- snapshot ຕອນຍົກເລີກ (ແກ້ນະໂຍບາຍພາຍຫຼັງ ບໍ່ກະທົບ)
+  refund_percent  TINYINT UNSIGNED NOT NULL,
+  policy_hours    SMALLINT UNSIGNED NULL,            -- ຂັ້ນຂອງ refund_policies ທີ່ໃຊ້ · NULL = ພະນັກງານກຳນົດ
+  method          ENUM('cash','bank_transfer') NOT NULL,  -- ຄືນດ້ວຍວິທີທີ່ຈ່າຍມາ
+  status          ENUM('requested','completed') NOT NULL DEFAULT 'requested',
+  reason          VARCHAR(255)    NOT NULL,
+  requested_by    BIGINT UNSIGNED NULL,              -- NULL = ລູກຄ້າຍົກເລີກເອງ
+  -- ບັນຊີລູກຄ້າ (ສະເພາະໂອນຄືນ) — ລ້າງ account_number ເມື່ອຄືນສຳເລັດ ຫຼື ຄ້າງເກີນ settings.refund_account_retention_days
+  bank_name       VARCHAR(100)    NULL,
+  account_number  VARCHAR(50)     NULL,
+  account_name    VARCHAR(150)    NULL,
+  account_last4   CHAR(4)         NULL,
+  account_purged_at DATETIME      NULL,
+  completed_by    BIGINT UNSIGNED NULL,
+  completed_at    DATETIME        NULL,
+  transfer_ref    VARCHAR(100)    NULL,
+  created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  UNIQUE KEY uk_refunds_payment (payment_id),
+  KEY idx_refunds_status (status, created_at),
+  KEY idx_refunds_booking (booking_id),
+  CONSTRAINT chk_refunds_amount CHECK (amount >= 0),
+  CONSTRAINT chk_refunds_percent CHECK (refund_percent <= 100),
+  CONSTRAINT fk_refunds_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_refunds_payment FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_refunds_requested_by FOREIGN KEY (requested_by) REFERENCES users(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_refunds_completed_by FOREIGN KEY (completed_by) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- ນະໂຍບາຍຄືນເງິນເປັນຂັ້ນ (ຂໍ້ຕົກລົງ 53): ຍົກເລີກກ່ອນເວລາເປີດຂອງວັນເຂົ້າຊົມ ≥ hours_before ຊມ → ຄືນ refund_percent
+-- ເລືອກຂັ້ນທີ່ hours_before ສູງສຸດ ທີ່ ≤ ຊົ່ວໂມງທີ່ເຫຼືອ · ບໍ່ເຂົ້າຂັ້ນໃດ = ບໍ່ຄືນ
+CREATE TABLE refund_policies (
+  id             BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  hours_before   SMALLINT UNSIGNED NOT NULL,
+  refund_percent TINYINT UNSIGNED  NOT NULL,
+  updated_by     BIGINT UNSIGNED NULL,
+  updated_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  UNIQUE KEY uk_refund_policy_hours (hours_before),
+  CONSTRAINT chk_refund_policy_percent CHECK (refund_percent <= 100),
+  CONSTRAINT fk_refund_policy_user FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
 -- =====================================================================
@@ -456,8 +515,12 @@ INSERT INTO settings (setting_key, setting_value, description) VALUES
   ('site_lat',            '19.74917',  'latitude ຕາດກວາງຊີ'),
   ('site_lng',            '101.99167', 'longitude ຕາດກວາງຊີ'),
   ('booking_hold_minutes','30',        'ປີ້ pending ໝົດອາຍຸຫຼັງ x ນາທີ'),
-  ('refund_full_hours',   '24',        'ຍົກເລີກກ່ອນ x ຊມ ຄືນ 100%'),
-  ('refund_half_hours',   '12',        'ຍົກເລີກກ່ອນ x ຊມ ຄືນ 50%'),
+  ('refund_account_retention_days','30','ການຄືນເງິນຄ້າງ (requested) ເກີນ x ວັນ → ລ້າງເລກບັນຊີລູກຄ້າ ເຫຼືອ 4 ຕົວທ້າຍ + ຂຶ້ນລາຍການໃຫ້ admin (ຂໍ້ຕົກລົງ 55)'),
+  -- ຂໍ້ຕົກລົງ 56 (P11-5): ຂໍ້ຄວາມເວລາຄືນເງິນ — TODO ບໍ່ປິດການຍົກເລີກ (ສະແດງ "ພະນັກງານຈະຕິດຕໍ່ກັບ" ແທນ)
+  ('refund_time_note_lo', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາໂອນເງິນຄືນ (ລາວ) ເຊັ່ນ "ພາຍໃນ 3 ວັນເຮັດການ"'),
+  ('refund_time_note_en', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາໂອນເງິນຄືນ (ອັງກິດ)'),
+  ('refund_time_note_zh', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາໂອນເງິນຄືນ (ຈີນ)'),
+  ('refund_time_note_th', 'TODO: ຕ້ອງຢືນຢັນ', 'ເວລາໂອນເງິນຄືນ (ໄທ)'),
   ('default_currency',    'LAK',       'ສະກຸນເງິນຫຼັກ'),
   ('max_visitors_per_day','3000',      'ຈຳນວນສູງສຸດຕໍ່ວັນ — TODO: ຢືນຢັນ'),
   ('pos_grace_minutes',   '30',        'POS ຂາຍໄດ້ x ນາທີ ກ່ອນເວລາເປີດ ແລະ ຫຼັງເວລາປິດ (ຄົນທີ່ລໍຄິວ) — ສະແດງແຖບເຕືອນ "ນອກເວລາເປີດ"'),
@@ -495,6 +558,9 @@ INSERT INTO places (name_lo, name_en, name_zh, name_th, type, lat, lng) VALUES
   ('ພູສີ', 'Mount Phousi', '普西山', 'พูสี', 'landmark', 19.891600, 102.137400),
   ('ວັດຊຽງທອງ', 'Wat Xieng Thong', '香通寺', 'วัดเชียงทอง', 'landmark', 19.897700, 102.143000),
   ('ສະໜາມບິນສາກົນຫຼວງພະບາງ', 'Luang Prabang International Airport', '琅勃拉邦国际机场', 'ท่าอากาศยานนานาชาติหลวงพระบาง', 'airport', 19.897300, 102.160900);
+
+-- ນະໂຍບາຍຄືນເງິນເລີ່ມຕົ້ນ (requirements 2.5) — TODO: ຜູ້ຈັດການຢືນຢັນຕົວເລກຈິງ ແລ້ວແກ້ໃນໜ້າ settings (ຂໍ້ຕົກລົງ 53)
+INSERT INTO refund_policies (hours_before, refund_percent) VALUES (24, 100), (12, 50);
 
 -- ບັນຊີ admin ເລີ່ມຕົ້ນ
 -- ⚠️ password_hash ຂ້າງລຸ່ມເປັນ placeholder — ຕ້ອງສ້າງ hash ຈິງດ້ວຍ bcrypt

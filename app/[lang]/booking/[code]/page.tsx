@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { BookingStepper } from "@/components/booking/booking-stepper";
+import { CancelBooking } from "@/components/booking/cancel-booking";
 import { CopyButton } from "@/components/booking/copy-button";
 import { HoldCountdown } from "@/components/booking/hold-countdown";
 import { OnlineClosedNotice } from "@/components/booking/online-closed-notice";
@@ -22,8 +23,10 @@ import { bookingCodeSchema } from "@/lib/booking/schemas";
 import { localizedName } from "@/lib/booking/ui";
 import { hasLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary, type Dictionary } from "@/lib/i18n/dictionaries";
-import { formatKip, formatVisitDate, t } from "@/lib/i18n/format";
-import { getBankTransferInfo } from "@/lib/settings";
+import { formatDateTime, formatKip, formatTime, formatVisitDate, t } from "@/lib/i18n/format";
+import { cancelPreview, refundInfo } from "@/lib/refunds/cancel";
+import { getBankTransferInfo, isConfigured } from "@/lib/settings";
+import { prisma } from "@/lib/db";
 
 type Params = Promise<{ lang: string; code: string }>;
 
@@ -50,6 +53,10 @@ async function BookingView({ params }: { params: Params }) {
 
   const b = toCustomerBookingDto(booking);
   const bank = b.status === "pending" || b.status === "verifying" ? await getBankTransferInfo() : null;
+  // Phase 11: ຍົກເລີກເອງ (online · pending / paid) ແລະ ສະຖານະການຄືນເງິນຫຼັງຍົກເລີກ
+  const preview = b.channel === "online" && ["pending", "paid", "verifying"].includes(b.status) ? await cancelPreview(b.bookingCode) : null;
+  const cancelled = b.status === "cancelled" ? await refundInfo(b.bookingCode) : null;
+  const refundNote = cancelled?.refund?.status === "requested" ? await refundTimeNote(lang) : null;
 
   return (
     <>
@@ -140,6 +147,33 @@ async function BookingView({ params }: { params: Params }) {
         {(b.status === "expired" || b.status === "cancelled") && (
           <div className="flex flex-col gap-3">
             <p className="text-lg">{b.status === "expired" ? dict.pay.expired : dict.ticket.cancelled}</p>
+            {cancelled && (
+              <div data-testid="refund-status" className="flex flex-col gap-1 rounded-xl border p-3">
+                {!cancelled.refund ? (
+                  <p>{dict.cancel.noRefundDone}</p>
+                ) : cancelled.refund.status === "completed" ? (
+                  <>
+                    <p className="font-semibold text-success">
+                      {t(dict.cancel.refundCompleted, {
+                        amount: formatKip(cancelled.refund.amount, dict.common.kip),
+                        date: formatDateTime(cancelled.refund.completedAt!, lang),
+                      })}
+                    </p>
+                    {cancelled.refund.transferRef && <p className="text-sm">{t(dict.cancel.refundRef, { ref: cancelled.refund.transferRef })}</p>}
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold text-warning">
+                      {cancelled.refund.last4
+                        ? t(dict.cancel.refundRequested, { amount: formatKip(cancelled.refund.amount, dict.common.kip), last4: cancelled.refund.last4 })
+                        : t(dict.cancel.refundRequestedNoAcct, { amount: formatKip(cancelled.refund.amount, dict.common.kip) })}
+                    </p>
+                    {/* ຂໍ້ຕົກລົງ 56: ຂໍ້ຄວາມຍັງເປັນ TODO → ບອກວ່າພະນັກງານຈະຕິດຕໍ່ (ບໍ່ປິດການຍົກເລີກ) */}
+                    <p className="text-sm">{refundNote ? t(dict.cancel.refundTime, { note: refundNote }) : dict.cancel.refundTimeFallback}</p>
+                  </>
+                )}
+              </div>
+            )}
             <Button asChild className="min-h-11 text-base">
               <Link href={`/${lang}/book`}>{dict.booking.startOver}</Link>
             </Button>
@@ -178,9 +212,25 @@ async function BookingView({ params }: { params: Params }) {
             </div>
           </CardContent>
         </Card>
+
+        {preview?.cancellable && (
+          <CancelBooking
+            code={b.bookingCode}
+            preview={preview}
+            visitLabel={t(dict.cancel.visit, { date: formatVisitDate(b.visitDate, lang), time: preview.openTime ? formatTime(preview.openTime) : "—" })}
+            dict={dict}
+          />
+        )}
+        {preview && !preview.cancellable && preview.reason === "verifying" && <p className="text-sm text-muted-foreground">{dict.cancel.verifying}</p>}
       </div>
     </>
   );
+}
+
+async function refundTimeNote(lang: Locale): Promise<string | null> {
+  const row = await prisma.settings.findUnique({ where: { setting_key: `refund_time_note_${lang}` }, select: { setting_value: true } });
+  const v = row?.setting_value.trim();
+  return isConfigured(v) ? v : null;
 }
 
 function BankRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {

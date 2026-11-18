@@ -169,7 +169,8 @@
     "scanReviews": "Offline duplicates",
     "users": "Users",
     "settings": "Settings",
-    "catalog": "Tickets & prices"
+    "catalog": "Tickets & prices",
+    "refunds": "Refunds"
   },
   "admin": {
     "dashboard": {
@@ -192,7 +193,13 @@
       "net": "Net today",
       "receivedBasis": "Counted by the date money was received (not the visit date)",
       "refundedBasis": "Counted by the date of the refund",
-      "netHint": "Received − refunded"
+      "netHint": "Received − refunded",
+      "refundsPending": "Refunds to transfer",
+      "refundsPendingHint": "{n} item(s) · not yet counted as refunded (decision 44)",
+      "refundsStale": "Refunds pending over {days} days",
+      "refundsStaleHint": "Account numbers cleared — contact the customers",
+      "posVoids": "POS cancellations today",
+      "posVoidsHint": "{n} item(s) · cash refunds (no bank trail)"
     },
     "method": {
       "bank_transfer": "Transfer",
@@ -410,7 +417,8 @@
         "rates": "Exchange rates",
         "places": "Places",
         "system": "System",
-        "history": "Change history"
+        "history": "Change history",
+        "refund": "Refund policy"
       },
       "lastEdit": "Last edited: {by} · {time}",
       "neverEdited": "Not edited from this page yet",
@@ -472,7 +480,13 @@
         "unit": "Unit",
         "lakPerUnit": "Kip per unit",
         "effectiveDate": "Effective from",
-        "currency": "Currency"
+        "currency": "Currency",
+        "refund_policies": "Refund policy",
+        "refund_account_retention_days": "Clear customer account numbers pending over (days)",
+        "refund_time_note_lo": "Refund transfer time — Lao",
+        "refund_time_note_en": "Refund transfer time — English",
+        "refund_time_note_zh": "Refund transfer time — Chinese",
+        "refund_time_note_th": "Refund transfer time — Thai"
       },
       "hints": {
         "booking_create_limit_per_ip": "Hotels share one IP — do not set too low",
@@ -482,7 +496,9 @@
         "pos_auto_checkin": "Turn on only if the ticket desk and the gate are the same place",
         "session_hours": "1–24 · counted from login (not extended)",
         "translations_reviewed_zh": "If not reviewed, pages in that language show a small note (booking stays open)",
-        "translations_reviewed_th": "If not reviewed, pages in that language show a small note (booking stays open)"
+        "translations_reviewed_th": "If not reviewed, pages in that language show a small note (booking stays open)",
+        "refund_account_retention_days": "Decision 55 — cleared immediately once refunded",
+        "refund_time_note_lo": "Starting with TODO = customers see \"our staff will contact you\" (cancellation stays open)"
       },
       "range": "{min}–{max}",
       "invalidField": "This value is not valid",
@@ -594,7 +610,9 @@
         "ticket_type.price": "Ticket price changed",
         "add_on.create": "Add-on added",
         "add_on.update": "Add-on edited",
-        "add_on.price": "Add-on price changed"
+        "add_on.price": "Add-on price changed",
+        "refund_policy.update": "Refund policy changed",
+        "settings.refund": "Refund settings changed"
       },
       "confirm": {
         "title": "Check before saving",
@@ -630,7 +648,8 @@
         "catalogNewBookings": "New online bookings and POS use the new price immediately · anyone mid-booking sees the old and new totals and must confirm again",
         "catalogDeactivate": "Take \"{name}\" off sale: existing bookings are not affected · new bookings and POS will not show it",
         "catalogLastPaid": "⚠ This is the last paid ticket of the {group} group — after this only free tickets remain and online booking is not possible",
-        "catalogConfirm": "Confirm"
+        "catalogConfirm": "Confirm",
+        "refundEffect": "Applies to new cancellations immediately · existing refund requests keep their amount"
       },
       "errors": {
         "validation": "Please check — some values are not valid",
@@ -643,12 +662,29 @@
         "internal": "Could not save, please try again",
         "rate_not_future": "Only future rates can be deleted — today's rate can be edited but not deleted",
         "code_taken": "This code already exists",
-        "free_price_mismatch": "Free tickets must cost 0 · other tickets must cost more than 0"
+        "free_price_mismatch": "Free tickets must cost 0 · other tickets must cost more than 0",
+        "duplicate_hours": "Duplicate hours"
       },
       "kipUnit": "LAK",
       "groupNames": {
         "lao": "Lao",
         "foreigner": "Foreigner"
+      },
+      "refundPolicy": {
+        "intro": "Counted from the opening time of the visit day (decision 54) · applies only to cancellations after saving — existing refund requests do not change",
+        "hours": "Before opening (hours)",
+        "percent": "Refund (%)",
+        "add": "Add step",
+        "remove": "Remove step",
+        "none": "Less than the lowest step = no refund",
+        "empty": "No steps = customers can cancel but get no refund"
+      },
+      "closedDayBookings": "Bookings on this day — open each one to cancel (nothing is cancelled automatically):",
+      "bookingLink": "{code} · {people} people · {status}",
+      "bookingStatus": {
+        "pending": "unpaid",
+        "verifying": "under review",
+        "paid": "paid"
       }
     },
     "catalog": {
@@ -707,6 +743,92 @@
       "approx": "≈ {amount} (approx.)",
       "empty": "No ticket types in this group — online booking and POS cannot sell this group",
       "emptyAddOns": "No add-ons yet"
+    },
+    "cancel": {
+      "button": "Cancel booking",
+      "title": "Cancel {code}",
+      "paid": "Paid {amount} ({method})",
+      "unpaid": "Not paid — cancel only, nothing to refund",
+      "policy": "By policy {amount} ({percent}%) · {hours} h before opening",
+      "full": "Full {amount} (e.g. park closed)",
+      "custom": "Custom",
+      "customHint": "0 to {max}",
+      "reason": "Reason (required)",
+      "bankTitle": "Customer account (transfer refund · can be added later)",
+      "cashNow": "Cash: hand back now → recorded as refunded",
+      "transferLater": "Transfer: goes to the \"waiting for refund\" queue",
+      "confirm": "Confirm cancellation",
+      "done": "Cancelled",
+      "notAllowed": "Cannot cancel: {why}",
+      "why": {
+        "used": "already scanned in",
+        "verifying": "proof under review — approve or reject first",
+        "expired": "expired",
+        "cancelled": "already cancelled"
+      },
+      "changed": "The policy amount changed — old {old} → new {new} ({percent}%) · check and press again",
+      "refund": "Refund",
+      "refundRequested": "Waiting for transfer {amount} ({percent}%)",
+      "refundCompleted": "Refunded {amount} · {time}",
+      "refundRef": "Reference {ref}",
+      "account": "Account ****{last4}",
+      "cancelledInfo": "Cancelled {time} · {by} · {reason}",
+      "customer": "customer",
+      "bankName": "Bank name",
+      "accountNumber": "Account number",
+      "accountName": "Account name"
     }
+  },
+  "refunds": {
+    "title": "Refunds",
+    "queue": "Waiting for refund transfer ({n})",
+    "queueTotal": "Total {amount}",
+    "queueEmpty": "No refunds waiting",
+    "cancelledAt": "Cancelled {time}",
+    "byCustomer": "Cancelled by customer",
+    "byStaff": "Cancelled by {name}",
+    "amountLine": "Refund {amount} ({percent}% of {paid})",
+    "account": "Customer account",
+    "accountPurged": "Account number cleared (****{last4}) — pending over {days} days: ask the customer for the account again before transferring",
+    "noAccount": "No account number — contact the customer",
+    "stale": "⚠ Pending over {days} days",
+    "transferRef": "Refund transfer reference",
+    "markDone": "Refund transferred",
+    "confirmDone": "Confirm you transferred {amount} for {booking}? This cannot be undone",
+    "done": "Refund recorded",
+    "reason": "Reason: {reason}",
+    "customerRequest": "Customer request",
+    "phone": "Phone {phone}",
+    "pos": "Cancel today's POS sales",
+    "posHint": "Only today's sales not yet scanned · full cash refund only · admins see this number on the dashboard",
+    "posEmpty": "No sales can be cancelled",
+    "posLine": "{code} · {people} people · {amount}",
+    "soldAt": "Sold {time} · {seller}",
+    "void": "Cancel sale",
+    "voidTitle": "Cancel sale {code}",
+    "voidCash": "Hand back {amount} in cash",
+    "voidReason": "Reason (required)",
+    "voidReasonHint": "e.g. wrong quantity · wrong ticket type · customer changed mind before entering",
+    "voidConfirm": "Confirm — cash handed back",
+    "voided": "Cancelled — cash refund {amount}",
+    "cancel": "Cancel",
+    "close": "Close",
+    "errors": {
+      "already_completed": "This refund is already recorded",
+      "transfer_ref_required": "Please enter the transfer reference",
+      "not_cancellable": "This booking can no longer be cancelled (maybe already scanned)",
+      "not_todays_gate_sale": "Only today's POS sales can be cancelled here",
+      "not_cash": "This sale was not paid in cash",
+      "validation": "Please enter a reason (at least 3 characters)",
+      "not_found": "Not found — reload the page",
+      "internal": "Could not save, please try again",
+      "network": "Connection failed — not saved",
+      "forbidden": "You are not allowed to do this",
+      "amount_exceeds_paid": "Refund exceeds the amount paid",
+      "verifying": "Proof under review — approve or reject first",
+      "bank_required": "Customer account is required"
+    },
+    "copy": "Copy",
+    "copied": "Copied"
   }
 }

@@ -17,6 +17,7 @@ export const INT_SETTINGS = {
   pos_grace_minutes: { min: 0, max: 180 },
   distance_lookup_limit_per_ip: { min: 1, max: 100_000 },
   distance_lookup_window_minutes: { min: 1, max: 1440 },
+  refund_account_retention_days: { min: 1, max: 365 },
 } as const;
 
 export type IntSettingKey = keyof typeof INT_SETTINGS;

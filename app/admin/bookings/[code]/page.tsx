@@ -2,11 +2,14 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AdminFrame, Section, StatusPill } from "@/components/admin/admin-frame";
+import { CancelBookingAdmin } from "@/components/admin/cancel-booking-admin";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getBookingDetail } from "@/lib/admin/bookings";
 import { staffPage } from "@/lib/admin/page";
 import { countryNamesFor } from "@/lib/country-names";
+import { can } from "@/lib/auth/roles";
 import { formatDateTime, formatKip, formatVisitDate, t } from "@/lib/i18n/format";
+import { cancelPreview, refundInfo } from "@/lib/refunds/cancel";
 
 type Params = Promise<{ code: string }>;
 
@@ -43,6 +46,12 @@ async function DetailView({ params }: { params: Params }) {
   }
 
   const country = b.customer?.nationality ? (countryNamesFor(locale)[b.customer.nationality] ?? b.customer.nationality) : null;
+  // Phase 11: admin ຍົກເລີກໄດ້ (booking.manage) · viewer ເຫັນແຕ່ຜົນ
+  const c = a.cancel;
+  const canCancel = can(user.role, "booking.manage");
+  const preview = canCancel && (b.status === "pending" || b.status === "paid") ? await cancelPreview(b.code, new Date(), { staff: true }) : null;
+  const cancelled = b.status === "cancelled" ? await refundInfo(b.code) : null;
+  const blockedWhy = canCancel && ["used", "verifying"].includes(b.status) ? c.why[b.status as "used" | "verifying"] : null;
   return (
     <AdminFrame user={user} locale={locale} dict={dict} current="/admin/bookings" title={b.code}>
       {back}
@@ -76,6 +85,38 @@ async function DetailView({ params }: { params: Params }) {
           </>
         )}
       </dl>
+
+      {preview?.cancellable && (
+        <CancelBookingAdmin
+          code={b.code}
+          paid={preview.paid}
+          paidLabel={preview.paid > 0 && preview.method ? t(c.paid, { amount: kip(String(preview.paid)), method: a.method[preview.method] }) : null}
+          method={preview.method}
+          policyAmount={preview.amount}
+          policyLine={t(c.policy, { amount: kip(String(preview.amount)), percent: preview.percent, hours: Math.max(0, Math.floor(preview.hoursLeft)) })}
+          fullLine={t(c.full, { amount: kip(String(preview.paid)) })}
+          kipUnit={dict.common.kip}
+          d={c}
+          errors={{ ...dict.refunds.errors, cancel: dict.refunds.cancel }}
+        />
+      )}
+      {blockedWhy && <p className="text-sm text-muted-foreground">{t(c.notAllowed, { why: blockedWhy })}</p>}
+      {cancelled && (
+        <Section title={c.refund}>
+          <p data-testid="cancel-info">
+            {t(c.cancelledInfo, { time: when(cancelled.cancelledAt), by: cancelled.cancelledBy ?? c.customer, reason: cancelled.cancelReason ?? "" })}
+          </p>
+          {cancelled.refund && (
+            <p className="font-semibold">
+              {cancelled.refund.status === "completed"
+                ? t(c.refundCompleted, { amount: kip(String(cancelled.refund.amount)), time: when(cancelled.refund.completedAt!) })
+                : t(c.refundRequested, { amount: kip(String(cancelled.refund.amount)), percent: cancelled.refund.percent })}
+              {cancelled.refund.last4 && <span className="font-normal"> · {t(c.account, { last4: cancelled.refund.last4 })}</span>}
+              {cancelled.refund.transferRef && <span className="font-normal"> · {t(c.refundRef, { ref: cancelled.refund.transferRef })}</span>}
+            </p>
+          )}
+        </Section>
+      )}
 
       <Section title={a.detail.items}>
         <ul className="flex flex-col gap-1">

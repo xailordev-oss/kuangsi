@@ -5,6 +5,7 @@ import { staffPage } from "@/lib/admin/page";
 import { flowRows } from "@/lib/admin/report-view";
 import { getDashboard } from "@/lib/admin/stats";
 import { formatKip, formatNumber, formatVisitDate, t } from "@/lib/i18n/format";
+import { refundDashboard } from "@/lib/refunds/cancel";
 
 export default function AdminHomePage() {
   return (
@@ -27,7 +28,7 @@ function DashboardSkeleton() {
 async function Dashboard() {
   const { user, locale, dict } = await staffPage("report.read", "/admin");
   const a = dict.admin;
-  const d = await getDashboard();
+  const [d, r] = await Promise.all([getDashboard(), refundDashboard()]);
   const kip = (n: number) => formatKip(n, dict.common.kip);
   const people = (n: number) => t(a.dashboard.people, { n: formatNumber(n) });
 
@@ -55,6 +56,29 @@ async function Dashboard() {
           value={formatNumber(d.offlineDuplicates)}
           tone={d.offlineDuplicates > 0 ? "warn" : "default"}
           href="/admin/scan-reviews"
+        />
+      </div>
+      {/* Phase 11: ຂໍ້ຕົກລົງ 57 (ເງິນສົດຄືນບໍ່ມີຮ່ອງຮອຍທະນາຄານ → ສະແດງແຍກ ສີເຫຼືອງເມື່ອ > 0) · ຂໍ້ຕົກລົງ 55 (ຄ້າງເກີນກຳນົດ) */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" data-testid="refund-tiles">
+        <StatTile
+          label={a.dashboard.posVoids}
+          value={kip(r.posVoidsToday.amount)}
+          hint={t(a.dashboard.posVoidsHint, { n: r.posVoidsToday.count })}
+          tone={r.posVoidsToday.count > 0 ? "warn" : "default"}
+        />
+        <StatTile
+          label={a.dashboard.refundsPending}
+          value={kip(r.pending.amount)}
+          hint={t(a.dashboard.refundsPendingHint, { n: r.pending.count })}
+          tone={r.pending.count > 0 ? "warn" : "default"}
+          href={user.role === "admin" ? "/staff/refunds" : undefined}
+        />
+        <StatTile
+          label={t(a.dashboard.refundsStale, { days: r.retentionDays })}
+          value={formatNumber(r.pending.stale)}
+          hint={a.dashboard.refundsStaleHint}
+          tone={r.pending.stale > 0 ? "warn" : "default"}
+          href={user.role === "admin" ? "/staff/refunds" : undefined}
         />
       </div>
       <Section title={a.dashboard.byMethod} hint={a.reports.moneyBasis}>

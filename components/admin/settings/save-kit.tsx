@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
-import type { CatalogImpact, DayLoad, Impact, SettingChange } from "@/lib/admin/settings";
+import type { ActiveBooking, CatalogImpact, DayLoad, Impact, SettingChange } from "@/lib/admin/settings";
 import { t } from "@/lib/i18n/format";
 import type { StaffDictionary } from "@/lib/i18n/staff";
 
@@ -92,12 +93,24 @@ export function SaveFeedback({ s, d }: { s: SaveState; d: SD }) {
 
 const LISTED = 10;
 
-function DayList({ days, row, d }: { days: DayLoad[]; row: string; d: SD }) {
+function DayList({ days, row, d, linked }: { days: DayLoad[]; row: string; d: SD; linked?: boolean }) {
   return (
     <ul className="flex flex-col gap-0.5 text-sm">
-      {days.slice(0, LISTED).map((x) => (
-        <li key={x.date}>{t(row, { date: fmtDate(x.date, d), bookings: x.bookings, people: n(x.people), capacity: n(x.capacity ?? 0) })}</li>
-      ))}
+      {days.slice(0, LISTED).map((x) => {
+        const text = t(row, { date: fmtDate(x.date, d), bookings: x.bookings, people: n(x.people), capacity: n(x.capacity ?? 0) });
+        // ຂໍ້ຕົກລົງ 58: ກົດໄປລາຍການການຈອງຂອງວັນນັ້ນ (ເປີດ tab ໃໝ່ — ບໍ່ເສຍຟອມທີ່ກຳລັງແກ້)
+        return (
+          <li key={x.date}>
+            {linked ? (
+              <Link href={`/admin/bookings?from=${x.date}&to=${x.date}`} target="_blank" className="text-primary underline">
+                {text}
+              </Link>
+            ) : (
+              text
+            )}
+          </li>
+        );
+      })}
       {days.length > LISTED && <li className="text-muted-foreground">{t(d.confirm.more, { n: days.length - LISTED })}</li>}
     </ul>
   );
@@ -155,6 +168,7 @@ function ConfirmDialog({ s, d }: { s: SaveState; d: SD }) {
             </ul>
           </div>
         )}
+        {changes.some((x) => x.key === "refund_policies") && <p className="rounded-lg bg-warning-subtle p-3 text-sm">{c.refundEffect}</p>}
         {impact?.kind === "capacity" && (
           <div className="flex flex-col gap-2">
             <p>{t(c.capacityBody, { days: impact.days.length })}</p>
@@ -167,13 +181,13 @@ function ConfirmDialog({ s, d }: { s: SaveState; d: SD }) {
             {impact.closing.length > 0 && (
               <>
                 <p>{t(c.hoursClosing, total(impact.closing))}</p>
-                <DayList days={impact.closing} row={c.dayRow} d={d} />
+                <DayList days={impact.closing} row={c.dayRow} d={d} linked />
               </>
             )}
             {impact.shortened.length > 0 && (
               <>
                 <p>{t(c.hoursShortened, total(impact.shortened))}</p>
-                <DayList days={impact.shortened} row={c.dayRow} d={d} />
+                <DayList days={impact.shortened} row={c.dayRow} d={d} linked />
               </>
             )}
             <p className="rounded-lg bg-warning-subtle p-3 text-sm">{c.hoursEffect}</p>
@@ -182,6 +196,7 @@ function ConfirmDialog({ s, d }: { s: SaveState; d: SD }) {
         {impact?.kind === "holiday" && (
           <div className="flex flex-col gap-2">
             <p>{t(c.holidayBody, { date: fmtDate(impact.day.date, d), bookings: impact.day.bookings, people: n(impact.day.people) })}</p>
+            <BookingLinks bookings={impact.bookings} d={d} />
             <p className="rounded-lg bg-warning-subtle p-3 text-sm">{c.hoursEffect}</p>
           </div>
         )}
@@ -262,6 +277,25 @@ function CatalogImpactView({ impact, d }: { impact: CatalogImpact; d: SD }) {
         </>
       )}
       {!impact.deactivating && <p className="rounded-lg bg-warning-subtle p-3 text-sm">{c.catalogNewBookings}</p>}
+    </div>
+  );
+}
+
+// ຂໍ້ຕົກລົງ 58: ລາຍການການຈອງຂອງວັນທີ່ປິດ ພ້ອມລິ້ງໄປໜ້າຍົກເລີກແຕ່ລະອັນ (ຍົກເລີກທີລະອັນໃນ v1)
+export function BookingLinks({ bookings, d }: { bookings: ActiveBooking[]; d: SD }) {
+  if (bookings.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1">
+      <p className="text-sm font-semibold">{d.closedDayBookings}</p>
+      <ul className="flex flex-wrap gap-2" data-testid="closed-day-bookings">
+        {bookings.map((b) => (
+          <li key={b.code}>
+            <Link href={`/admin/bookings/${b.code}`} target="_blank" className="inline-flex min-h-11 items-center rounded-md border px-3 text-primary underline tabular-nums">
+              {t(d.bookingLink, { code: b.code, people: b.people, status: (d.bookingStatus as Record<string, string>)[b.status] ?? b.status })}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

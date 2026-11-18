@@ -17,6 +17,9 @@ export default async function globalTeardown() {
     }
     // ການຂາຍ POS ທີ່ບໍ່ມີລູກຄ້າ (customer_id NULL) → ລຶບຕາມພະນັກງານ e2e ທີ່ຂາຍ
     const sellers = Object.values(E2E_USERS);
+    // refunds → bookings / payments ເປັນ RESTRICT: ລຶບແຖວຄືນເງິນຂອງການຈອງທົດສອບກ່ອນ
+    await conn.query("DELETE r FROM refunds r JOIN bookings b ON b.id = r.booking_id JOIN users u ON u.id = b.created_by WHERE u.username IN (?)", [sellers]);
+    await conn.query("DELETE r FROM refunds r JOIN bookings b ON b.id = r.booking_id JOIN customers c ON c.id = b.customer_id WHERE c.phone = ?", [E2E_PHONE]);
     await conn.query("DELETE p FROM payments p JOIN bookings b ON b.id = p.booking_id JOIN users u ON u.id = b.created_by WHERE u.username IN (?)", [sellers]);
     await conn.query("DELETE c FROM check_ins c JOIN bookings b ON b.id = c.booking_id JOIN users u ON u.id = b.created_by WHERE u.username IN (?)", [sellers]);
     await conn.query("DELETE b FROM bookings b JOIN users u ON u.id = b.created_by WHERE u.username IN (?)", [sellers]);

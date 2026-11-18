@@ -14,6 +14,7 @@ const LINKS = [
   { href: "/admin/settings", permission: "settings.manage", key: "settings" },
   { href: "/staff/pos", permission: "pos.sell", key: "pos" },
   { href: "/staff/proofs", permission: "proof.verify", key: "proofs" },
+  { href: "/staff/refunds", permission: "refund.process", key: "refunds" },
   { href: "/staff/scan", permission: "checkin.scan", key: "scan" },
 ] as const;
 

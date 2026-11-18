@@ -2,7 +2,7 @@
 
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { fmtDate, formatAmount, SaveFeedback, useSettingsSave, type SD } from "@/components/admin/settings/save-kit";
+import { BookingLinks, fmtDate, formatAmount, SaveFeedback, useSettingsSave, type SD } from "@/components/admin/settings/save-kit";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -66,7 +66,7 @@ export function HoursForm({ initial, d }: { initial: Day[]; d: SD }) {
   );
 }
 
-type Holiday = { id: string; date: string; nameLo: string; nameEn: string | null; isClosed: boolean; past: boolean };
+type Holiday = { id: string; date: string; nameLo: string; nameEn: string | null; isClosed: boolean; past: boolean; bookings: { code: string; status: string; people: number }[] };
 
 export function HolidaysManager({ holidays, today, d }: { holidays: Holiday[]; today: string; d: SD }) {
   const s = useSettingsSave(d);
@@ -112,7 +112,7 @@ export function HolidaysManager({ holidays, today, d }: { holidays: Holiday[]; t
       ) : (
         <ul className="flex flex-col gap-2">
           {holidays.map((x) => (
-            <li key={x.id} className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 ${x.past ? "bg-muted text-muted-foreground" : "bg-card"}`}>
+            <li key={x.id} data-testid={`holiday-${x.date}`} className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 ${x.past ? "bg-muted text-muted-foreground" : "bg-card"}`}>
               <span className="flex flex-col">
                 <span className="font-semibold">{fmtDate(x.date, d)}</span>
                 <span>
@@ -133,6 +133,11 @@ export function HolidaysManager({ holidays, today, d }: { holidays: Holiday[]; t
                   </Button>
                 )}
               </span>
+              {x.bookings.length > 0 && (
+                <div className="w-full">
+                  <BookingLinks bookings={x.bookings} d={d} />
+                </div>
+              )}
             </li>
           ))}
         </ul>

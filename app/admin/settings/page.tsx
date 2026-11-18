@@ -4,6 +4,8 @@ import { AdminFrame } from "@/components/admin/admin-frame";
 import { CapacityOverrides, HolidaysManager, HoursForm } from "@/components/admin/settings/calendar-forms";
 import { SettingsGroupForm, type FieldSpec } from "@/components/admin/settings/group-form";
 import { PlacesManager, RatesManager, TabSelect } from "@/components/admin/settings/reference-forms";
+import { RefundPolicyForm } from "@/components/admin/settings/refund-policy-form";
+import { loadPolicy } from "@/lib/refunds/cancel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { lastEdit, listAdminAudit } from "@/lib/admin/audit";
 import { staffPage } from "@/lib/admin/page";
@@ -23,7 +25,7 @@ import type { StaffDictionary, StaffLocale } from "@/lib/i18n/staff";
 import { INT_SETTINGS, type IntSettingKey } from "@/lib/settings";
 import { todayInVientiane } from "@/lib/time";
 
-const TABS = ["hours", "holidays", "capacity", "online", "bank", "pos", "rates", "places", "system", "history"] as const;
+const TABS = ["hours", "holidays", "capacity", "online", "bank", "refund", "pos", "rates", "places", "system", "history"] as const;
 type Tab = (typeof TABS)[number];
 
 const TAB_ACTIONS: Record<Exclude<Tab, "history">, string[]> = {
@@ -32,6 +34,7 @@ const TAB_ACTIONS: Record<Exclude<Tab, "history">, string[]> = {
   capacity: ["settings.capacity", "capacity.set", "capacity.delete"],
   online: ["settings.online"],
   bank: ["settings.bank"],
+  refund: ["refund_policy.update", "settings.refund"],
   pos: ["settings.pos"],
   rates: ["exchange_rate.create"],
   places: ["place.create", "place.update", "place.deactivate", "place.activate"],
@@ -43,7 +46,7 @@ function specs(group: SettingGroup): FieldSpec[] {
     if (key in INT_SETTINGS) return { key, kind: "int", ...INT_SETTINGS[key as IntSettingKey] };
     if (key === "gates") return { key, kind: "gates", maxLength: 300 };
     if (key === "pos_auto_checkin" || key.startsWith("translations_reviewed_")) return { key, kind: "bool" };
-    if (key.startsWith("verify_time_note_")) return { key, kind: "textarea", maxLength: 300 };
+    if (key.startsWith("verify_time_note_") || key.startsWith("refund_time_note_")) return { key, kind: "textarea", maxLength: 300 };
     return { key, kind: "text", maxLength: key === "bank_account_number" ? 50 : 150 };
   });
 }
@@ -126,6 +129,16 @@ async function TabBody({ tab, d, locale }: { tab: Tab; d: StaffDictionary["admin
             {missing.length ? t(d.bank.statusClosed, { missing: missing.map((k) => (d.fields as Record<string, string>)[k]).join(", ") }) : d.bank.statusOpen}
           </p>
           <SettingsGroupForm group="bank" fields={specs("bank")} initial={values} d={d} />
+        </>
+      );
+    }
+    case "refund": {
+      const [tiers, values] = await Promise.all([loadPolicy(), readSettings(groupKeys("refund"))]);
+      return (
+        <>
+          <RefundPolicyForm initial={tiers} d={d} />
+          <hr />
+          <SettingsGroupForm group="refund" fields={specs("refund")} initial={values} d={d} />
         </>
       );
     }

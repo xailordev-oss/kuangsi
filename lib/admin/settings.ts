@@ -10,11 +10,29 @@ import { addDays, dayOfWeek, dbDateToIso, dbTimeToString, isoDateToDb, isValidIs
 // ===== ຜົນກະທົບ (ເຕືອນ ບໍ່ຫ້າມ) — server ຄຳນວນ ແລ້ວ UI ສະແດງໃນ Dialog ຢືນຢັນ =====
 
 export type DayLoad = { date: string; bookings: number; people: number; capacity?: number };
+export type ActiveBooking = { code: string; status: string; people: number };
+
+// ຂໍ້ຕົກລົງ 58: ການຈອງທີ່ຍັງມີຜົນ ຂອງວັນທີ່ປິດ — ໃຫ້ admin ກົດໄປຍົກເລີກທີລະອັນ (ບໍ່ຕ້ອງຄົ້ນຫາເອງ)
+export async function activeBookingsOn(db: Db, dates: string[]): Promise<Map<string, ActiveBooking[]>> {
+  if (dates.length === 0) return new Map();
+  const rows = await db.$queryRaw<{ d: Date; code: string; status: string; people: bigint | number }[]>`
+    SELECT b.visit_date AS d, b.booking_code AS code, b.status, COALESCE(SUM(bi.quantity), 0) AS people
+    FROM bookings b JOIN booking_items bi ON bi.booking_id = b.id
+    WHERE b.visit_date IN (${Prisma.join(dates)})
+      AND (b.status IN ('verifying','paid') OR (b.status = 'pending' AND b.expires_at > UTC_TIMESTAMP()))
+    GROUP BY b.id ORDER BY b.visit_date, b.id`;
+  const out = new Map<string, ActiveBooking[]>();
+  for (const r of rows) {
+    const k = dbDateToIso(r.d);
+    out.set(k, [...(out.get(k) ?? []), { code: r.code, status: r.status, people: Number(r.people) }]);
+  }
+  return out;
+}
 export type SettingChange = { key: string; old: string | null; new: string };
 export type Impact =
   | { kind: "capacity"; days: DayLoad[] }
   | { kind: "hours"; closing: DayLoad[]; shortened: DayLoad[] }
-  | { kind: "holiday"; day: DayLoad }
+  | { kind: "holiday"; day: DayLoad; bookings: ActiveBooking[] }
   | { kind: "rate"; currency: string; previous: { rate: string; date: string } | null; replacing: string | null; next: { rate: string; date: string } }
   | CatalogImpact;
 
@@ -71,6 +89,11 @@ export const SETTING_GROUPS = {
     ...Object.fromEntries(NOTE_LOCALES.map((l) => [`verify_time_note_${l}`, text(300)])),
   }),
   pos: z.object({ gates, pos_auto_checkin: z.boolean(), pos_grace_minutes: int("pos_grace_minutes") }),
+  // Phase 11: ເກັບເລກບັນຊີລູກຄ້າ (ຂໍ້ຕົກລົງ 55) + ຂໍ້ຄວາມເວລາຄືນເງິນ (TODO ບໍ່ປິດການຍົກເລີກ — ຂໍ້ຕົກລົງ 56)
+  refund: z.object({
+    refund_account_retention_days: int("refund_account_retention_days"),
+    ...Object.fromEntries(NOTE_LOCALES.map((l) => [`refund_time_note_${l}`, text(300)])),
+  }),
   system: z.object({
     session_hours: int("session_hours"),
     login_max_attempts: int("login_max_attempts"),
@@ -250,9 +273,11 @@ export const holidaySchema = z.object({
 export async function listHolidays() {
   const rows = await prisma.holidays.findMany({ orderBy: { holiday_date: "desc" }, take: 200 });
   const today = todayInVientiane();
+  const closedAhead = rows.map((h) => dbDateToIso(h.holiday_date)).filter((d, i) => d >= today && rows[i].is_closed);
+  const active = await activeBookingsOn(prisma, closedAhead);
   return rows.map((h) => {
     const date = dbDateToIso(h.holiday_date);
-    return { id: String(h.id), date, nameLo: h.name_lo, nameEn: h.name_en, isClosed: h.is_closed, past: date < today };
+    return { id: String(h.id), date, nameLo: h.name_lo, nameEn: h.name_en, isClosed: h.is_closed, past: date < today, bookings: h.is_closed ? (active.get(date) ?? []) : [] };
   });
 }
 
@@ -266,7 +291,7 @@ export async function addHoliday(input: z.infer<typeof holidaySchema>, actor: Ac
     return await prisma.$transaction(async (tx) => {
       if (input.isClosed && !input.confirm) {
         const day = await dayLoad(tx, input.date);
-        if (day.bookings > 0) confirmRequired({ impact: { kind: "holiday", day } });
+        if (day.bookings > 0) confirmRequired({ impact: { kind: "holiday", day, bookings: (await activeBookingsOn(tx, [input.date])).get(input.date) ?? [] } });
       }
       const h = await tx.holidays.create({
         data: { holiday_date: isoDateToDb(input.date), name_lo: input.nameLo, name_en: input.nameEn, is_closed: input.isClosed },
