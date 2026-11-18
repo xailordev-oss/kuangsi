@@ -14,7 +14,7 @@ async function createBooking(page: Page): Promise<string> {
   const days = (await (await page.request.get(`/api/public/availability?from=${new Date().toISOString().slice(0, 10)}&to=${new Date(Date.now() + 20 * 864e5).toISOString().slice(0, 10)}`)).json()).days;
   const open = days.find((d: { closed: boolean; left: number }) => !d.closed && d.left > 2);
   const res = await page.request.post("/api/public/bookings", {
-    data: { visitDate: open.date, items: [{ ticketTypeId: adult.id, quantity: 2 }], customer: { fullName: "ທົດສອບ ຈ່າຍເງິນ", phone: "020 5555 8888" } },
+    data: { visitDate: open.date, items: [{ ticketTypeId: adult.id, quantity: 2 }], customer: { fullName: "ທົດສອບ ຈ່າຍເງິນ", phone: "020 5555 8888" }, expectedTotal: Number(adult.price) * 2 },
   });
   expect(res.status()).toBe(201);
   return (await res.json()).bookingCode;

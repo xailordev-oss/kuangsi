@@ -155,7 +155,9 @@
     "phoneOther": "Other (type +code)",
     "maxed": "Max {n} tickets",
     "sessionEnded": "Your session ended — please log in again",
-    "beforeHours": "Too early to sell — sales start at {time}"
+    "beforeHours": "Too early to sell — sales start at {time}",
+    "priceChanged": "Price changed — not sold. Old total {old} → new total {new}. Check the total and cash received, then sell again",
+    "ticketUnavailable": "A ticket type is no longer on sale — not sold. The list has been reloaded, please choose again"
   },
   "nav": {
     "pos": "Sell",
@@ -166,7 +168,8 @@
     "reports": "Reports",
     "scanReviews": "Offline duplicates",
     "users": "Users",
-    "settings": "Settings"
+    "settings": "Settings",
+    "catalog": "Tickets & prices"
   },
   "admin": {
     "dashboard": {
@@ -453,7 +456,23 @@
         "login_max_attempts": "Wrong passwords allowed before lockout",
         "login_lockout_minutes": "Lockout (minutes)",
         "translations_reviewed_zh": "Chinese translation reviewed by a native speaker",
-        "translations_reviewed_th": "Thai translation reviewed by a native speaker"
+        "translations_reviewed_th": "Thai translation reviewed by a native speaker",
+        "price": "Price",
+        "nameLo": "Name (Lao)",
+        "nameEn": "Name (English)",
+        "nameZh": "Name (Chinese)",
+        "nameTh": "Name (Thai)",
+        "ageMin": "Age from",
+        "ageMax": "Age up to",
+        "sortOrder": "Order",
+        "isActive": "On sale",
+        "code": "Code",
+        "visitorGroup": "Group",
+        "ageGroup": "Age group",
+        "unit": "Unit",
+        "lakPerUnit": "Kip per unit",
+        "effectiveDate": "Effective from",
+        "currency": "Currency"
       },
       "hints": {
         "booking_create_limit_per_ip": "Hotels share one IP — do not set too low",
@@ -511,8 +530,9 @@
         "empty": "No rates yet — customer pages show kip only",
         "current": "In use",
         "future": "Upcoming",
-        "formHint": "An existing currency + date (today or later) replaces that rate · press \"Edit\" in the list to load its current value",
-        "locked": "Past — locked"
+        "formHint": "An existing currency + date (today or later) replaces that rate · press \"Edit\" to load its value · future rates can be deleted",
+        "locked": "Past — locked",
+        "confirmDelete": "Delete the rate {line} (effective {date})? Only rates not yet in effect can be deleted"
       },
       "places": {
         "intro": "Starting points customers can pick for the distance card · deactivate instead of deleting",
@@ -567,7 +587,14 @@
         "user.activate": "Account reactivated",
         "user.password_reset": "Password reset",
         "user.unlock": "Account unlocked",
-        "exchange_rate.update": "Exchange rate changed"
+        "exchange_rate.update": "Exchange rate changed",
+        "exchange_rate.delete": "Exchange rate deleted (future)",
+        "ticket_type.create": "Ticket type added",
+        "ticket_type.update": "Ticket type edited",
+        "ticket_type.price": "Ticket price changed",
+        "add_on.create": "Add-on added",
+        "add_on.update": "Add-on edited",
+        "add_on.price": "Add-on price changed"
       },
       "confirm": {
         "title": "Check before saving",
@@ -593,7 +620,17 @@
         "rateNext": "New: 1 {currency} = {rate} LAK (from {date})",
         "rateEffect": "Foreign visitors will see approximate prices at this rate from the effective date — check the number of zeros",
         "more": "… and {n} more day(s)",
-        "rateLine": "1 {currency} = {rate} LAK"
+        "rateLine": "1 {currency} = {rate} LAK",
+        "catalogTitle": "Confirm price",
+        "catalogCreate": "Add \"{name}\" at {price}",
+        "catalogOld": "Old",
+        "catalogNew": "New",
+        "catalogDiff": "({sign}{amount} · {sign}{pct}%)",
+        "catalogHolding": "Existing bookings do not change: {pending} unpaid · {verifying} under review — they still pay the old price",
+        "catalogNewBookings": "New online bookings and POS use the new price immediately · anyone mid-booking sees the old and new totals and must confirm again",
+        "catalogDeactivate": "Take \"{name}\" off sale: existing bookings are not affected · new bookings and POS will not show it",
+        "catalogLastPaid": "⚠ This is the last paid ticket of the {group} group — after this only free tickets remain and online booking is not possible",
+        "catalogConfirm": "Confirm"
       },
       "errors": {
         "validation": "Please check — some values are not valid",
@@ -603,8 +640,73 @@
         "not_found": "Not found (maybe changed by someone else) — reload the page",
         "forbidden": "You are not allowed to do this",
         "network": "Connection failed — not saved, please try again",
-        "internal": "Could not save, please try again"
+        "internal": "Could not save, please try again",
+        "rate_not_future": "Only future rates can be deleted — today's rate can be edited but not deleted",
+        "code_taken": "This code already exists",
+        "free_price_mismatch": "Free tickets must cost 0 · other tickets must cost more than 0"
+      },
+      "kipUnit": "LAK",
+      "groupNames": {
+        "lao": "Lao",
+        "foreigner": "Foreigner"
       }
+    },
+    "catalog": {
+      "title": "Tickets & prices",
+      "tabLabel": "Section",
+      "tabs": {
+        "lao": "Lao tickets",
+        "foreigner": "Foreigner tickets",
+        "addons": "Add-ons"
+      },
+      "intro": "New prices apply immediately to new bookings (online + POS) · existing bookings (including unpaid ones) keep the price they were booked at",
+      "addonsIntro": "Sold with online bookings only — POS does not sell add-ons in v1",
+      "addTicket": "Add ticket type",
+      "addAddOn": "Add add-on",
+      "editTitle": "Edit: {name}",
+      "code": "Code (A-Z 0-9 _)",
+      "visitorGroup": "Group",
+      "ageGroup": "Age group",
+      "unit": "Unit",
+      "groups": {
+        "lao": "Lao",
+        "foreigner": "Foreigner"
+      },
+      "ageGroups": {
+        "adult": "Adult",
+        "child": "Child",
+        "senior": "Senior",
+        "free": "Free (price 0)"
+      },
+      "units": {
+        "per_person": "per person",
+        "per_booking": "per booking",
+        "per_item": "per item"
+      },
+      "price": "Price (LAK)",
+      "ageMin": "Age from",
+      "ageMax": "Age up to",
+      "ageHint": "Empty = no limit · display only (staff check at the gate)",
+      "nameLo": "Name (Lao)",
+      "nameEn": "Name (English)",
+      "nameZh": "Name (Chinese · optional)",
+      "nameTh": "Name (Thai · optional)",
+      "sortOrder": "Display order",
+      "isActive": "On sale",
+      "locked": "{code} · {group} · {age} — locked after creation (reports rely on it)",
+      "lockedAddOn": "{code} · {unit} — locked after creation",
+      "freeHint": "Free tickets must cost 0 · other tickets must cost more than 0",
+      "ageRange": "{min}–{max} years",
+      "ageFrom": "{min}+ years",
+      "ageTo": "up to {max} years",
+      "anyAge": "any age",
+      "free": "Free",
+      "onSale": "On sale",
+      "offSale": "Off sale",
+      "order": "Order {n}",
+      "approx": "≈ {amount} (approx.)",
+      "empty": "No ticket types in this group — online booking and POS cannot sell this group",
+      "emptyAddOns": "No add-ons yet"
     }
   }
 }

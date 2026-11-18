@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
-import type { DayLoad, Impact, SettingChange } from "@/lib/admin/settings";
+import type { CatalogImpact, DayLoad, Impact, SettingChange } from "@/lib/admin/settings";
 import { t } from "@/lib/i18n/format";
 import type { StaffDictionary } from "@/lib/i18n/staff";
 
@@ -27,6 +27,7 @@ export function formatAmount(v: number | string): string {
 // ທຸກການບັນທຶກຜ່ານບ່ອນດຽວ: 409 confirm_required → ເປີດ Dialog ຜົນກະທົບ → ກົດຢືນຢັນ = ສົ່ງຄືນພ້ອມ confirm: true
 export function useSettingsSave(d: SD) {
   const router = useRouter();
+  const pathname = usePathname();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -45,7 +46,7 @@ export function useSettingsSave(d: SD) {
       });
       const json = (await res.json().catch(() => ({}))) as Json;
       if (res.status === 401) {
-        router.replace("/staff/login?callbackUrl=/admin/settings");
+        router.replace(`/staff/login?callbackUrl=${encodeURIComponent(pathname)}`);
         return;
       }
       if (res.status === 409 && json.error === "confirm_required") {
@@ -124,7 +125,9 @@ function ConfirmDialog({ s, d }: { s: SaveState; d: SD }) {
           ? c.holidayTitle
           : impact?.kind === "rate"
             ? c.rateTitle
-            : c.title;
+            : impact?.kind === "catalog"
+              ? c.catalogTitle
+              : c.title;
 
   return (
     <Dialog open={s.pending !== null} onOpenChange={(o) => !o && s.setPending(null)}>
@@ -199,6 +202,7 @@ function ConfirmDialog({ s, d }: { s: SaveState; d: SD }) {
             <p className="rounded-lg bg-warning-subtle p-3 text-sm">{c.rateEffect}</p>
           </div>
         )}
+        {impact?.kind === "catalog" && <CatalogImpactView impact={impact} d={d} />}
         <DialogFooter className="gap-2">
           <Button type="button" variant="outline" className="min-h-11" onClick={() => s.setPending(null)}>
             {d.cancel}
@@ -218,5 +222,46 @@ function ConfirmDialog({ s, d }: { s: SaveState; d: SD }) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// 10c: ລາຄາເກົ່າ → ໃໝ່ + ສ່ວນຕ່າງ · ການຈອງທີ່ຍັງຖືລາຄາເກົ່າ · ຜົນຂອງການປິດຂາຍ
+function CatalogImpactView({ impact, d }: { impact: CatalogImpact; d: SD }) {
+  const c = d.confirm;
+  const kip = (v: string) => `${n(v)} ${d.kipUnit}`;
+  const delta = impact.oldPrice === null ? 0 : Number(impact.newPrice) - Number(impact.oldPrice);
+  const pct = impact.oldPrice && Number(impact.oldPrice) > 0 ? Math.round((delta / Number(impact.oldPrice)) * 100) : null;
+  const sign = delta > 0 ? "+" : delta < 0 ? "−" : "";
+  return (
+    <div className="flex flex-col gap-2" data-testid="catalog-impact">
+      {impact.oldPrice === null ? (
+        <p className="text-lg font-semibold">{t(c.catalogCreate, { name: impact.name, price: kip(impact.newPrice) })}</p>
+      ) : (
+        <>
+          <p className="font-semibold">{impact.name}</p>
+          {delta !== 0 && (
+            <>
+              <p>
+                <span className="text-sm text-muted-foreground">{c.catalogOld}: </span>
+                <span className="line-through decoration-destructive/60">{kip(impact.oldPrice)}</span>
+              </p>
+              <p className="text-lg font-semibold">
+                <span className="text-sm font-normal text-muted-foreground">{c.catalogNew}: </span>
+                {kip(impact.newPrice)}{" "}
+                {pct !== null && <span className="text-base font-normal">{t(c.catalogDiff, { sign, amount: n(Math.abs(delta)), pct: Math.abs(pct) })}</span>}
+              </p>
+            </>
+          )}
+          {impact.deactivating && <p className="rounded-lg bg-warning-subtle p-3 text-sm">{t(c.catalogDeactivate, { name: impact.name })}</p>}
+          {impact.lastPaidInGroup && (
+            <p className="rounded-lg border border-destructive/40 bg-destructive-subtle p-3 font-semibold text-destructive">
+              {t(c.catalogLastPaid, { group: d.groupNames[impact.lastPaidInGroup] })}
+            </p>
+          )}
+          <p className="text-sm">{t(c.catalogHolding, impact.holding)}</p>
+        </>
+      )}
+      {!impact.deactivating && <p className="rounded-lg bg-warning-subtle p-3 text-sm">{c.catalogNewBookings}</p>}
+    </div>
   );
 }

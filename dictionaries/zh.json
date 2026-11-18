@@ -141,7 +141,9 @@
     "confirm": "确认预订 · {total}",
     "missingDraft": "预订信息已丢失——请重新开始",
     "errCreate": "预订保存失败，请重试——您尚未被扣款",
-    "capacityChanged": "您填写信息期间该日期已满——请选择其他日期"
+    "capacityChanged": "您填写信息期间该日期已满——请选择其他日期",
+    "priceChanged": "您预订期间价格已变更——原总额 {old} → 新总额 {new}。尚未创建预订，也未扣款。下方已显示新价格，请核对后再次确认",
+    "ticketUnavailable": "您选择的票种已停售——请重新选择门票"
   },
   "pay": {
     "pending": "等待付款",

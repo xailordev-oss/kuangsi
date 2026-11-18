@@ -165,6 +165,10 @@ export function PosApp({
         return t(p.short, { amount: kip(Number(body.short ?? 0)) });
       case "validation":
         return p.phoneInvalid;
+      case "price_changed":
+        return t(p.priceChanged, { old: kip(Number(body.expectedTotal ?? 0)), new: kip(Number(body.total ?? 0)) });
+      case "ticket_type_unavailable":
+        return p.ticketUnavailable;
       default:
         return p.error;
     }
@@ -193,6 +197,7 @@ export function PosApp({
           items: lines.map((tt) => ({ ticketTypeId: tt.id, quantity: cart[tt.id] })),
           addOns: [],
           cashReceived: cash,
+          expectedTotal: total,
           ...((fullName || e164) && {
             customer: { ...(fullName && { fullName }), ...(e164 && { phone: e164 }) },
           }),
@@ -225,6 +230,8 @@ export function PosApp({
       setRequestId(null);
       setFailure({ kind: "message", text: errorText(body) });
       if (body.error === "date_closed" || body.error === "sold_out") void refreshStatus();
+      // ຂໍ້ຕົກລົງ 50: ໂຫຼດລາຄາໃໝ່ → ຍອດ ແລະ ເງິນທອນເທິງຈໍຄິດໃໝ່ກ່ອນຂາຍອີກຄັ້ງ
+      if (body.error === "price_changed" || body.error === "ticket_type_unavailable") router.refresh();
     } catch {
       // timeout / ເນັດຂາດກາງທາງ: ບໍ່ຮູ້ວ່າ server ບັນທຶກແລ້ວບໍ່ → ສົ່ງ requestId ເດີມຊ້ຳເທົ່ານັ້ນ
       setFailure({ kind: "uncertain" });

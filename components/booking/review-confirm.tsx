@@ -19,7 +19,7 @@ import type { DateLabels } from "@/lib/i18n/date-labels";
 import { formatFullDate } from "@/lib/i18n/date-parts";
 import { formatKip, t } from "@/lib/i18n/format";
 
-type ApiError = { error: string; left?: number; max?: number; retryAfterSeconds?: number; reason?: string };
+type ApiError = { error: string; left?: number; max?: number; retryAfterSeconds?: number; reason?: string; expectedTotal?: string; total?: string };
 
 function errorMessage(e: ApiError, dict: Dictionary, catalog: Catalog): string {
   switch (e.error) {
@@ -37,6 +37,10 @@ function errorMessage(e: ApiError, dict: Dictionary, catalog: Catalog): string {
       return dict.booking.nothingToPay;
     case "rate_limited":
       return t(dict.booking.rateLimited, { minutes: Math.ceil((e.retryAfterSeconds ?? 60) / 60) });
+    case "price_changed":
+      return t(dict.review.priceChanged, { old: formatKip(e.expectedTotal ?? 0, dict.common.kip), new: formatKip(e.total ?? 0, dict.common.kip) });
+    case "ticket_type_unavailable":
+      return dict.review.ticketUnavailable;
     case "online_booking_unavailable":
       return `${dict.onlineClosed.title} — ${dict.onlineClosed.body}`;
     default:
@@ -97,6 +101,7 @@ export function ReviewConfirm({
             idType: customer.idType,
             idNumber: customer.idNumber,
           },
+          expectedTotal: quote.total,
         }),
       });
       const body = await res.json().catch(() => ({ error: "internal" }));
@@ -106,6 +111,8 @@ export function ReviewConfirm({
         return;
       }
       setError(errorMessage(body as ApiError, dict, catalog));
+      // ລາຄາ / ປະເພດປີ້ປ່ຽນ → ໂຫຼດ catalog ໃໝ່ ໃຫ້ລາຍການເທິງຈໍເປັນລາຄາປັດຈຸບັນ ກ່ອນລູກຄ້າກົດຢືນຢັນອີກຄັ້ງ
+      if (body.error === "price_changed" || body.error === "ticket_type_unavailable") router.refresh();
     } catch {
       setError(dict.error.network);
     }

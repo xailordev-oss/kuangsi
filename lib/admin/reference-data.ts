@@ -76,6 +76,24 @@ export async function saveRate(input: z.infer<typeof rateSchema>, actor: Actor) 
   }
 }
 
+// ຂໍ້ຕົກລົງ 49: ລຶບໄດ້ສະເພາະວັນທີມີຜົນ > ມື້ນີ້ (ພິມວັນທີຜິດ ເຊັ່ນ 2027 ແທນ 2026 → ຈະມີຜົນເອງມື້ໜຶ່ງໂດຍບໍ່ມີໃຜຮູ້)
+// ມື້ນີ້ = ແກ້ຕົວເລກໄດ້ແຕ່ລຶບບໍ່ໄດ້ · ຜ່ານມາແລ້ວ = ລັອກ
+export async function deleteRate(id: bigint, actor: Actor) {
+  await prisma.$transaction(async (tx) => {
+    const r = await tx.exchange_rates.findUnique({ where: { id } });
+    if (!r) throw new BusinessError(404, "not_found");
+    const date = dbDateToIso(r.effective_date);
+    if (date <= todayInVientiane()) throw new BusinessError(409, "rate_not_future");
+    await tx.exchange_rates.delete({ where: { id } });
+    await writeAudit(tx, actor, {
+      action: "exchange_rate.delete",
+      table: "exchange_rates",
+      recordId: id,
+      oldValue: { currency: r.from_currency === "LAK" ? r.to_currency : r.from_currency, lakPerUnit: lakPerUnitOf(r), effectiveDate: date },
+    });
+  });
+}
+
 // ===== ສະຖານທີ່ (places) — ປິດດ້ວຍ is_active ບໍ່ລຶບ (ຄຳຖາມ B4) =====
 
 // ກັນພິມ lat/lng ສະຫຼັບກັນ ຫຼື ຜິດປະເທດ — ສະຖານທີ່ເປັນຈຸດເລີ່ມເດີນທາງມາຕາດ ຈຶ່ງຕ້ອງຢູ່ໃນ ສປປ ລາວ

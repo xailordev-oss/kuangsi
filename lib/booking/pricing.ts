@@ -54,3 +54,11 @@ export async function quote(db: Db, items: TicketLineInput[], addOns: AddOnLineI
   const discount = new Prisma.Decimal(0);
   return { items: pricedItems, addOns: pricedAddOns, people, subtotal, discount, total: subtotal.sub(discount) };
 }
+
+// ຂໍ້ຕົກລົງ 50: ລາຄາປ່ຽນລະຫວ່າງທີ່ຜູ້ໃຊ້ເບິ່ງໜ້າ → ບໍ່ຄິດເງິນລາຄາທີ່ຜູ້ໃຊ້ບໍ່ໄດ້ເຫັນ
+// ສົ່ງຍອດເກົ່າ ແລະ ຍອດໃໝ່ ໃຫ້ UI ບອກຊັດ (ບໍ່ແມ່ນແຕ່ "ລາຄາປ່ຽນ")
+export function assertExpectedTotal(q: Quote, expectedTotal: number): void {
+  if (!q.total.eq(expectedTotal)) {
+    throw new BusinessError(409, "price_changed", { expectedTotal: String(expectedTotal), total: q.total.toFixed(0) });
+  }
+}

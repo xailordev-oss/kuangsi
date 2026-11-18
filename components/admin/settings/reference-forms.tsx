@@ -1,23 +1,24 @@
 "use client";
 
-import { MapPin, Pencil, Plus } from "lucide-react";
+import { MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { fmtDate, formatAmount, SaveFeedback, useSettingsSave, type SD } from "@/components/admin/settings/save-kit";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { t } from "@/lib/i18n/format";
 
 const selectClass = "min-h-11 w-full rounded-md border border-input bg-background px-2 text-base";
 
-type Rate = { id: string; currency: string; lakPerUnit: string; effectiveDate: string; status: "current" | "future" | "old"; editable: boolean };
+type Rate = { id: string; currency: string; lakPerUnit: string; effectiveDate: string; status: "current" | "future" | "old"; editable: boolean; deletable: boolean };
 
 // ອັດຕາແລກປ່ຽນ (ຂໍ້ຕົກລົງ 49): ມື້ນີ້ / ອະນາຄົດ ແກ້ໄດ້ (ວັນທີ + ສະກຸນເດີມ = ແທນທີ່) · ຜ່ານມາແລ້ວ ອ່ານຢ່າງດຽວ · server ຂໍຢືນຢັນທຸກຄັ້ງ
 export function RatesManager({ rates, currencies, today, d }: { rates: Rate[]; currencies: readonly string[]; today: string; d: SD }) {
   const s = useSettingsSave(d);
   const r = d.rates;
   const [form, setForm] = useState({ currency: currencies[0], lakPerUnit: "", effectiveDate: today });
+  const [deleting, setDeleting] = useState<Rate | null>(null);
 
   return (
     <div className="flex flex-col gap-4">
@@ -87,7 +88,14 @@ export function RatesManager({ rates, currencies, today, d }: { rates: Rate[]; c
                     <Pencil aria-hidden />
                     {d.edit}
                   </Button>
-                ) : (
+                ) : null}
+                {x.deletable && (
+                  <Button type="button" variant="outline" className="min-h-11" disabled={s.busy} onClick={() => setDeleting(x)}>
+                    <Trash2 aria-hidden />
+                    {d.delete}
+                  </Button>
+                )}
+                {!x.editable && (
                   <span className="text-sm">{r.locked}</span>
                 )}
               </span>
@@ -95,6 +103,31 @@ export function RatesManager({ rates, currencies, today, d }: { rates: Rate[]; c
           ))}
         </ul>
       )}
+      <Dialog open={deleting !== null} onOpenChange={(o) => !o && setDeleting(null)}>
+        <DialogContent>
+          <DialogTitle>{d.delete}</DialogTitle>
+          <DialogDescription className="text-base">
+            {deleting && t(r.confirmDelete, { line: t(r.line, { currency: deleting.currency, rate: formatAmount(deleting.lakPerUnit) }), date: fmtDate(deleting.effectiveDate, d) })}
+          </DialogDescription>
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" className="min-h-11" onClick={() => setDeleting(null)}>
+              {d.cancel}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              className="min-h-11"
+              onClick={() => {
+                const id = deleting!.id;
+                setDeleting(null);
+                void s.send(`/api/admin/settings/rates/${id}`, "DELETE");
+              }}
+            >
+              {d.delete}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

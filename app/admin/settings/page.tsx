@@ -135,7 +135,7 @@ async function TabBody({ tab, d, locale }: { tab: Tab; d: StaffDictionary["admin
       return <SettingsGroupForm group={tab} fields={specs(tab)} initial={await readSettings(groupKeys(tab))} d={d} />;
     case "rates": {
       const seen = new Set<string>();
-      // ອັນໃໝ່ສຸດທີ່ມີຜົນແລ້ວ = ໃຊ້ຢູ່ · ມື້ນີ້ / ອະນາຄົດ ແກ້ໄດ້ (ຂໍ້ຕົກລົງ 49)
+      // ອັນໃໝ່ສຸດທີ່ມີຜົນແລ້ວ = ໃຊ້ຢູ່ · ມື້ນີ້ / ອະນາຄົດ ແກ້ໄດ້ · ອະນາຄົດເທົ່ານັ້ນ ລຶບໄດ້ (ຂໍ້ຕົກລົງ 49)
       const rates = (await listRates()).map((r) => {
         let status: "current" | "future" | "old" = "old";
         if (r.effectiveDate > today) status = "future";
@@ -143,7 +143,7 @@ async function TabBody({ tab, d, locale }: { tab: Tab; d: StaffDictionary["admin
           seen.add(r.currency);
           status = "current";
         }
-        return { ...r, status, editable: r.effectiveDate >= today };
+        return { ...r, status, editable: r.effectiveDate >= today, deletable: r.effectiveDate > today };
       });
       return <RatesManager rates={rates} currencies={DISPLAY_CURRENCIES} today={today} d={d} />;
     }

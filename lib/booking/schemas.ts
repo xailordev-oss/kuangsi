@@ -44,6 +44,9 @@ const addOnLines = z
   .refine((lines) => new Set(lines.map((l) => l.addOnId)).size === lines.length, { message: "duplicate addOnId" })
   .default([]);
 
+// ຂໍ້ຕົກລົງ 50: ຍອດທີ່ຜູ້ໃຊ້ເຫັນ ແລະ ກົດຢືນຢັນ — ບໍ່ກົງກັບລາຄາປັດຈຸບັນ → 409 price_changed (ບໍ່ສ້າງການຈອງ)
+const expectedTotal = z.number().int().min(0).max(1_000_000_000);
+
 const onlineCustomer = z
   .object({
     fullName: z.string().trim().min(1).max(150),
@@ -60,6 +63,7 @@ export const createOnlineBookingSchema = z.object({
   items: ticketLines,
   addOns: addOnLines,
   customer: onlineCustomer,
+  expectedTotal,
 });
 
 // ຂໍ້ມູນລູກຄ້າບໍ່ບັງຄັບຢູ່ POS (ຂໍ້ຕົກລົງ 16)
@@ -73,6 +77,7 @@ export const posSaleSchema = z.object({
     })
     .optional(),
   cashReceived: z.number().int().min(0).max(1_000_000_000),
+  expectedTotal,
   // ຂໍ້ຕົກລົງ 41: ກົດຊ້ຳ / ເນັດຂາດກາງທາງ → ສົ່ງ requestId ເດີມ ໄດ້ຜົນເດີມ ບໍ່ຂາຍຊ້ຳ
   requestId: z.uuid().optional(),
 });

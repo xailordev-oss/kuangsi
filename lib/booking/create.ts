@@ -2,7 +2,7 @@ import { BusinessError } from "@/lib/api";
 import { prisma } from "@/lib/db";
 import { expireStaleBookings, getAvailability, getPosWindow } from "@/lib/booking/availability";
 import { generateBookingCode, generateQrToken } from "@/lib/booking/codes";
-import { quote, type Quote } from "@/lib/booking/pricing";
+import { assertExpectedTotal, quote, type Quote } from "@/lib/booking/pricing";
 import type { AddOnLineInput, TicketLineInput } from "@/lib/booking/schemas";
 import { getBoolSetting, getIntSetting, type Db } from "@/lib/settings";
 import { Prisma } from "@/lib/generated/prisma/client";
@@ -95,6 +95,7 @@ export type OnlineBookingInput = {
   items: TicketLineInput[];
   addOns: AddOnLineInput[];
   customer: { fullName: string; phone: string; email?: string; nationality?: string; idType?: "national_id" | "passport" | "other"; idNumber?: string };
+  expectedTotal: number;
 };
 
 // ຈອງ online: ໂອນເທົ່ານັ້ນ (ຂໍ້ຕົກລົງ 14) → status pending + ໂມງຕາມ settings.booking_hold_minutes (ຂໍ້ຕົກລົງ 9)
@@ -104,6 +105,7 @@ export async function createOnlineBooking(input: OnlineBookingInput) {
       withDateLock(tx, input.visitDate, async () => {
         await expireStaleBookings(tx, { visit_date: isoDateToDb(input.visitDate) });
         const q = await quote(tx, input.items, input.addOns);
+        assertExpectedTotal(q, input.expectedTotal);
         if (q.total.lte(0)) throw new BusinessError(422, "nothing_to_pay");
         const maxPeople = await getIntSetting("max_people_per_booking", tx);
         if (q.people > maxPeople) throw new BusinessError(422, "too_many_people", { max: maxPeople });
@@ -138,6 +140,7 @@ export type GateSaleInput = {
   addOns: AddOnLineInput[];
   customer?: { fullName?: string; phone?: string };
   cashReceived: number;
+  expectedTotal: number;
   staffId: bigint;
   requestId?: string;
 };
@@ -174,6 +177,7 @@ export async function createGateSale(input: GateSaleInput): Promise<GateSaleResu
         }
         await expireStaleBookings(tx, { visit_date: isoDateToDb(visitDate) });
         const q = await quote(tx, input.items, input.addOns);
+        assertExpectedTotal(q, input.expectedTotal);
         if (q.total.gt(input.cashReceived)) {
           throw new BusinessError(422, "insufficient_cash", { total: q.total.toFixed(2), short: q.total.sub(input.cashReceived).toFixed(2) });
         }

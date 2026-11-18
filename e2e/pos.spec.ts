@@ -184,3 +184,29 @@ test("ຫຼັງເວລາປິດ: ພາຍໃນ pos_grace_minutes → �
   await expect(page.getByRole("button", { name: "ຮັບເງິນ" })).toBeDisabled();
   await setTodayHours("'00:00:00'", "'23:59:59'");
 });
+
+// ຂໍ້ຕົກລົງ 50: ລາຄາປ່ຽນຫຼັງເປີດໜ້າ POS → ບໍ່ຂາຍລາຄາທີ່ຈໍບໍ່ໄດ້ສະແດງ (ເງິນໃນລິ້ນຊັກຕ້ອງກົງກັບລະບົບ)
+test("ລາຄາປ່ຽນຫຼັງເປີດໜ້າ → ບໍ່ຂາຍ + ບອກຍອດເກົ່າ/ໃໝ່ · ຈໍໂຫຼດລາຄາໃໝ່ · ຂາຍອີກຄັ້ງໄດ້ລາຄາໃໝ່", async ({ page }) => {
+  const [{ price }] = await withDb((c) => c.query("SELECT price FROM ticket_types WHERE code = 'LAO_ADULT'"));
+  try {
+    await openPos(page);
+    await page.getByRole("button", { name: "ເພີ່ມ ຄົນລາວ — ຜູ້ໃຫຍ່" }).click();
+    await page.getByRole("button", { name: "ເພີ່ມ ຄົນລາວ — ຜູ້ໃຫຍ່" }).click();
+    await expect(page.getByTestId("pos-total")).toHaveText("50,000 ກີບ");
+    await withDb((c) => c.query("UPDATE ticket_types SET price = 30000 WHERE code = 'LAO_ADULT'"));
+
+    await page.getByRole("button", { name: "ຮັບເງິນ" }).click();
+    await page.getByLabel("ເງິນທີ່ຮັບ").fill("100000");
+    await page.getByRole("button", { name: /^ຢືນຢັນການຂາຍ/ }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "ຍອດເກົ່າ" })).toContainText("ຍອດເກົ່າ 50,000 ກີບ → ຍອດໃໝ່ 60,000 ກີບ");
+    await expect(page.getByRole("button", { name: /^ຢືນຢັນການຂາຍ · 60,000 ກີບ/ })).toBeVisible();
+    await expect(page.getByTestId("pos-change")).toHaveText("40,000 ກີບ");
+    await expectLaoTextNotClipped(page);
+
+    await page.getByRole("button", { name: /^ຢືນຢັນການຂາຍ/ }).click();
+    const code = (await page.getByTestId("pos-code").textContent())!.trim();
+    expect(Number((await bookingRow(code)).total_amount)).toBe(60_000);
+  } finally {
+    await withDb((c) => c.query("UPDATE ticket_types SET price = ? WHERE code = 'LAO_ADULT'", [price]));
+  }
+});

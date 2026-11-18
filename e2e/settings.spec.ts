@@ -18,7 +18,7 @@ async function pendingBooking(request: APIRequestContext, date: string, quantity
   const catalog = await (await request.get("/api/public/catalog")).json();
   const adult = catalog.ticketTypes.find((t: { code: string }) => t.code === "FOR_ADULT");
   const res = await request.post("/api/public/bookings", {
-    data: { visitDate: date, items: [{ ticketTypeId: adult.id, quantity }], customer: { fullName: "ທົດສອບ ຕັ້ງຄ່າ", phone: E2E_PHONE } },
+    data: { visitDate: date, items: [{ ticketTypeId: adult.id, quantity }], customer: { fullName: "ທົດສອບ ຕັ້ງຄ່າ", phone: E2E_PHONE }, expectedTotal: Number(adult.price) * quantity },
   });
   expect(res.status()).toBe(201);
 }
@@ -172,7 +172,7 @@ test("ທຸກ tab ເປີດໄດ້ທີ່ 375px · ວັນປິດ �
   expect(place.status()).toBe(400);
 });
 
-test("ອັດຕາແລກປ່ຽນ (ຂໍ້ຕົກລົງ 49): ອະນາຄົດ ແກ້/ແທນທີ່ໄດ້ ພ້ອມຄ່າເກົ່າ-ໃໝ່ + audit · ວັນທີຜ່ານມາ ແກ້ບໍ່ໄດ້", async ({ page }) => {
+test("ອັດຕາແລກປ່ຽນ (ຂໍ້ຕົກລົງ 49): ອະນາຄົດ ແກ້/ແທນທີ່/ລຶບໄດ້ ພ້ອມຄ່າເກົ່າ-ໃໝ່ + audit · ວັນທີຜ່ານມາ ແກ້/ລຶບບໍ່ໄດ້", async ({ page }) => {
   const far = new Date(Date.now() + 650 * 864e5).toISOString().slice(0, 10);
   const PAST = "2020-01-01";
   await withDb(async (c) => {
@@ -215,6 +215,17 @@ test("ອັດຕາແລກປ່ຽນ (ຂໍ້ຕົກລົງ 49): ອ
     // ວັນທີຜ່ານມາ → server ປະຕິເສດ ເຖິງຈະສົ່ງ confirm
     const past = await page.request.post("/api/admin/settings/rates", { data: { currency: "THB", lakPerUnit: "1", effectiveDate: PAST, confirm: true } });
     expect(past.status()).toBe(400);
+
+    // ລຶບ: ອະນາຄົດເທົ່ານັ້ນ (ພິມວັນທີຜິດ) · ຖາມຢືນຢັນ · audit exchange_rate.delete
+    await expect(page.getByTestId(`rate-THB-${PAST}`).getByRole("button", { name: "ລຶບ" })).toHaveCount(0);
+    await row.getByRole("button", { name: "ລຶບ" }).click();
+    await expect(page.getByRole("dialog")).toContainText("1 THB = 650 ກີບ");
+    await page.getByRole("dialog").getByRole("button", { name: "ລຶບ" }).click();
+    await expect(row).toHaveCount(0);
+    const [del] = await withDb((c) => c.query("SELECT old_value o FROM audit_logs WHERE action = 'exchange_rate.delete' AND record_id = ?", [rows[0].id]));
+    expect(j(del.o)).toMatchObject({ currency: "THB", lakPerUnit: "650", effectiveDate: far });
+    const [pastRow] = await withDb((c) => c.query("SELECT id FROM exchange_rates WHERE effective_date = ? AND from_currency = 'THB'", [PAST]));
+    expect((await page.request.delete(`/api/admin/settings/rates/${pastRow.id}`)).status()).toBe(409);
   } finally {
     await withDb((c) => c.query("DELETE FROM exchange_rates WHERE effective_date IN (?, ?) AND (from_currency = 'THB' OR to_currency = 'THB')", [far, PAST]));
   }

@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/admin/reports", permission: "report.read", key: "reports" },
   { href: "/admin/scan-reviews", permission: "report.read", key: "scanReviews" },
   { href: "/admin/users", permission: "users.manage", key: "users" },
+  { href: "/admin/ticket-types", permission: "catalog.manage", key: "catalog" },
   { href: "/admin/settings", permission: "settings.manage", key: "settings" },
   { href: "/staff/pos", permission: "pos.sell", key: "pos" },
   { href: "/staff/proofs", permission: "proof.verify", key: "proofs" },

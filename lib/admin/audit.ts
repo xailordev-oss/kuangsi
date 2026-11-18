@@ -28,7 +28,7 @@ export async function writeAudit(tx: Db, actor: Actor, e: Entry) {
 }
 
 // ປະຫວັດການແກ້ໄຂ (ຄຳຖາມ B5) — ສະເພາະຕາຕະລາງທີ່ແກ້ຈາກໜ້າ admin (ບໍ່ດຶງ audit ຂອງການຈອງ/ການຈ່າຍ ທີ່ອາດມີຂໍ້ມູນລູກຄ້າ)
-export const ADMIN_AUDIT_TABLES = ["settings", "operating_hours", "holidays", "daily_capacity", "exchange_rates", "places", "users"] as const;
+export const ADMIN_AUDIT_TABLES = ["settings", "operating_hours", "holidays", "daily_capacity", "exchange_rates", "places", "users", "ticket_types", "add_ons"] as const;
 
 export async function listAdminAudit(limit = 200) {
   const rows = await prisma.audit_logs.findMany({

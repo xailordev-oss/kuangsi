@@ -136,7 +136,9 @@
     "confirm": "Confirm booking · {total}",
     "missingDraft": "Your booking details were lost — please start again",
     "errCreate": "We couldn't save your booking. Please try again — you haven't been charged",
-    "capacityChanged": "This date filled up while you were booking — please choose another date"
+    "capacityChanged": "This date filled up while you were booking — please choose another date",
+    "priceChanged": "The price changed while you were booking — old total {old} → new total {new}. No booking was made and you have not been charged. The list below now shows the new prices — please check and confirm again",
+    "ticketUnavailable": "A ticket type you chose is no longer on sale — please choose your tickets again"
   },
   "pay": {
     "pending": "Waiting for payment",

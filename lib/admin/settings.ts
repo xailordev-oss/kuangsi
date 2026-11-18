@@ -15,13 +15,25 @@ export type Impact =
   | { kind: "capacity"; days: DayLoad[] }
   | { kind: "hours"; closing: DayLoad[]; shortened: DayLoad[] }
   | { kind: "holiday"; day: DayLoad }
-  | { kind: "rate"; currency: string; previous: { rate: string; date: string } | null; replacing: string | null; next: { rate: string; date: string } };
+  | { kind: "rate"; currency: string; previous: { rate: string; date: string } | null; replacing: string | null; next: { rate: string; date: string } }
+  | CatalogImpact;
+
+// 10c: ປ່ຽນລາຄາ / ເພີ່ມ / ປິດຂາຍ ປະເພດປີ້ ຫຼື ບໍລິການເສີມ
+export type CatalogImpact = {
+  kind: "catalog";
+  name: string;
+  oldPrice: string | null;
+  newPrice: string;
+  deactivating: boolean;
+  holding: { pending: number; verifying: number };
+  lastPaidInGroup: "lao" | "foreigner" | null;
+};
 
 // ການຈອງລ່ວງໜ້າສູງສຸດທີ່ເປັນໄປໄດ້ (ຂອບເຂດ max_advance_days) — ນັບຈາກມື້ນີ້
 const HORIZON_DAYS = INT_SETTINGS.max_advance_days.max;
 const MAX_LISTED_DAYS = 60;
 
-function confirmRequired(details: { changes?: SettingChange[]; impact?: Impact }): never {
+export function confirmRequired(details: { changes?: SettingChange[]; impact?: Impact }): never {
   throw new BusinessError(409, "confirm_required", details);
 }
 
@@ -139,7 +151,7 @@ export async function saveSettingsGroup(group: SettingGroup, values: Record<stri
 }
 
 // ບັນທຶກໃນ audit ວ່າ admin ຮັບຮູ້ຜົນກະທົບຫຍັງແດ່ຕອນຢືນຢັນ
-function impactSummary(impact: Impact): Prisma.InputJsonValue {
+export function impactSummary(impact: Impact): Prisma.InputJsonValue {
   const sum = (days: DayLoad[]) => ({ days: days.length, bookings: days.reduce((a, d) => a + d.bookings, 0), people: days.reduce((a, d) => a + d.people, 0) });
   switch (impact.kind) {
     case "capacity":
@@ -150,6 +162,8 @@ function impactSummary(impact: Impact): Prisma.InputJsonValue {
       return { bookings: impact.day.bookings, people: impact.day.people };
     case "rate":
       return { previous: impact.previous?.rate ?? null, replacing: impact.replacing };
+    case "catalog":
+      return { holding: impact.holding, deactivating: impact.deactivating, lastPaidInGroup: impact.lastPaidInGroup };
   }
 }
 

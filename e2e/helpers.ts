@@ -24,7 +24,7 @@ export async function paidBookingForToday(request: APIRequestContext, quantity =
   const tomorrow = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
   // ສ້າງໃນວັນທີທີ່ຈອງໄດ້ ແລ້ວຍ້າຍມາມື້ນີ້ (ມື້ນີ້ອາດເລີຍເວລາປິດແລ້ວ ຂຶ້ນກັບເວລາທີ່ແລ່ນ test)
   const res = await request.post("/api/public/bookings", {
-    data: { visitDate: tomorrow, items: [{ ticketTypeId: adult.id, quantity }], customer: { fullName: "ທົດສອບ ສະແກນ", phone: E2E_PHONE } },
+    data: { visitDate: tomorrow, items: [{ ticketTypeId: adult.id, quantity }], customer: { fullName: "ທົດສອບ ສະແກນ", phone: E2E_PHONE }, expectedTotal: Number(adult.price) * quantity },
   });
   expect(res.status()).toBe(201);
   const code = (await res.json()).bookingCode as string;
