@@ -174,16 +174,20 @@
       "enteredHint": "Scanned in at the gate today",
       "booked": "Booked for today",
       "bookedHint": "Paid or entered",
-      "revenue": "Revenue today",
-      "revenueBasis": "Counted by the date money was received (not the visit date)",
       "left": "Spots left today",
       "closedToday": "Closed today",
       "pendingProofs": "Transfers to check",
       "offlineDuplicates": "Offline duplicates today",
-      "byMethod": "Today's revenue by payment method",
-      "noRevenue": "No revenue yet today",
+      "byMethod": "Today's money in and out by payment method",
+      "noRevenue": "No money in or out yet today",
       "people": "{n} people",
-      "open": "Open"
+      "open": "Open",
+      "received": "Received today",
+      "refunded": "Refunded today",
+      "net": "Net today",
+      "receivedBasis": "Counted by the date money was received (not the visit date)",
+      "refundedBasis": "Counted by the date of the refund",
+      "netHint": "Received − refunded"
     },
     "method": {
       "bank_transfer": "Transfer",
@@ -283,8 +287,6 @@
       "range": "{from} – {to}",
       "tooLong": "The date range is longer than {max} days — please shorten it",
       "empty": "No data in this range",
-      "revenue": "Revenue",
-      "revenueBasis": "Counted by the date money was received (not the visit date)",
       "total": "Total",
       "byChannel": "Revenue by channel",
       "byMethod": "Revenue by payment method",
@@ -299,15 +301,23 @@
       "hourLabel": "{h}:00",
       "download": "Download CSV",
       "downloadHint": "Totals only — no names or phone numbers",
-      "payments": "{n} payments",
       "people": "{n} people",
       "csv": {
         "section": "Section",
         "item": "Item",
-        "amount": "Amount (LAK)",
         "count": "Count",
-        "people": "People"
-      }
+        "people": "People",
+        "received": "Received (LAK)",
+        "refunded": "Refunded (LAK)",
+        "net": "Net (LAK)"
+      },
+      "money": "Money in and out",
+      "moneyBasis": "Received is counted by the date money was received · refunds by the refund date (past days never change)",
+      "received": "Received",
+      "refunded": "Refunded",
+      "net": "Net",
+      "period": "Period",
+      "item": "Item"
     },
     "scanReviews": {
       "title": "Duplicates from offline scanning",

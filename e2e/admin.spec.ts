@@ -20,15 +20,19 @@ test.beforeAll(async ({ request }) => {
   });
 });
 
-test("admin dashboard: ລາຍໄດ້ບອກຊັດວ່າ 'ນັບຕາມວັນທີຮັບເງິນ' · ປີ້ຊ້ຳ offline ເປັນສີເຕືອນ + ລິ້ງ", async ({ page }) => {
+test("admin dashboard: ຮັບເງິນ · ຄືນເງິນ · ສຸດທິ ແຍກກັນ ພ້ອມພື້ນຖານການນັບ (ຂໍ້ຕົກລົງ 44) · ປີ້ຊ້ຳ offline ເປັນສີເຕືອນ + ລິ້ງ", async ({ page }) => {
   await loginAs(page, "admin");
   await expect(page).toHaveURL(/\/admin$/);
-  const revenue = page.locator("div, a").filter({ has: page.getByText("ລາຍໄດ້ມື້ນີ້", { exact: true }) }).last();
-  await expect(revenue.getByText("ນັບຕາມວັນທີຮັບເງິນ (ບໍ່ແມ່ນວັນເຂົ້າຊົມ)")).toBeVisible();
-  await expect(revenue.getByText(/^[\d,]+ ກີບ$/)).not.toHaveText("0 ກີບ");
+  const tile = (label: string) => page.locator("div").filter({ has: page.getByText(label, { exact: true }) }).last();
+  await expect(tile("ຮັບເງິນມື້ນີ້").getByText("ນັບຕາມວັນທີຮັບເງິນ (ບໍ່ແມ່ນວັນເຂົ້າຊົມ)")).toBeVisible();
+  await expect(tile("ຮັບເງິນມື້ນີ້").getByText(/^[\d,]+ ກີບ$/)).not.toHaveText("0 ກີບ");
+  await expect(tile("ຄືນເງິນມື້ນີ້").getByText("ນັບຕາມວັນທີຄືນເງິນ")).toBeVisible();
+  await expect(tile("ສຸດທິມື້ນີ້").getByText("ຮັບ − ຄືນ")).toBeVisible();
   const dup = page.getByRole("link").filter({ hasText: "ປີ້ຊ້ຳຈາກ offline ມື້ນີ້" });
   await expect(dup).toHaveAttribute("href", "/admin/scan-reviews");
-  await expect(page.getByRole("list", { name: "ລາຍໄດ້ມື້ນີ້ຕາມວິທີຈ່າຍ" }).getByText("ເງິນສົດ")).toBeVisible();
+  const byMethod = page.getByRole("table", { name: "ເງິນເຂົ້າ-ອອກມື້ນີ້ ຕາມວິທີຈ່າຍ" });
+  await expect(byMethod.getByRole("rowheader", { name: "ເງິນສົດ" })).toBeVisible();
+  await expect(byMethod.getByRole("columnheader")).toHaveText(["ຮັບເງິນ (ກີບ)", "ຄືນເງິນ (ກີບ)", "ສຸດທິ (ກີບ)"]);
   await expectNoHorizontalScroll(page);
   await expectLaoTextNotClipped(page);
 });
@@ -86,8 +90,9 @@ test("ລາຍງານ: ລາຍໄດ້ + ນັກທ່ອງທ່ຽວ
   await loginAs(page, "viewer");
   await expect(page).toHaveURL(/\/admin$/);
   await page.goto("/admin/reports?preset=today");
-  await expect(page.getByRole("heading", { name: "ລາຍໄດ້", exact: true })).toBeVisible();
-  await expect(page.getByText("ນັບຕາມວັນທີຮັບເງິນ (ບໍ່ແມ່ນວັນເຂົ້າຊົມ)").first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "ເງິນເຂົ້າ-ອອກ", exact: true })).toBeVisible();
+  await expect(page.getByText(/^ຮັບເງິນ ນັບຕາມວັນທີຮັບເງິນ · ຄືນເງິນ ນັບຕາມວັນທີຄືນເງິນ/).first()).toBeVisible();
+  await expect(page.getByRole("table", { name: "ເງິນເຂົ້າ-ອອກ" }).getByRole("columnheader")).toHaveCount(3);
   await expect(page.getByRole("list", { name: "ເຂົ້າແລ້ວ (ສະແກນຜ່ານ · ຕາມວັນສະແກນ)" }).getByText("ຕ່າງປະເທດ ຜູ້ໃຫຍ່")).toBeVisible();
   await expect(page.getByRole("list", { name: "ສັນຊາດ (ສະເພາະທີ່ລູກຄ້າລະບຸ)" })).toBeVisible();
   await expectNoHorizontalScroll(page);

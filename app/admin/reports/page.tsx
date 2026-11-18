@@ -1,7 +1,7 @@
 import { Download } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { AdminFrame, BarList, Section } from "@/components/admin/admin-frame";
+import { AdminFrame, BarList, FlowTable, Section } from "@/components/admin/admin-frame";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -87,10 +87,17 @@ async function ReportsView({ searchParams }: { searchParams: SearchParams }) {
           </div>
           <div className="grid gap-3 md:grid-cols-2">
             {sections.map((s) => (
-              <div key={s.id} className={cn(s.id === "revenue" && "md:col-span-2")}>
+              <div key={s.id} className={cn(s.id === "money" && "md:col-span-2")}>
                 <Section title={s.title} hint={s.hint}>
                   {s.rows.length === 0 ? (
                     <p className="text-muted-foreground">{a.empty}</p>
+                  ) : s.kind === "flow" ? (
+                    <FlowTable
+                      caption={s.title}
+                      heads={{ received: a.received, refunded: a.refunded, net: a.net, unit: dict.common.kip }}
+                      rows={s.rows}
+                      total={s.total}
+                    />
                   ) : (
                     <>
                       <BarList label={s.title} rows={s.rows} />

@@ -1,7 +1,8 @@
 import { Suspense } from "react";
-import { AdminFrame, BarList, Section, StatTile } from "@/components/admin/admin-frame";
+import { AdminFrame, FlowTable, Section, StatTile } from "@/components/admin/admin-frame";
 import { Skeleton } from "@/components/ui/skeleton";
 import { staffPage } from "@/lib/admin/page";
+import { flowRows } from "@/lib/admin/report-view";
 import { getDashboard } from "@/lib/admin/stats";
 import { formatKip, formatNumber, formatVisitDate, t } from "@/lib/i18n/format";
 
@@ -33,11 +34,15 @@ async function Dashboard() {
   return (
     <AdminFrame user={user} locale={locale} dict={dict} current="/admin" title={a.dashboard.title}>
       <p className="text-muted-foreground">{t(a.dashboard.today, { date: formatVisitDate(d.date, locale) })}</p>
+      {/* ຂໍ້ຕົກລົງ 44: ຮັບ · ຄືນ · ສຸດທິ ແຍກກັນ ພ້ອມພື້ນຖານການນັບໃຕ້ຫົວຂໍ້ (ຜູ້ຈັດການທຽບກັບເງິນໃນລິ້ນຊັກ) */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <StatTile label={a.dashboard.received} value={kip(d.money.received)} hint={a.dashboard.receivedBasis} />
+        <StatTile label={a.dashboard.refunded} value={kip(d.money.refunded)} hint={a.dashboard.refundedBasis} tone={d.money.refunded > 0 ? "warn" : "default"} />
+        <StatTile label={a.dashboard.net} value={kip(d.money.net)} hint={a.dashboard.netHint} />
+      </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         <StatTile label={a.dashboard.entered} value={people(d.enteredPeople)} hint={a.dashboard.enteredHint} />
         <StatTile label={a.dashboard.booked} value={people(d.bookedPeople)} hint={a.dashboard.bookedHint} />
-        {/* ຜູ້ຈັດການທຽບກັບເງິນໃນລິ້ນຊັກ → ບອກພື້ນຖານການນັບໃຕ້ຫົວຂໍ້ສະເໝີ (P10-1) */}
-        <StatTile label={a.dashboard.revenue} value={kip(d.revenue)} hint={a.dashboard.revenueBasis} />
         <StatTile label={a.dashboard.left} value={d.closedToday ? a.dashboard.closedToday : formatNumber(d.left)} />
         <StatTile
           label={a.dashboard.pendingProofs}
@@ -52,13 +57,15 @@ async function Dashboard() {
           href="/admin/scan-reviews"
         />
       </div>
-      <Section title={a.dashboard.byMethod} hint={a.dashboard.revenueBasis}>
-        {d.revenueByMethod.length === 0 ? (
+      <Section title={a.dashboard.byMethod} hint={a.reports.moneyBasis}>
+        {d.byMethod.length === 0 ? (
           <p className="text-muted-foreground">{a.dashboard.noRevenue}</p>
         ) : (
-          <BarList
-            label={a.dashboard.byMethod}
-            rows={d.revenueByMethod.map((m) => ({ label: a.method[m.key], value: m.amount, display: kip(m.amount) }))}
+          <FlowTable
+            caption={a.dashboard.byMethod}
+            heads={{ received: a.reports.received, refunded: a.reports.refunded, net: a.reports.net, unit: dict.common.kip }}
+            rows={flowRows(d.byMethod, (k) => a.method[k as keyof typeof a.method])}
+            total={{ label: a.reports.total, ...d.money }}
           />
         )}
       </Section>

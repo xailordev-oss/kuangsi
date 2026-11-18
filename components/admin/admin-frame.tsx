@@ -96,3 +96,51 @@ export function StatusPill({ status, label }: { status: string; label: string })
     </span>
   );
 }
+
+type Flow = { label: string; received: number; refunded: number; net: number };
+
+// ຂໍ້ຕົກລົງ 44: ສະແດງ ຮັບ · ຄືນ · ສຸດທິ ແຍກກັນສະເໝີ (ບໍ່ສະແດງແຕ່ສຸດທິ) — ຫົວຖັນບອກໜ່ວຍ ຕົວເລກບໍ່ມີໜ່ວຍ (ພໍດີຈໍ 375px)
+export function FlowTable({
+  rows,
+  total,
+  heads,
+  caption,
+}: {
+  rows: Flow[];
+  total?: Flow;
+  heads: { received: string; refunded: string; net: string; unit: string };
+  caption: string;
+}) {
+  const n = (v: number) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(v);
+  const line = (r: Flow, strong = false) => (
+    <div key={r.label} role="row" className={`flex flex-col gap-0.5 border-b py-1.5 last:border-b-0 ${strong ? "font-semibold" : ""}`}>
+      <span role="rowheader" className="text-sm">
+        {r.label}
+      </span>
+      <span className="grid grid-cols-3 gap-2 text-right tabular-nums">
+        <span role="cell">{n(r.received)}</span>
+        <span role="cell" className={r.refunded > 0 ? "text-destructive" : "text-muted-foreground"}>
+          {r.refunded > 0 ? `−${n(r.refunded)}` : "0"}
+        </span>
+        <span role="cell">{n(r.net)}</span>
+      </span>
+    </div>
+  );
+  return (
+    <div role="table" aria-label={caption} className="flex flex-col">
+      <div role="row" className="grid grid-cols-3 gap-2 border-b pb-1 text-right text-xs text-muted-foreground">
+        <span role="columnheader">
+          {heads.received} ({heads.unit})
+        </span>
+        <span role="columnheader">
+          {heads.refunded} ({heads.unit})
+        </span>
+        <span role="columnheader">
+          {heads.net} ({heads.unit})
+        </span>
+      </div>
+      {rows.map((r) => line(r))}
+      {total && line(total, true)}
+    </div>
+  );
+}
