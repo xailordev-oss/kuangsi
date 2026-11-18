@@ -469,6 +469,8 @@ INSERT INTO settings (setting_key, setting_value, description) VALUES
   ('max_advance_days',    '90',        'ຈອງ online ລ່ວງໜ້າໄດ້ໄກສຸດ x ວັນ — ລາຄາປ່ຽນທຸກໄຕມາດ'),
   ('booking_create_limit_per_ip','20', 'ສ້າງການຈອງ online ໄດ້ x ຄັ້ງຕໍ່ IP ໃນ booking_create_window_minutes (ກັນ bot ກັນບ່ອນ) — ໂຮງແຮມໃຊ້ IP ຮ່ວມກັນ ຢ່າຕັ້ງຕ່ຳເກີນ'),
   ('booking_create_window_minutes','60','ໄລຍະເວລາ (ນາທີ) ສຳລັບ booking_create_limit_per_ip'),
+  ('distance_lookup_limit_per_ip','60', 'ຄຳນວນໄລຍະທາງໄດ້ x ຄັ້ງຕໍ່ IP ໃນ distance_lookup_window_minutes (ກັນການໃຊ້ໂຄຕາ routing API ໝົດ)'),
+  ('distance_lookup_window_minutes','60','ໄລຍະເວລາ (ນາທີ) ສຳລັບ distance_lookup_limit_per_ip'),
   -- ຂໍ້ຕົກລົງ 28: ຍັງເປັນ TODO → ການຈອງ online ປິດອັດຕະໂນມັດ ຈົນກວ່າ admin ໃສ່ຂໍ້ມູນແທ້
   ('bank_name',           'TODO: ຕ້ອງຢືນຢັນ', 'ຊື່ທະນາຄານສຳລັບໂອນເງິນ'),
   ('bank_account_number', 'TODO: ຕ້ອງຢືນຢັນ', 'ເລກບັນຊີສຳລັບໂອນເງິນ'),
@@ -483,6 +485,16 @@ INSERT INTO settings (setting_key, setting_value, description) VALUES
   ('translations_reviewed_th', 'false', 'ຄຳແປພາສາໄທ ຖືກກວດໂດຍເຈົ້າຂອງພາສາແລ້ວບໍ່'),
   -- ຂໍ້ຕົກລົງ 35: ລາຍຊື່ປະຕູ (ຄັ່ນດ້ວຍ comma) — 1 ປະຕູ = ໜ້າສະແກນເລືອກເອງ
   ('gates',               'main',      'ລາຍຊື່ປະຕູ ຄັ່ນດ້ວຍ comma ເຊັ່ນ "main,north" — TODO: ຢືນຢັນຈຳນວນປະຕູຈິງກັບຜູ້ຈັດການຕາດ');
+
+-- ສະຖານທີ່ສາທາລະນະໃນຫຼວງພະບາງ ສຳລັບ dropdown ເລືອກຈຸດເລີ່ມຕົ້ນ (requirements 4.2 / 4.10)
+-- distance_km / duration_min = NULL ຈົນກວ່າແລ່ນ npm run places:routes (ຕ້ອງມີ ORS_API_KEY) — ຫ້າມໃສ່ໄລຍະເອງ (ຂໍ້ຕົກລົງ 8)
+-- TODO: ຢືນຢັນພິກັດ · ໂຮງແຮມ (type hotel) ໃຫ້ admin ເພີ່ມໃນໜ້າ settings (Phase 10)
+INSERT INTO places (name_lo, name_en, name_zh, name_th, type, lat, lng) VALUES
+  ('ພະລາຊະວັງຫຼວງພະບາງ (ຕົວເມືອງ)', 'Royal Palace Museum (town centre)', '琅勃拉邦王宫博物馆（市中心）', 'พระราชวังหลวงพระบาง (ใจกลางเมือง)', 'landmark', 19.891700, 102.134500),
+  ('ຕະຫຼາດມືດ ຖະໜົນສີສະຫວ່າງວົງ', 'Night Market, Sisavangvong Road', '西萨旺冯路夜市', 'ตลาดกลางคืน ถนนศรีสว่างวงศ์', 'landmark', 19.888800, 102.135000),
+  ('ພູສີ', 'Mount Phousi', '普西山', 'พูสี', 'landmark', 19.891600, 102.137400),
+  ('ວັດຊຽງທອງ', 'Wat Xieng Thong', '香通寺', 'วัดเชียงทอง', 'landmark', 19.897700, 102.143000),
+  ('ສະໜາມບິນສາກົນຫຼວງພະບາງ', 'Luang Prabang International Airport', '琅勃拉邦国际机场', 'ท่าอากาศยานนานาชาติหลวงพระบาง', 'airport', 19.897300, 102.160900);
 
 -- ບັນຊີ admin ເລີ່ມຕົ້ນ
 -- ⚠️ password_hash ຂ້າງລຸ່ມເປັນ placeholder — ຕ້ອງສ້າງ hash ຈິງດ້ວຍ bcrypt

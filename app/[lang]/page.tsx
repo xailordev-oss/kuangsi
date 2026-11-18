@@ -5,6 +5,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { ApproxPrice } from "@/components/booking/approx-price";
 import { OnlineClosedNotice } from "@/components/booking/online-closed-notice";
+import { DistanceCard, type DistancePlace } from "@/components/site/distance-card";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,11 +55,20 @@ function HomeSkeleton() {
 async function HomeLive({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   await connection();
   const today = todayInVientiane();
-  const [catalog, [todayInfo], rates] = await Promise.all([
+  const [catalog, [todayInfo], rates, placeRows] = await Promise.all([
     getCatalog(),
     getAvailability(prisma, today, today),
     getLakPerUnit(),
+    prisma.places.findMany({ where: { is_active: true }, orderBy: [{ type: "asc" }, { id: "asc" }] }),
   ]);
+  const places: DistancePlace[] = placeRows.map((p) => ({
+    id: String(p.id),
+    name: localizedName({ lo: p.name_lo, en: p.name_en, zh: p.name_zh, th: p.name_th }, lang),
+    lat: Number(p.lat),
+    lng: Number(p.lng),
+    distanceKm: p.distance_km === null ? null : Number(p.distance_km),
+    durationMin: p.duration_min,
+  }));
   const closedToday = todayInfo.closedReason !== null && todayInfo.closedReason !== "past";
 
   return (
@@ -70,6 +80,7 @@ async function HomeLive({ lang, dict }: { lang: Locale; dict: Dictionary }) {
         </Alert>
       )}
       <OpeningHours catalog={catalog} lang={lang} dict={dict} />
+      <DistanceCard places={places} lang={lang} d={dict.distance} />
       <PriceList catalog={catalog} rates={rates} lang={lang} dict={dict} />
       <p className="text-sm text-muted-foreground">{dict.common.lakOnly}</p>
 

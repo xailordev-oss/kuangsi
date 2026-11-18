@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "user:upsert": "tsx --env-file-if-exists=.env scripts/user-upsert.ts",
+    "places:routes": "tsx --env-file-if-exists=.env scripts/places-routes.ts",
     "test": "tsx --test 'lib/**/*.test.ts'",
     "test:e2e": "playwright test"
   },
