@@ -34,6 +34,7 @@ async function RefundsView() {
   const [rows, gate, stats] = await Promise.all([listRefundQueue(), listVoidableGateSales(), refundDashboard()]);
   const queue: QueueCard[] = rows.map((r) => ({
     id: r.id,
+    method: r.method,
     bookingCode: r.bookingCode,
     amountLabel: kip(r.amount),
     amountLine: t(d.amountLine, { amount: kip(r.amount), percent: r.percent, paid: kip(r.paid) }),

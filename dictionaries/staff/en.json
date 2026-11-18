@@ -194,7 +194,7 @@
       "receivedBasis": "Counted by the date money was received (not the visit date)",
       "refundedBasis": "Counted by the date of the refund",
       "netHint": "Received − refunded",
-      "refundsPending": "Refunds to transfer",
+      "refundsPending": "Refunds pending (transfer + cash)",
       "refundsPendingHint": "{n} item(s) · not yet counted as refunded (decision 44)",
       "refundsStale": "Refunds pending over {days} days",
       "refundsStaleHint": "Account numbers cleared — contact the customers",
@@ -755,7 +755,7 @@
       "customHint": "0 to {max}",
       "reason": "Reason (required)",
       "bankTitle": "Customer account (transfer refund · can be added later)",
-      "cashNow": "Cash: hand back now → recorded as refunded",
+      "cashNow": "Cash: goes to the \"cash refund pending\" queue on the Refunds page — recorded as refunded only when staff hand the cash to the customer and confirm",
       "transferLater": "Transfer: goes to the \"waiting for refund\" queue",
       "confirm": "Confirm cancellation",
       "done": "Cancelled",
@@ -768,7 +768,7 @@
       },
       "changed": "The policy amount changed — old {old} → new {new} ({percent}%) · check and press again",
       "refund": "Refund",
-      "refundRequested": "Waiting for transfer {amount} ({percent}%)",
+      "refundRequested": "Refund pending {amount} ({percent}%)",
       "refundCompleted": "Refunded {amount} · {time}",
       "refundRef": "Reference {ref}",
       "account": "Account ****{last4}",
@@ -781,7 +781,7 @@
   },
   "refunds": {
     "title": "Refunds",
-    "queue": "Waiting for refund transfer ({n})",
+    "queue": "Waiting for refund ({n})",
     "queueTotal": "Total {amount}",
     "queueEmpty": "No refunds waiting",
     "cancelledAt": "Cancelled {time}",
@@ -829,6 +829,9 @@
       "bank_required": "Customer account is required"
     },
     "copy": "Copy",
-    "copied": "Copied"
+    "copied": "Copied",
+    "cashPending": "Cash refund pending — press only after handing the cash to the customer",
+    "markCashDone": "Cash handed back",
+    "confirmCashDone": "Confirm you handed {amount} in cash to the customer of {booking}? This cannot be undone"
   }
 }

@@ -13,6 +13,7 @@ import type { StaffDictionary } from "@/lib/i18n/staff";
 type D = StaffDictionary["refunds"];
 export type QueueCard = {
   id: string;
+  method: "cash" | "bank_transfer";
   bookingCode: string;
   amountLabel: string;
   amountLine: string;
@@ -97,28 +98,39 @@ export function RefundDesk({ queue, totalLabel, voids, retentionDays, d }: { que
                 <span className="text-lg font-bold">{q.amountLine}</span>
                 <span className="text-sm">{t(d.reason, { reason: q.reason })}</span>
                 {q.customer && <span className="text-sm">{q.customer}</span>}
-                <div className="rounded-lg bg-muted p-2">
-                  <p className="text-sm text-muted-foreground">{d.account}</p>
-                  {q.accountNumber ? (
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span>
-                        <span className="block">{q.bankName}</span>
-                        <span className="block text-lg font-semibold tabular-nums">{q.accountNumber}</span>
-                        <span className="block">{q.accountName}</span>
-                      </span>
-                      <CopyButton value={q.accountNumber} label={d.copy} copiedLabel={d.copied} />
-                    </div>
-                  ) : (
-                    <p className="font-semibold text-warning">{q.purged ? t(d.accountPurged, { last4: q.accountLast4 ?? "????", days: retentionDays }) : d.noAccount}</p>
-                  )}
-                </div>
-                <label className="flex flex-col gap-1">
-                  <span className="font-semibold">{d.transferRef}</span>
-                  <Input className="min-h-11 text-base" maxLength={100} value={refs[q.id] ?? ""} onChange={(e) => setRefs({ ...refs, [q.id]: e.target.value })} />
-                </label>
-                <Button type="button" className="min-h-11 w-fit" disabled={busy || !(refs[q.id] ?? "").trim()} onClick={() => setConfirming(q)}>
+                {q.method === "cash" ? (
+                  <p className="w-fit rounded-full bg-warning-subtle px-2.5 py-0.5 text-sm font-semibold text-warning">{d.cashPending}</p>
+                ) : (
+                  <div className="rounded-lg bg-muted p-2">
+                    <p className="text-sm text-muted-foreground">{d.account}</p>
+                    {q.accountNumber ? (
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span>
+                          <span className="block">{q.bankName}</span>
+                          <span className="block text-lg font-semibold tabular-nums">{q.accountNumber}</span>
+                          <span className="block">{q.accountName}</span>
+                        </span>
+                        <CopyButton value={q.accountNumber} label={d.copy} copiedLabel={d.copied} />
+                      </div>
+                    ) : (
+                      <p className="font-semibold text-warning">{q.purged ? t(d.accountPurged, { last4: q.accountLast4 ?? "????", days: retentionDays }) : d.noAccount}</p>
+                    )}
+                  </div>
+                )}
+                {q.method === "bank_transfer" && (
+                  <label className="flex flex-col gap-1">
+                    <span className="font-semibold">{d.transferRef}</span>
+                    <Input className="min-h-11 text-base" maxLength={100} value={refs[q.id] ?? ""} onChange={(e) => setRefs({ ...refs, [q.id]: e.target.value })} />
+                  </label>
+                )}
+                <Button
+                  type="button"
+                  className="min-h-11 w-fit"
+                  disabled={busy || (q.method === "bank_transfer" && !(refs[q.id] ?? "").trim())}
+                  onClick={() => setConfirming(q)}
+                >
                   <CircleCheck aria-hidden />
-                  {d.markDone}
+                  {q.method === "cash" ? d.markCashDone : d.markDone}
                 </Button>
               </li>
             ))}
@@ -164,8 +176,10 @@ export function RefundDesk({ queue, totalLabel, voids, retentionDays, d }: { que
 
       <Dialog open={confirming !== null} onOpenChange={(o) => !o && setConfirming(null)}>
         <DialogContent>
-          <DialogTitle>{d.markDone}</DialogTitle>
-          <DialogDescription className="text-base">{confirming && t(d.confirmDone, { amount: confirming.amountLabel, booking: confirming.bookingCode })}</DialogDescription>
+          <DialogTitle>{confirming?.method === "cash" ? d.markCashDone : d.markDone}</DialogTitle>
+          <DialogDescription className="text-base">
+            {confirming && t(confirming.method === "cash" ? d.confirmCashDone : d.confirmDone, { amount: confirming.amountLabel, booking: confirming.bookingCode })}
+          </DialogDescription>
           <DialogFooter className="gap-2">
             <Button type="button" variant="outline" className="min-h-11" onClick={() => setConfirming(null)}>
               {d.cancel}
@@ -177,10 +191,10 @@ export function RefundDesk({ queue, totalLabel, voids, retentionDays, d }: { que
               onClick={async () => {
                 const q = confirming!;
                 setConfirming(null);
-                await post(`/api/staff/refunds/${q.id}/complete`, { transferRef: (refs[q.id] ?? "").trim() }, d.done);
+                await post(`/api/staff/refunds/${q.id}/complete`, q.method === "bank_transfer" ? { transferRef: (refs[q.id] ?? "").trim() } : {}, d.done);
               }}
             >
-              {d.markDone}
+              {confirming?.method === "cash" ? d.markCashDone : d.markDone}
             </Button>
           </DialogFooter>
         </DialogContent>

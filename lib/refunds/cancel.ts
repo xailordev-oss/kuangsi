@@ -95,7 +95,8 @@ type CancelCore = {
   reason: string;
   decide: (ctx: { b: Locked; paid: PaidRow | null; quote: RefundQuote; tx: Db }) => { amount: number; percent: number; tierHours: number | null; mode: string };
   bank?: Bank;
-  // ເງິນສົດຍື່ນຄືນທັນທີ (ພະນັກງານຢູ່ໜ້າລູກຄ້າ) → completed ໃນຂັ້ນດຽວ
+  // ເງິນສົດຍື່ນຄືນທັນທີ (ລູກຄ້າຢູ່ຕໍ່ໜ້າ — POS) → completed ໃນຂັ້ນດຽວ
+  // ບໍ່ດັ່ງນັ້ນ (admin ເລີ່ມຈາກບ່ອນອື່ນ) → requested "ລໍຄືນເງິນສົດ" ຈົນກວ່າຍື່ນເງິນແລ້ວກົດຢືນຢັນ (ຂໍ້ຕົກລົງ 60)
   staffHandsCash: boolean;
   requireBankForTransfer: boolean;
   extraCheck?: (b: Locked) => void;
@@ -204,6 +205,7 @@ export function cancelByCustomer(code: string, input: z.infer<typeof customerCan
 }
 
 // admin: ຕາມນະໂຍບາຍ / 100% (ເຊັ່ນ ຕາດປິດ) / ກຳນົດເອງ 0 → ຍອດທີ່ຈ່າຍ · ເຫດຜົນບັງຄັບ
+// ຂໍ້ຕົກລົງ 60: admin ອາດບໍ່ໄດ້ຢູ່ໜ້າລູກຄ້າ (ເຊັ່ນ ທາງໂທລະສັບ) → ເງິນສົດເຂົ້າຄິວ "ລໍຄືນເງິນສົດ" ບໍ່ບັນທຶກວ່າຄືນແລ້ວ
 export function cancelByAdmin(code: string, input: z.infer<typeof adminCancelSchema>, actor: Actor) {
   return cancelCore({
     code,
@@ -211,7 +213,7 @@ export function cancelByAdmin(code: string, input: z.infer<typeof adminCancelSch
     ip: actor.ip,
     reason: input.reason,
     bank: input.bank,
-    staffHandsCash: true,
+    staffHandsCash: false,
     requireBankForTransfer: false,
     decide: ({ paid, quote }) => {
       const total = paid!.amount.toNumber();
@@ -246,7 +248,8 @@ export function voidGateSale(code: string, input: z.infer<typeof posVoidSchema>,
   });
 }
 
-// ໂອນຄືນສຳເລັດ: requested → completed ເທື່ອດຽວ · ລ້າງເລກບັນຊີ ເຫຼືອ 4 ຕົວທ້າຍ (ຂໍ້ຕົກລົງ 55)
+// ຄືນສຳເລັດ (ໂອນແລ້ວ ຫຼື ຍື່ນເງິນສົດແລ້ວ): requested → completed ເທື່ອດຽວ · ລ້າງເລກບັນຊີ ເຫຼືອ 4 ຕົວທ້າຍ (ຂໍ້ຕົກລົງ 55)
+// ເລກອ້າງອີງບັງຄັບສະເພາະການໂອນ · refunded_at = ຕອນກົດຢືນຢັນ = ເວລາເງິນອອກແທ້ (ຂໍ້ຕົກລົງ 44)
 export async function completeRefund(id: bigint, input: z.infer<typeof completeSchema>, actor: Actor) {
   return prisma.$transaction(async (tx) => {
     const [r] = await tx.$queryRaw<{ id: bigint; status: string; method: string; amount: Prisma.Decimal; payment_id: bigint; reason: string; account_last4: string | null }[]>`

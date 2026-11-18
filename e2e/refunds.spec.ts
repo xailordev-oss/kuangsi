@@ -315,3 +315,49 @@ test("ຍົກເລີກການຈອງທີ່ຍັງບໍ່ຈ່�
   expect(b).toMatchObject({ status: "cancelled", cancelled_by: null });
   expect(b.cancelled_at).not.toBeNull();
 });
+
+// ຂໍ້ຕົກລົງ 60: admin ເລີ່ມຈາກບ່ອນອື່ນ (ເຊັ່ນ ທາງໂທລະສັບ) → ລໍຄືນເງິນສົດ · ບໍ່ນັບເປັນເງິນຄືນຈົນກວ່າຍື່ນເງິນແລ້ວກົດຢືນຢັນ
+test("admin ຍົກເລີກການຈອງເງິນສົດ → 'ລໍຄືນເງິນສົດ' (ບໍ່ແມ່ນຄືນແລ້ວ) → ຍື່ນເງິນແລ້ວກົດ → ຄືນແລ້ວ", async ({ page }) => {
+  await withDb((c) => c.query(`UPDATE operating_hours SET open_time = '00:00:00', close_time = '23:59:59', is_closed = 0 WHERE day_of_week = ${TODAY_DOW}`));
+  await loginAs(page, "admin");
+  await expect(page).toHaveURL(/\/admin$/);
+  const catalog = await (await page.request.get("/api/public/catalog")).json();
+  const lao = catalog.ticketTypes.find((t: { code: string }) => t.code === "LAO_ADULT");
+  const total = Number(lao.price) * 2;
+  const sale = await page.request.post("/api/staff/pos/bookings", {
+    data: { items: [{ ticketTypeId: lao.id, quantity: 2 }], addOns: [], cashReceived: total, expectedTotal: total, requestId: crypto.randomUUID() },
+  });
+  const code = (await sale.json()).booking.bookingCode as string;
+
+  await page.goto(`/admin/bookings/${code}`);
+  await page.getByRole("button", { name: "ຍົກເລີກການຈອງ" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toContainText("ລໍຄືນເງິນສົດ");
+  await dialog.getByRole("radio", { name: /ເຕັມ/ }).check();
+  await dialog.getByLabel("ເຫດຜົນ (ບັງຄັບ)").fill("ລູກຄ້າໂທມາຂໍຍົກເລີກ");
+  await dialog.getByRole("button", { name: "ຢືນຢັນຍົກເລີກ" }).click();
+  await expect(page.getByTestId("cancel-info")).toBeVisible();
+
+  let r = await refundRow(code);
+  expect(r).toMatchObject({ status: "requested", method: "cash", account_number: null });
+  let p = await paymentRow(code);
+  expect(p.status).toBe("success");
+  expect(p.refunded_at).toBeNull();
+
+  await page.goto("/staff/refunds");
+  const card = page.getByTestId(`refund-${code}`);
+  await expect(card).toContainText("ລໍຄືນເງິນສົດ");
+  await expect(card.getByLabel("ເລກອ້າງອີງການໂອນຄືນ")).toHaveCount(0);
+  await expectLaoTextNotClipped(page);
+  await card.getByRole("button", { name: "ຍື່ນເງິນສົດແລ້ວ" }).click();
+  await expect(page.getByRole("dialog")).toContainText(`ຍື່ນເງິນສົດ ${fmt(total)} ກີບ`);
+  await page.getByRole("dialog").getByRole("button", { name: "ຍື່ນເງິນສົດແລ້ວ" }).click();
+  await expect(card).toHaveCount(0);
+
+  r = await refundRow(code);
+  expect(r.status).toBe("completed");
+  p = await paymentRow(code);
+  expect(p.status).toBe("refunded");
+  expect(Number(p.refund_amount)).toBe(total);
+  expect(p.refunded_at).not.toBeNull();
+});
