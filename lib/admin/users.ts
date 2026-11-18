@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BusinessError } from "@/lib/api";
+import { writeAudit, type Actor } from "@/lib/admin/audit";
 import { generateTempPassword } from "@/lib/admin/password";
 import { hashPassword } from "@/lib/auth/password";
 import { ROLES, type Role } from "@/lib/auth/roles";
@@ -23,8 +24,6 @@ export const updateUserSchema = z.discriminatedUnion("action", [
 ]);
 export type UpdateUser = z.infer<typeof updateUserSchema>;
 
-type Actor = { id: bigint; ip: string | null };
-
 export async function listUsers(now = new Date()) {
   const rows = await prisma.users.findMany({
     orderBy: [{ is_active: "desc" }, { role: "asc" }, { username: "asc" }],
@@ -42,20 +41,6 @@ export async function listUsers(now = new Date()) {
   }));
 }
 
-async function audit(tx: Db, actor: Actor, action: string, recordId: bigint, oldValue: Prisma.InputJsonValue | null, newValue: Prisma.InputJsonValue | null) {
-  await tx.audit_logs.create({
-    data: {
-      user_id: actor.id,
-      action,
-      table_name: "users",
-      record_id: recordId,
-      old_value: oldValue ?? Prisma.DbNull,
-      new_value: newValue ?? Prisma.DbNull,
-      ip_address: actor.ip,
-    },
-  });
-}
-
 function duplicateField(error: unknown): "username" | "email" | null {
   if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2002") return null;
   return JSON.stringify(error.meta ?? {}).includes("email") ? "email" : "username";
@@ -71,7 +56,7 @@ export async function createUser(input: z.infer<typeof createUserSchema>, actor:
         data: { username: input.username, full_name: input.fullName, email: input.email, role: input.role, password_hash },
         select: { id: true },
       });
-      await audit(tx, actor, "user.create", u.id, null, { username: input.username, role: input.role, isActive: true });
+      await writeAudit(tx, actor, { action: "user.create", table: "users", recordId: u.id, oldValue: null, newValue: { username: input.username, role: input.role, isActive: true } });
       return u;
     });
     return { id: String(user.id), password };
@@ -115,26 +100,26 @@ export async function updateUser(targetId: bigint, change: UpdateUser, actor: Ac
           case "role":
             if (change.role === target.role) return;
             await tx.users.update({ where: { id: targetId }, data: { role: change.role } });
-            await audit(tx, actor, "user.role", targetId, { role: target.role }, { role: change.role });
+            await writeAudit(tx, actor, { action: "user.role", table: "users", recordId: targetId, oldValue: { role: target.role }, newValue: { role: change.role } });
             return;
           case "deactivate":
             if (!active) return;
             await tx.users.update({ where: { id: targetId }, data: { is_active: false } });
-            await audit(tx, actor, "user.deactivate", targetId, { isActive: true }, { isActive: false });
+            await writeAudit(tx, actor, { action: "user.deactivate", table: "users", recordId: targetId, oldValue: { isActive: true }, newValue: { isActive: false } });
             return;
           case "activate":
             if (active) return;
             await tx.users.update({ where: { id: targetId }, data: { is_active: true } });
-            await audit(tx, actor, "user.activate", targetId, { isActive: false }, { isActive: true });
+            await writeAudit(tx, actor, { action: "user.activate", table: "users", recordId: targetId, oldValue: { isActive: false }, newValue: { isActive: true } });
             return;
           case "reset_password":
             // ຂໍ້ຕົກລົງ 22: ຕັ້ງລະຫັດໃໝ່ = ປົດລັອກ
             await tx.users.update({ where: { id: targetId }, data: { password_hash, failed_login_count: 0, locked_until: null } });
-            await audit(tx, actor, "user.password_reset", targetId, null, { unlocked: true });
+            await writeAudit(tx, actor, { action: "user.password_reset", table: "users", recordId: targetId, oldValue: null, newValue: { unlocked: true } });
             return;
           case "unlock":
             await tx.users.update({ where: { id: targetId }, data: { failed_login_count: 0, locked_until: null } });
-            await audit(tx, actor, "user.unlock", targetId, null, { unlocked: true });
+            await writeAudit(tx, actor, { action: "user.unlock", table: "users", recordId: targetId, oldValue: null, newValue: { unlocked: true } });
             return;
         }
       });

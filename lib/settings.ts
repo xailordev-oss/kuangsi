@@ -4,7 +4,7 @@ import type { Prisma } from "@/lib/generated/prisma/client";
 export type Db = typeof prisma | Prisma.TransactionClient;
 
 // ຄ່າທຸລະກິດທັງໝົດອ່ານຈາກຕາຕະລາງ settings (ຫ້າມ hardcode) — min/max ແມ່ນຂອບເຂດກວດຄວາມຖືກຕ້ອງເທົ່ານັ້ນ
-const INT_SETTINGS = {
+export const INT_SETTINGS = {
   session_hours: { min: 1, max: 24 },
   login_max_attempts: { min: 1, max: 100 },
   login_lockout_minutes: { min: 1, max: 1440 },
@@ -40,11 +40,11 @@ export async function getIntSetting(key: IntSettingKey, db: Db = prisma): Promis
 }
 
 // ຂໍ້ຕົກລົງ 28: ຄ່າທີ່ຍັງວ່າງ ຫຼື ຂຶ້ນຕົ້ນດ້ວຍ "TODO" ຖືວ່າຍັງບໍ່ໄດ້ຕັ້ງ
-function isConfigured(value: string | undefined): value is string {
+export function isConfigured(value: string | undefined): value is string {
   return !!value && !/^TODO/i.test(value);
 }
 
-const NOTE_LOCALES = ["lo", "en", "zh", "th"] as const;
+export const NOTE_LOCALES = ["lo", "en", "zh", "th"] as const;
 type NoteLocale = (typeof NOTE_LOCALES)[number];
 
 export type BankTransferInfo =
@@ -77,11 +77,13 @@ export async function getBankTransferInfo(db: Db = prisma): Promise<BankTransfer
   };
 }
 
+export const GATE_NAME = /^[a-z0-9_-]{1,30}$/;
+
 // ຂໍ້ຕົກລົງ 35: ລາຍຊື່ປະຕູຄັ່ນດ້ວຍ comma — ຢ່າງໜ້ອຍ 1 · ຊື່ເປັນ a-z 0-9 _ - (ບັນທຶກໃນ check_ins.gate VARCHAR(30))
 export async function getGates(db: Db = prisma): Promise<string[]> {
   const raw = (await readRaw(db, "gates")) ?? "";
   const gates = [...new Set(raw.split(",").map((g) => g.trim()).filter(Boolean))];
-  if (gates.length === 0 || !gates.every((g) => /^[a-z0-9_-]{1,30}$/.test(g))) {
+  if (gates.length === 0 || !gates.every((g) => GATE_NAME.test(g))) {
     throw new SettingError('settings.gates must be a comma-separated list like "main" or "main,north"');
   }
   return gates;

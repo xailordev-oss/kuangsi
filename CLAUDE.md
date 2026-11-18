@@ -62,7 +62,7 @@ DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
   (ກະທົບເງິນ — ເຮັດຫຼັງ flow ຈອງ-ຈ່າຍ-ສະແກນ ນິ້ງແລ້ວ · ນະໂຍບາຍ 24ຊມ/12ຊມ ໃນ seed ຍັງລໍຢືນຢັນ)
 - [ ] **Phase 12** — Deploy (HTTPS + reverse proxy ຕາມຂໍ້ຕົກລົງ 26)
   TODO ກ່ອນ deploy: ໃສ່ `ORS_API_KEY` ໃນ `.env` ຂອງ server + ແລ່ນ `npm run places:routes` (ບໍ່ມີ key = ໄລຍະທາງເປັນຄ່າປະມານທັງໝົດ)
-  TODO ກ່ອນ deploy: ລ້າງບັນຊີທົດສອບທັງໝົດ (`e2e_*`, `t10b_*`, `dev_*` ແລະ ອື່ນໆທີ່ສ້າງຕອນພັດທະນາ) — ດຽວນີ້ປິດໄວ້ແລ້ວ (is_active = 0)
+  TODO ກ່ອນ deploy: ລ້າງບັນຊີທົດສອບທັງໝົດ (`e2e_*`, `t10b_*`, `dev_*` ແລະ ອື່ນໆທີ່ສ້າງຕອນພັດທະນາ) — `e2e_*` ແລະ `t10b_*` ປິດໄວ້ແລ້ວ · `dev_admin` ຍັງເປີດຢູ່ (ໃຊ້ພັດທະນາ)
     ຖ້າບັນຊີໃດມີປະຫວັດ (FK RESTRICT) ລຶບບໍ່ໄດ້ → ໃຫ້ deploy ດ້ວຍ DB ໃໝ່ທີ່ seed ສະອາດ ບໍ່ copy DB ພັດທະນາຂຶ້ນ server
 
 **ກົດ**: schema → ແຜນ UI → API → UI code.

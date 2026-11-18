@@ -79,6 +79,16 @@ async function bookedPeopleByDate(db: Db, from: string, to: string): Promise<Map
   return new Map(rows.map((r) => [dbDateToIso(r.d), Number(r.people)]));
 }
 
+// ຜົນກະທົບຂອງການແກ້ຕັ້ງຄ່າ (10b-2): ຈຳນວນການຈອງ + ຄົນ ທີ່ຍັງກິນບ່ອນຢູ່ ຕໍ່ວັນ
+export async function bookingLoadByDate(db: Db, from: string, to: string): Promise<Map<string, { bookings: number; people: number }>> {
+  const rows = await db.$queryRaw<{ d: Date; bookings: bigint | number; people: Prisma.Decimal | number | bigint }[]>`
+    SELECT b.visit_date AS d, COUNT(DISTINCT b.id) AS bookings, COALESCE(SUM(bi.quantity), 0) AS people
+    FROM bookings b JOIN booking_items bi ON bi.booking_id = b.id
+    WHERE b.visit_date BETWEEN ${from} AND ${to} AND ${HOLDS_CAPACITY}
+    GROUP BY b.visit_date ORDER BY b.visit_date`;
+  return new Map(rows.map((r) => [dbDateToIso(r.d), { bookings: Number(r.bookings), people: Number(r.people) }]));
+}
+
 export async function getAvailability(db: Db, from: string, to: string, now = new Date()): Promise<DayAvailability[]> {
   const [defaultCapacity, maxAdvanceDays, hours, holidays, overrides, booked] = await Promise.all([
     getIntSetting("max_visitors_per_day", db),
