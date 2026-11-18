@@ -40,9 +40,9 @@ export default async function globalTeardown() {
       await conn.query("DELETE FROM bookings WHERE customer_id = ?", [id]);
       await conn.query("DELETE FROM customers WHERE id = ?", [id]);
     }
-    const usernames = Object.values(E2E_USERS);
-    await conn.query("DELETE a FROM audit_logs a JOIN users u ON u.id = a.user_id WHERE u.username IN (?)", [usernames]);
-    await conn.query("UPDATE users SET is_active = 0 WHERE username IN (?)", [usernames]);
+    // ບັນຊີ e2e ທຸກອັນ (ລວມທີ່ສ້າງໃນ users.spec) — ປິດ ບໍ່ລຶບ (CLAUDE.md ພາກ 4)
+    await conn.query("DELETE a FROM audit_logs a JOIN users u ON u.id = a.user_id WHERE u.username LIKE 'e2e\\_%'");
+    await conn.query("UPDATE users SET is_active = 0 WHERE username LIKE 'e2e\\_%'");
   });
   if (existsSync(STAFF_SECRET)) rmSync(STAFF_SECRET);
 }

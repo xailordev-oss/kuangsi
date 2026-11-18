@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/admin/bookings", permission: "booking.read", key: "bookings" },
   { href: "/admin/reports", permission: "report.read", key: "reports" },
   { href: "/admin/scan-reviews", permission: "report.read", key: "scanReviews" },
+  { href: "/admin/users", permission: "users.manage", key: "users" },
   { href: "/staff/pos", permission: "pos.sell", key: "pos" },
   { href: "/staff/proofs", permission: "proof.verify", key: "proofs" },
   { href: "/staff/scan", permission: "checkin.scan", key: "scan" },

@@ -164,7 +164,8 @@
     "overview": "ພາບລວມ",
     "bookings": "ການຈອງ",
     "reports": "ລາຍງານ",
-    "scanReviews": "ປີ້ຊ້ຳ offline"
+    "scanReviews": "ປີ້ຊ້ຳ offline",
+    "users": "ຜູ້ໃຊ້"
   },
   "admin": {
     "dashboard": {
@@ -334,6 +335,63 @@
     "error": {
       "title": "ໂຫຼດຂໍ້ມູນບໍ່ໄດ້",
       "retry": "ລອງໃໝ່"
+    },
+    "users": {
+      "title": "ຜູ້ໃຊ້",
+      "add": "ເພີ່ມຜູ້ໃຊ້",
+      "username": "ຊື່ຜູ້ໃຊ້ (ສຳລັບ login)",
+      "usernameHint": "ໂຕພິມນ້ອຍ a-z, ຕົວເລກ ແລະ . _ - ເທົ່ານັ້ນ (3–50 ຕົວ)",
+      "fullName": "ຊື່ ແລະ ນາມສະກຸນ",
+      "email": "ອີເມວ",
+      "role": "ບົດບາດ",
+      "roles": {
+        "admin": "admin — ຈັດການທັງໝົດ",
+        "cashier": "ຂາຍປີ້ + ກວດຫຼັກຖານໂອນ",
+        "scanner": "ສະແກນປີ້",
+        "viewer": "ອ່ານລາຍງານ"
+      },
+      "roleShort": {
+        "admin": "admin",
+        "cashier": "ຂາຍປີ້",
+        "scanner": "ສະແກນ",
+        "viewer": "ລາຍງານ"
+      },
+      "active": "ເປີດຢູ່",
+      "inactive": "ປິດແລ້ວ",
+      "locked": "ລັອກຢູ່ ຮອດ {time}",
+      "lastLogin": "login ລ່າສຸດ {time}",
+      "neverLoggedIn": "ຍັງບໍ່ເຄີຍ login",
+      "you": "(ທ່ານ)",
+      "changeRole": "ປ່ຽນບົດບາດ",
+      "save": "ບັນທຶກ",
+      "deactivate": "ປິດບັນຊີ",
+      "activate": "ເປີດບັນຊີຄືນ",
+      "resetPassword": "ຕັ້ງລະຫັດໃໝ່",
+      "unlock": "ປົດລັອກ",
+      "cancel": "ຍົກເລີກ",
+      "confirm": "ຢືນຢັນ",
+      "create": "ສ້າງ",
+      "close": "ປິດ",
+      "confirmRole": "ປ່ຽນບົດບາດຂອງ {name} ເປັນ \"{role}\"?",
+      "confirmDeactivate": "ປິດບັນຊີ {name}? ຈະເຂົ້າລະບົບບໍ່ໄດ້ທັນທີ (ປະຫວັດການເຮັດວຽກຍັງຢູ່ຄົບ)",
+      "confirmActivate": "ເປີດບັນຊີ {name} ຄືນ?",
+      "confirmReset": "ຕັ້ງລະຫັດໃໝ່ໃຫ້ {name}? ລະຫັດເກົ່າຈະໃຊ້ບໍ່ໄດ້ອີກ",
+      "lastAdmin": "ຕ້ອງມີ admin ຢ່າງໜ້ອຍ 1 ຄົນ",
+      "self": "ປ່ຽນບົດບາດ ຫຼື ປິດບັນຊີຂອງຕົນເອງບໍ່ໄດ້",
+      "passwordTitle": "ລະຫັດຜ່ານຊົ່ວຄາວຂອງ {name}",
+      "passwordHint": "ສະແດງເທື່ອດຽວ — ບອກພະນັກງານດ້ວຍຕົນເອງ. ປິດແລ້ວເບິ່ງອີກບໍ່ໄດ້ (ຕ້ອງຕັ້ງລະຫັດໃໝ່)",
+      "copy": "ສຳເນົາ",
+      "copied": "ສຳເນົາແລ້ວ",
+      "saved": "ບັນທຶກແລ້ວ",
+      "errors": {
+        "last_admin": "ຕ້ອງມີ admin ຢ່າງໜ້ອຍ 1 ຄົນ",
+        "cannot_change_self": "ປ່ຽນບົດບາດ ຫຼື ປິດບັນຊີຂອງຕົນເອງບໍ່ໄດ້",
+        "username_taken": "ຊື່ຜູ້ໃຊ້ນີ້ມີແລ້ວ",
+        "email_taken": "ອີເມວນີ້ມີແລ້ວ",
+        "validation": "ກວດຂໍ້ມູນອີກຄັ້ງ: ຊື່ຜູ້ໃຊ້ ຫຼື ອີເມວບໍ່ຖືກຮູບແບບ",
+        "user_not_found": "ບໍ່ພົບຜູ້ໃຊ້ນີ້ (ອາດຖືກແກ້ໂດຍຄົນອື່ນ)",
+        "forbidden": "ທ່ານບໍ່ມີສິດເຮັດສິ່ງນີ້ແລ້ວ — ກະລຸນາ login ໃໝ່"
+      }
     }
   }
 }

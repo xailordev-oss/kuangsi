@@ -164,7 +164,8 @@
     "overview": "Overview",
     "bookings": "Bookings",
     "reports": "Reports",
-    "scanReviews": "Offline duplicates"
+    "scanReviews": "Offline duplicates",
+    "users": "Users"
   },
   "admin": {
     "dashboard": {
@@ -334,6 +335,63 @@
     "error": {
       "title": "Couldn't load the data",
       "retry": "Try again"
+    },
+    "users": {
+      "title": "Users",
+      "add": "Add user",
+      "username": "Username (for login)",
+      "usernameHint": "Lowercase a-z, digits and . _ - only (3–50 characters)",
+      "fullName": "Full name",
+      "email": "Email",
+      "role": "Role",
+      "roles": {
+        "admin": "admin — manages everything",
+        "cashier": "Sells tickets + checks transfers",
+        "scanner": "Scans tickets",
+        "viewer": "Reads reports"
+      },
+      "roleShort": {
+        "admin": "admin",
+        "cashier": "Cashier",
+        "scanner": "Scanner",
+        "viewer": "Viewer"
+      },
+      "active": "Active",
+      "inactive": "Disabled",
+      "locked": "Locked until {time}",
+      "lastLogin": "Last login {time}",
+      "neverLoggedIn": "Never logged in",
+      "you": "(you)",
+      "changeRole": "Change role",
+      "save": "Save",
+      "deactivate": "Disable account",
+      "activate": "Re-enable account",
+      "resetPassword": "Reset password",
+      "unlock": "Unlock",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "create": "Create",
+      "close": "Close",
+      "confirmRole": "Change {name}'s role to \"{role}\"?",
+      "confirmDeactivate": "Disable {name}? They will be signed out immediately (their history is kept)",
+      "confirmActivate": "Re-enable {name}?",
+      "confirmReset": "Reset {name}'s password? The old password stops working",
+      "lastAdmin": "There must be at least 1 admin",
+      "self": "You can't change your own role or disable your own account",
+      "passwordTitle": "Temporary password for {name}",
+      "passwordHint": "Shown once — tell the staff member in person. It can't be shown again after closing (reset it instead)",
+      "copy": "Copy",
+      "copied": "Copied",
+      "saved": "Saved",
+      "errors": {
+        "last_admin": "There must be at least 1 admin",
+        "cannot_change_self": "You can't change your own role or disable your own account",
+        "username_taken": "That username is already taken",
+        "email_taken": "That email is already in use",
+        "validation": "Please check the username or email format",
+        "user_not_found": "User not found (it may have been changed by someone else)",
+        "forbidden": "You no longer have permission to do this — please log in again"
+      }
     }
   }
 }
