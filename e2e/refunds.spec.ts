@@ -162,7 +162,7 @@ test("ຄ້າງເກີນ refund_account_retention_days → ລ້າງເ
 
   await loginAs(page, "admin");
   await expect(page).toHaveURL(/\/admin$/);
-  const stale = page.getByTestId("refund-tiles").getByRole("link", { name: /ຄືນເງິນຄ້າງເກີນ 30 ວັນ/ });
+  const stale = page.getByTestId("refund-tiles").getByRole("link", { name: /ຄືນເງິນຄ້າງເກີນ \d+ ວັນ/ });
   await expect(stale).toBeVisible();
   expect(await stale.getAttribute("class")).toContain("warning");
   const r = await refundRow(code);

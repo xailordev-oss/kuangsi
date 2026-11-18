@@ -61,6 +61,7 @@ DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
 - [x] **Phase 11** — ຍົກເລີກ + ຄືນເງິນ: ລູກຄ້າຍົກເລີກເອງ + ພະນັກງານຄືນເງິນ + ບັນທຶກເຫດຜົນ + audit
   (ກະທົບເງິນ · ນະໂຍບາຍອ່ານຈາກ refund_policies ຕາມຂໍ້ຕົກລົງ 53 · wireframe ຢູ່ docs/ui-plan.md §3.9)
 - [ ] **Phase 12** — Deploy (HTTPS + reverse proxy ຕາມຂໍ້ຕົກລົງ 26)
+  (12a ໄຟລ໌ deploy/ + docs/deploy.md ✅ · 12b ຕັ້ງ server · 12c ທົດລອງ · 12d ເປີດ — ລໍ VPS)
   TODO ກ່ອນ deploy: ໃສ່ `ORS_API_KEY` ໃນ `.env` ຂອງ server + ແລ່ນ `npm run places:routes` (ບໍ່ມີ key = ໄລຍະທາງເປັນຄ່າປະມານທັງໝົດ)
   TODO ກ່ອນ deploy: ຕັ້ງ cron ລາຍວັນ `npm run refunds:purge` (ຂໍ້ຕົກລົງ 55 — ລ້າງເລກບັນຊີລູກຄ້າທີ່ຄ້າງເກີນກຳນົດ ເຖິງບໍ່ມີໃຜເປີດໜ້າ admin)
   TODO ກ່ອນ deploy: ລ້າງບັນຊີທົດສອບທັງໝົດ (`e2e_*`, `t10b_*`, `dev_*` ແລະ ອື່ນໆທີ່ສ້າງຕອນພັດທະນາ) — `e2e_*` ແລະ `t10b_*` ປິດໄວ້ແລ້ວ · `dev_admin` ຍັງເປີດຢູ່ (ໃຊ້ພັດທະນາ)
@@ -310,8 +311,10 @@ DATABASE_URL="mysql://root:<ລະຫັດ>@localhost:3306/kuangsi"
     - % ປ່ຽນລະຫວ່າງທີ່ລູກຄ້າເປີດໜ້າ → 409 ບອກ % ເກົ່າ → ໃໝ່ (ຫຼັກດຽວກັບຂໍ້ຕົກລົງ 50)
 55. ເລກບັນຊີລູກຄ້າ (ໂອນຄືນ): ເຫັນສະເພາະ admin + cashier · ຫ້າມຢູ່ໃນລາຍງານ / CSV / audit (audit ເກັບແຕ່ 4 ຕົວທ້າຍ)
     - ລ້າງເຫຼືອ 4 ຕົວທ້າຍ ທັນທີທີ່ຄືນສຳເລັດ
-    - ຄ້າງ requested ເກີນ settings.refund_account_retention_days (30) ວັນ → ລ້າງເຫຼືອ 4 ຕົວທ້າຍຄືກັນ
+    - ຄ້າງ requested ເກີນ settings.refund_account_retention_days (14) ວັນ → ລ້າງເຫຼືອ 4 ຕົວທ້າຍຄືກັນ
       + ຂຶ້ນລາຍການ "ຄືນເງິນຄ້າງ" ໃຫ້ admin ເຫັນ (ຕ້ອງຕິດຕໍ່ລູກຄ້າຂໍເລກບັນຊີໃໝ່ຕອນໂອນ)
+    - 14 ບໍ່ແມ່ນ 30 (Phase 12): backup ເກັບ 30 ວັນ → ເລກບັນຊີຢູ່ໃນລະບົບສູງສຸດ ~44 ວັນ (DB 14 + backup 30)
+      ຫຼຸດຝັ່ງ DB ບໍ່ແມ່ນຝັ່ງ backup — ເລກບັນຊີຈຳເປັນແຕ່ຈົນກວ່າໂອນຄືນ · backup ສັ້ນລົງ = ກູ້ຂໍ້ມູນເສຍຫາຍທີ່ພົບຊ້າບໍ່ໄດ້
     - ເຫດຜົນ: ຖ້າລືມໂອນຄືນ ເລກບັນຊີຈະຄ້າງໃນລະບົບຕະຫຼອດໄປໂດຍບໍ່ມີໃຜຮູ້
     - ກວດລ້າງທຸກຄັ້ງທີ່ເປີດໜ້າ dashboard / ຄິວຄືນເງິນ / ມີການຍົກເລີກ + script `npm run refunds:purge` (TODO Phase 12: ຕັ້ງ cron ລາຍວັນ)
 56. ຂໍ້ຄວາມເວລາຄືນເງິນ settings.refund_time_note_lo/_en/_zh/_th — ຍັງເປັນ TODO ບໍ່ປິດການຍົກເລີກ

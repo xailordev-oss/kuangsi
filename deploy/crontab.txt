@@ -1,0 +1,10 @@
+# crontab ຂອງ user kuangsi — ຕິດຕັ້ງ: sudo crontab -u kuangsi deploy/crontab.txt · ຄູ່ມື: docs/deploy.md ພາກ 10
+# server ໃຊ້ເວລາ UTC (ຫ້າມປ່ຽນ) → ເວລາລາວ = UTC + 7
+PATH=/usr/local/bin:/usr/bin:/bin
+SHELL=/bin/bash
+
+# 01:30 ເວລາລາວ — ລ້າງເລກບັນຊີລູກຄ້າທີ່ຄ້າງເກີນກຳນົດ (ຂໍ້ຕົກລົງ 55)
+30 18 * * * cd /opt/kuangsi/current && npm run --silent refunds:purge >> /var/log/kuangsi/refunds-purge.log 2>&1
+
+# 02:00 ເວລາລາວ — backup DB + ຮູບຫຼັກຖານ ໄປ B2
+0 19 * * * /opt/kuangsi/current/deploy/backup.sh >> /var/log/kuangsi/backup.log 2>&1

@@ -1,0 +1,22 @@
+# /etc/caddy/Caddyfile — ຄູ່ມື: docs/deploy.md ພາກ 6
+# ແທນ kuangsi.example.la ດ້ວຍໂດເມນຈິງ · Caddy ຂໍ ແລະ ຕໍ່ອາຍຸໃບຢັ້ງຢືນ Let's Encrypt ເອງ
+# http:// → https:// ອັດຕະໂນມັດ (HTTPS ຈຳເປັນສຳລັບ Geolocation, ກ້ອງສະແກນ QR, service worker)
+
+kuangsi.example.la {
+	encode zstd gzip
+
+	# ຮູບຫຼັກຖານສູງສຸດ 5 MB (ຂໍ້ຕົກລົງ 29) + ສ່ວນເກີນຂອງ multipart
+	request_body {
+		max_size 6MB
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
+	# ບໍ່ຕັ້ງ trusted_proxies → Caddy ບໍ່ເຊື່ອ X-Forwarded-For ທີ່ client ສົ່ງມາ ແລະ ຕັ້ງເປັນ IP ແທ້
+	# = ຄ່າສຸດທ້າຍແມ່ນ IP ແທ້ ຕາມທີ່ rate limit ຕ້ອງການ (ຂໍ້ຕົກລົງ 26)
+	# ຫ້າມເປີດ Cloudflare proxy ທາງໜ້າ — IP ທີ່ເຫັນຈະກາຍເປັນຂອງ Cloudflare
+	reverse_proxy 127.0.0.1:3000
+}

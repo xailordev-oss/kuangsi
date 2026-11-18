@@ -1,0 +1,27 @@
+# /etc/systemd/system/kuangsi.service — ຄູ່ມື: docs/deploy.md ພາກ 7
+# /opt/kuangsi/current ເປັນ symlink ໄປ release ທີ່ໃຊ້ຢູ່ → rollback = ປ່ຽນ symlink + restart (ພາກ 12)
+# .env ຂອງ release ເປັນ symlink ໄປ /etc/kuangsi/kuangsi.env (Next ອ່ານ .env ເອງຕອນ start)
+
+[Unit]
+Description=Kuang Si ticketing (Next.js)
+After=network-online.target mysql.service
+Wants=network-online.target mysql.service
+
+[Service]
+Type=simple
+User=kuangsi
+Group=kuangsi
+WorkingDirectory=/opt/kuangsi/current
+Environment=NODE_ENV=production
+# ຟັງສະເພາະ 127.0.0.1 — ຄົນນອກເຂົ້າໄດ້ຜ່ານ Caddy (HTTPS) ເທົ່ານັ້ນ
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3000
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
